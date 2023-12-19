@@ -33,6 +33,18 @@ class Species(AbstractData):
 
     # endregion
 
+def CheckCaches(query: int | str) -> Species | None:
+    if query.isdigit():
+        if int(query) not in ID_TO_NAME_CACHE:
+            return None
+        name = ID_TO_NAME_CACHE[int(query)]
+    else:
+        name = query
+    if query not in NAME_TO_DATA_CACHE:
+        return None
+    else:
+        return NAME_TO_DATA_CACHE[name]
+
 
 def AddToCache(species: Species):
     global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE

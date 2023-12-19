@@ -1,4 +1,7 @@
-from termcolor import COLORS
+from termcolor import COLORS, colored
+
+def GetBoldText(text) -> str:
+    return colored(text, attrs=['bold'])
 
 def GetStatFormatting(statName: str) -> (COLORS, str):
     outName = statName

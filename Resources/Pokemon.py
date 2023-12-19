@@ -16,25 +16,34 @@ class Pokemon(AbstractData):
         self.ID: int = data.get('id')
         self.name: str = data.get('name')
 
+        # Abilities
         self.possibleAbilities = []
+        self.hiddenAbility = None
         abilityList: list = data.get('abilities')
         for ability in abilityList:
-            # TODO: Implement a cache check
-            abilityURL = ability.get('url')
-            newAbility = Ability.Ability(Utils.GetFromURL(abilityURL))
-            self.possibleAbilities.append(newAbility)
+            newAbility = Ability.CheckCaches(ability.get('ability').get('name'))
+            if newAbility is None:
+                newAbility = Ability.Ability(Utils.GetFromURL(ability.get('ability').get('url')))
+                Ability.AddToCache(newAbility)
+            if ability.get('get_hidden') is True:
+                self.hiddenAbility = newAbility
+            else:
+                self.possibleAbilities.append(newAbility)
 
-        # TODO: Implement a cache check
-        speciesURL = data.get('species').get('url')
-        newSpecies = Species.Species(Utils.GetFromURL(speciesURL))
-        Species.AddToCache(newSpecies)
-        self.speciesID = newSpecies.ID
+        # Species
+        species = Species.CheckCaches(data.get('species').get('name'))
+        if species is None:
+            species = Species.Species(Utils.GetFromURL(data.get('species').get('url')))
+            Species.AddToCache(species)
+        self.speciesID = species.ID
 
+        # Stats
         self.baseStats = {}
+        self.EVs = {}
         for stat in data.get('stats'):
             statName = stat.get('stat').get('name')
-            statValue = stat.get('base_stat')
-            self.baseStats[statName] = int(statValue)
+            self.baseStats[statName] = int(stat.get('base_stat'))
+            self.EVs[statName] = int(stat.get('effort'))
 
         # TODO: Set up type information and classes
         self.types = [t.get('type').get('name') for t in data.get('types')]
@@ -62,7 +71,7 @@ class Pokemon(AbstractData):
                      self.GetTypeArray()]
 
         print(tabulate(infoTable, tablefmt='plain'))
-        print()
+        self.PrintAbilities()
         self.PrintBaseStats()
         return
 
@@ -77,7 +86,18 @@ class Pokemon(AbstractData):
 
         return typeArray
 
+    def PrintAbilities(self) -> None:
+        print()
+        cprint("Possible Abilities:", attrs=["bold"])
+        abilityTable = []
+        for ability in self.possibleAbilities:
+            abilityTable.append([colored(f"{ability.name.title()}", attrs=["bold"]), ability.description])
+        if self.hiddenAbility is not None:
+            abilityTable.append([colored(f"(Hidden) {self.hiddenAbility.name.title()}", attrs=["bold"])])
+        print(tabulate(abilityTable, headers=[Colors.GetBoldText('Ability'), Colors.GetBoldText('Description')], tablefmt='rounded_grid'))
+
     def PrintBaseStats(self) -> None:
+        print()
         cprint("Base Stats:", attrs=["bold"])
         stats = {}
         total = 0
@@ -131,6 +151,9 @@ def HandleSearch() -> Pokemon | None:
     global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
     query = input(f'{ENDPOINT.title()} Name or ID: ').lower()
 
+    if query == '':
+        return None
+
     if query.isdigit():
         query = Utils.ProperQueryFromID(int(query), ID_TO_NAME_CACHE)
 
@@ -142,3 +165,5 @@ def HandleSearch() -> Pokemon | None:
         newObject = Pokemon(data)
         NAME_TO_DATA_CACHE[newObject.name] = newObject
         return newObject
+
+    return None

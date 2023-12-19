@@ -48,6 +48,7 @@ def main():
         elif choice == 'Clear Cache':
             if os.path.exists('./cache'):
                 shutil.rmtree('./cache')
+            Utils.ClearScreen()
 
         else:
             try:

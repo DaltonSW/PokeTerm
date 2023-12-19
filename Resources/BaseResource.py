@@ -33,6 +33,22 @@ class Resource(AbstractData):
 
     # endregion
 
+def CheckCaches(query: int | str) -> Resource | None:
+    if query.isdigit():
+        if int(query) not in ID_TO_NAME_CACHE:
+            return None
+        name = ID_TO_NAME_CACHE[int(query)]
+    else:
+        name = query
+    if query not in NAME_TO_DATA_CACHE:
+        return None
+    else:
+        return NAME_TO_DATA_CACHE[name]
+
+def AddToCache(resource: Resource):
+    global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
+    ID_TO_NAME_CACHE[resource.ID] = resource.name
+    NAME_TO_DATA_CACHE[resource.name] = resource
 
 def LoadCache():
     global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE

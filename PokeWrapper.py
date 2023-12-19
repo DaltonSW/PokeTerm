@@ -23,7 +23,8 @@ class PokeWrapper:
         resource = cls.RESOURCES.get(optionName)
         if resource is not None:
             result = resource.HandleSearch()
-            Utils.PrintData(result)
+            if result is not None:
+                Utils.PrintData(result)
         else:
             print("Not a valid search!")
 
