@@ -4,22 +4,22 @@ def GetStatFormatting(statName: str) -> (COLORS, str):
     outName = statName
     match statName:
         case 'hp':
-            color = 'red'
+            color = 'light_magenta'
             outName = 'HP'
         case 'attack':
-            color = 'blue'
+            color = 'light_red'
             outName = 'Attack'
         case 'defense':
-            color = 'green'
+            color = 'light_yellow'
             outName = 'Defense'
         case 'special-attack':
-            color = 'yellow'
+            color = 'light_blue'
             outName = 'Sp. Attack'
         case 'special-defense':
-            color = 'magenta'
+            color = 'light_green'
             outName = 'Sp. Defense'
         case 'speed':
-            color = 'cyan'
+            color = 'light_cyan'
             outName = 'Speed'
         case 'accuracy':
             color = 'white'

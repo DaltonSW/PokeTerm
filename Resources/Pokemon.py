@@ -3,12 +3,11 @@ import Utils
 from .Data import AbstractData
 from tabulate import tabulate
 from termcolor import colored, cprint
+from . import Species
 
 ID_TO_NAME_CACHE = {}
 NAME_TO_DATA_CACHE = {}
 ENDPOINT = 'pokemon'
-
-# TODO: Create a Species class and store just the Species ID in Pokemon class
 
 class Pokemon(AbstractData):
     def __init__(self, data):
@@ -18,12 +17,14 @@ class Pokemon(AbstractData):
         self.name: str = data.get('name')
         self.abilities: list = data.get('abilities')
         speciesURL = data.get('species').get('url')
-        self.speciesData = Utils.GetFromURL(speciesURL)
+        newSpecies = Species.Species(Utils.GetFromURL(speciesURL))
+        Species.AddToCache(newSpecies)
+        self.speciesID = newSpecies.ID
         self.baseStats = {}
         for stat in data.get('stats'):
             statName = stat.get('stat').get('name')
             statValue = stat.get('base_stat')
-            self.baseStats[statName] = statValue
+            self.baseStats[statName] = int(statValue)
 
         self.types = [t.get('type').get('name') for t in data.get('types')]
 
@@ -60,11 +61,15 @@ class Pokemon(AbstractData):
     def PrintBaseStats(self) -> None:
         cprint("Base Stats:", attrs=["bold"])
         stats = {}
+        total = 0
         for stat, value in self.baseStats.items():
             color, name = Colors.GetStatFormatting(stat)
             stats[colored(name, color=color)] = [value]
+            total += value
 
-        print(tabulate(stats, headers='keys'))
+        stats["Total"] = [total]
+
+        print(tabulate(stats, headers='keys', tablefmt='rounded_grid', numalign='center', stralign='center'))
 
 
     # region Formatted Getters

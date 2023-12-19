@@ -1,50 +1,40 @@
+import os
+
 import Utils
-from Resources import Move, Ability, Type, Version, Pokemon
+from Resources import Move, Ability, Type, Version, Pokemon, Species
 
 class PokeWrapper:
     BASE_URL = 'https://pokeapi.co/api/v2/'
 
+    RESOURCES = {
+        'Pokemon': Pokemon,
+        'Ability': Ability,
+        'Type': Type,
+        'Move': Move,
+        'Version': Version,
+        # 'Berry': Berry,
+        # 'Location': Location,
+        # 'Item': Item,
+        'Species': Species,
+    }
+
     @classmethod
     def HandleSearch(cls, optionName):
-        match optionName:
-            case 'Pokemon':
-                result = Pokemon.HandleSearch()
-            case 'Ability':
-                result = Ability.HandleSearch()
-            case 'Type':
-                result = Type.HandleSearch()
-            case 'Move':
-                result = Move.HandleSearch()
-            case 'Berry':
-                return
-            case 'Location':
-                return
-            case 'Item':
-                return
-            case 'Version':
-                result = Version.HandleSearch()
-            case _:
-                result = "Not a valid search!"
-        Utils.PrintData(result)
+        resource = cls.RESOURCES.get(optionName)
+        if resource is not None:
+            result = resource.HandleSearch()
+            Utils.PrintData(result)
+        else:
+            print("Not a valid search!")
 
     @staticmethod
     def SaveCaches():
-        Pokemon.SaveCache()
-        Ability.SaveCache()
-        Type.SaveCache()
-        Move.SaveCache()
-        # Berry.SaveCache()
-        # Location.SaveCache()
-        # Item.SaveCache()
-        Version.SaveCache()
+        if not os.path.exists(Utils.CACHE_DIR):
+            os.makedirs(Utils.CACHE_DIR)
+        for resource in PokeWrapper.RESOURCES.values():
+            resource.SaveCache()
 
     @staticmethod
     def LoadCaches():
-        Pokemon.LoadCache()
-        Ability.LoadCache()
-        Type.LoadCache()
-        Move.LoadCache()
-        # Berry.LoadCache()
-        # Location.LoadCache()
-        # Item.LoadCache()
-        Version.LoadCache()
+        for resource in PokeWrapper.RESOURCES.values():
+            resource.LoadCache()
