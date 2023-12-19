@@ -2,24 +2,26 @@ import Utils
 
 ID_TO_NAME_CACHE = {}
 NAME_TO_DATA_CACHE = {}
-ENDPOINT = 'move'
+ENDPOINT = 'type'
 
-class Move:
+class Type:
     def __init__(self, data):
         global ID_TO_NAME_CACHE
         self.ID = data.get('id')
         self.name = data.get('name')
-        self.accuracy = data.get('accuracy')
-        self.effectChance = data.get('effect_chance')
-        self.PP = data.get('pp')
-        self.priority = data.get('priority')
-        self.power = data.get('power')
-        self.moveClass = data.get('damage_class').get('name')
-        self.type = data.get('type')  # This is a "NamedAPIResource" right now
+
+        damageRelations = data.get('damage_relations')
+        self.noDamageTo = damageRelations.get('no_damage_to')
+        self.halfDamageTo = damageRelations.get('half_damage_to')
+        self.doubleDamageTo = damageRelations.get('double_damage_to')
+        self.noDamageFrom = damageRelations.get('no_damage_from')
+        self.halfDamageFrom = damageRelations.get('half_damage_from')
+        self.doubleDamageFrom = damageRelations.get('double_damage_from')
+
         ID_TO_NAME_CACHE[self.ID] = self.name
 
     def __str__(self):
-        return f'Move Information:\n - ID: {self.ID}\n - Name: {self.name}\n - Accuracy: {self.accuracy}\n - Effect Chance: {self.effectChance}\n - PP: {self.PP}\n - Priority: {self.priority}\n - Power: {self.power}\n - Class: {self.moveClass}\n - Type: {self.type}\n'
+        return ''
 
 
 def LoadCache():
@@ -40,7 +42,7 @@ def SaveCache():
     Utils.SaveCache(ENDPOINT, output)
 
 
-def HandleSearch() -> Move | None:
+def HandleSearch() -> Type | None:
     global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
     query = input(f'{ENDPOINT.title()} Name or ID: ').lower()
 
@@ -52,6 +54,6 @@ def HandleSearch() -> Move | None:
 
     data = Utils.GetFromAPI(ENDPOINT, query)
     if data is not None:
-        newObject = Move(data)
+        newObject = Type(data)
         NAME_TO_DATA_CACHE[newObject.name] = newObject
         return newObject

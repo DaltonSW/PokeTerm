@@ -2,24 +2,18 @@ import Utils
 
 ID_TO_NAME_CACHE = {}
 NAME_TO_DATA_CACHE = {}
-ENDPOINT = 'move'
+ENDPOINT = 'pokemon'
 
-class Move:
+class Pokemon:
     def __init__(self, data):
         global ID_TO_NAME_CACHE
         self.ID = data.get('id')
         self.name = data.get('name')
-        self.accuracy = data.get('accuracy')
-        self.effectChance = data.get('effect_chance')
-        self.PP = data.get('pp')
-        self.priority = data.get('priority')
-        self.power = data.get('power')
-        self.moveClass = data.get('damage_class').get('name')
-        self.type = data.get('type')  # This is a "NamedAPIResource" right now
+
         ID_TO_NAME_CACHE[self.ID] = self.name
 
     def __str__(self):
-        return f'Move Information:\n - ID: {self.ID}\n - Name: {self.name}\n - Accuracy: {self.accuracy}\n - Effect Chance: {self.effectChance}\n - PP: {self.PP}\n - Priority: {self.priority}\n - Power: {self.power}\n - Class: {self.moveClass}\n - Type: {self.type}\n'
+        return ''
 
 
 def LoadCache():
@@ -40,7 +34,7 @@ def SaveCache():
     Utils.SaveCache(ENDPOINT, output)
 
 
-def HandleSearch() -> Move | None:
+def HandleSearch() -> Pokemon | None:
     global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
     query = input(f'{ENDPOINT.title()} Name or ID: ').lower()
 
@@ -52,6 +46,6 @@ def HandleSearch() -> Move | None:
 
     data = Utils.GetFromAPI(ENDPOINT, query)
     if data is not None:
-        newObject = Move(data)
+        newObject = Pokemon(data)
         NAME_TO_DATA_CACHE[newObject.name] = newObject
         return newObject

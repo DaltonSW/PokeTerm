@@ -5,7 +5,7 @@ from PokeWrapper import PokeWrapper
 def main():
     PokeWrapper.LoadCaches()
     os.system('cls' if os.name == 'nt' else 'clear')
-    title = "What to search for?"
+    prompt = "What to search for?"
     options = [
         # 'Pokemon',
         # 'Ability',
@@ -23,7 +23,7 @@ def main():
     while True:
         try:
             choice = inquirer.select(
-                message=title,
+                message=prompt,
                 choices=options
             ).execute()
 
