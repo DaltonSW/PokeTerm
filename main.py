@@ -3,6 +3,7 @@ import shutil
 from InquirerPy import inquirer
 from PokeWrapper import PokeWrapper
 import Utils
+from termcolor import colored
 
 # TODO: Get basic information searching working
 # TODO: Format information well
@@ -14,6 +15,7 @@ import Utils
 def main():
     PokeWrapper.LoadCaches()
     Utils.ClearScreen()
+    welcome = f"{colored('Welcome to ', color='white', attrs=['bold'])}{colored('Poké', 'red', attrs=['bold'])}{colored('Term!', 'white', attrs=['bold'])}"
     prompt = "What to search for?"
     options = [
         'Pokemon',
@@ -30,6 +32,7 @@ def main():
     choice = ''
 
     while True:
+        print(welcome)
         try:
             choice = inquirer.select(
                 message=prompt,

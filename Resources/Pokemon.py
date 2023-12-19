@@ -3,7 +3,7 @@ import Utils
 from .Data import AbstractData
 from tabulate import tabulate
 from termcolor import colored, cprint
-from . import Species
+from . import Species, Ability
 
 ID_TO_NAME_CACHE = {}
 NAME_TO_DATA_CACHE = {}
@@ -15,18 +15,37 @@ class Pokemon(AbstractData):
         global ID_TO_NAME_CACHE
         self.ID: int = data.get('id')
         self.name: str = data.get('name')
-        self.abilities: list = data.get('abilities')
+
+        self.possibleAbilities = []
+        abilityList: list = data.get('abilities')
+        for ability in abilityList:
+            # TODO: Implement a cache check
+            abilityURL = ability.get('url')
+            newAbility = Ability.Ability(Utils.GetFromURL(abilityURL))
+            self.possibleAbilities.append(newAbility)
+
+        # TODO: Implement a cache check
         speciesURL = data.get('species').get('url')
         newSpecies = Species.Species(Utils.GetFromURL(speciesURL))
         Species.AddToCache(newSpecies)
         self.speciesID = newSpecies.ID
+
         self.baseStats = {}
         for stat in data.get('stats'):
             statName = stat.get('stat').get('name')
             statValue = stat.get('base_stat')
             self.baseStats[statName] = int(statValue)
 
+        # TODO: Set up type information and classes
         self.types = [t.get('type').get('name') for t in data.get('types')]
+
+        # TODO: List what games is available in
+
+        # TODO: Pull other forms
+
+        # TODO: Type Effectiveness Charts
+
+        # TODO: EVs?????
 
         # Regional forms
         # We gotta first find what games this can be found in
