@@ -2,7 +2,9 @@ import os
 import pickle
 import requests
 import pickle
-from Resources import Move
+
+import Utils
+from Resources import Move, Ability, Type, Version, Pokemon
 
 class PokeWrapper:
     BASE_URL = 'https://pokeapi.co/api/v2/'
@@ -13,7 +15,7 @@ class PokeWrapper:
             case 'Pokemon':
                 return
             case 'Ability':
-                return
+                result = Ability.HandleSearch()
             case 'Type':
                 return
             case 'Move':
@@ -28,16 +30,12 @@ class PokeWrapper:
                 return
             case _:
                 result = "Not a valid search!"
-        print(result)
+        Utils.PrintData(result)
 
-    @classmethod
-    def PokemonSearch(cls):
-        return
-
-    @classmethod
-    def SaveCaches(cls):
+    @staticmethod
+    def SaveCaches():
         Move.SaveCache()
 
-    @classmethod
-    def LoadCaches(cls):
+    @staticmethod
+    def LoadCaches():
         Move.LoadCache()

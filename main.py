@@ -1,10 +1,22 @@
 import os
+import shutil
 from InquirerPy import inquirer
 from PokeWrapper import PokeWrapper
+import Utils
+
+# TODO: Look into whatever funkiness this is
+#  print(f"{type(item)!s: <15}| repr: {repr(item): <20}| str: {str(item)}")
+
+# TODO: Get basic information searching working
+# TODO: Format information well
+# TODO: Make it pretty with Colorama at first
+# TODO: Make it pretty AND interactive with some TUI framework
+# TODO: Once you've got basic information searching working, set up links between them
+# TODO: Make links clickable
 
 def main():
     PokeWrapper.LoadCaches()
-    os.system('cls' if os.name == 'nt' else 'clear')
+    Utils.ClearScreen()
     prompt = "What to search for?"
     options = [
         # 'Pokemon',
@@ -15,7 +27,7 @@ def main():
         # 'Location',
         # 'Item',
         # 'Version',
-        # 'New Option',
+        'Clear Cache',
         'Quit'
     ]
     choice = ''
@@ -27,15 +39,25 @@ def main():
                 choices=options
             ).execute()
 
-        except KeyboardInterrupt:
+        except KeyboardInterrupt:  # This handles Ctrl+C'ing out of the menu
             QuitGracefully()
 
         if choice == 'Quit' or choice == '':
             QuitGracefully()
-        PokeWrapper.HandleSearch(choice)
+
+        elif choice == 'Clear Cache':
+            if os.path.exists('./cache'):
+                shutil.rmtree('./cache')
+
+        else:
+            try:
+                PokeWrapper.HandleSearch(choice)
+                Utils.ClearScreen()
+            except KeyboardInterrupt:  # This handles Ctrl+C'ing out of the info screen
+                QuitGracefully()
 
 def QuitGracefully():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    Utils.ClearScreen()
     PokeWrapper.SaveCaches()
     quit(0)
 

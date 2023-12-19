@@ -11,6 +11,7 @@ class Ability:
         self.name = data.get('name')
         self.fromMainSeries = data.get('is_main_series')
         self.firstGeneration = data.get('generation')
+        self.description = data.get('effect_entries').get('short_effect')
 
         ID_TO_NAME_CACHE[self.ID] = self.name
 
