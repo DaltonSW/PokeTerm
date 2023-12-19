@@ -1,8 +1,3 @@
-import os
-import pickle
-import requests
-import pickle
-
 import Utils
 from Resources import Move, Ability, Type, Version, Pokemon
 

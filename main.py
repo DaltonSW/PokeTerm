@@ -4,9 +4,6 @@ from InquirerPy import inquirer
 from PokeWrapper import PokeWrapper
 import Utils
 
-# TODO: Look into whatever funkiness this is
-#  print(f"{type(item)!s: <15}| repr: {repr(item): <20}| str: {str(item)}")
-
 # TODO: Get basic information searching working
 # TODO: Format information well
 # TODO: Make it pretty with Colorama at first

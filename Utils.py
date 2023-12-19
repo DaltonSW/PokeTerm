@@ -3,6 +3,7 @@ import requests
 import pickle
 import threading
 import time
+import re
 from Resources.Data import AbstractData
 BASE_URL = 'https://pokeapi.co/api/v2'
 CACHE_DIR = './cache'
@@ -22,7 +23,7 @@ def ClearScreen():
     """Clears the terminal screen."""
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def ProperQueryFromID(query, idToNameCache):
+def ProperQueryFromID(query: int, idToNameCache) -> str | int:
     """
     Returns the proper query based on the given ID.
 
@@ -58,6 +59,7 @@ def GetFromAPI(endpoint, searchTerm):
     Returns:
         dict or None: The JSON response from the API if the request is successful, None if the response status code is 404.
     """
+    searchTerm = re.sub(' ', '-', searchTerm)
     response = requests.get(f'{BASE_URL}/{endpoint}/{searchTerm}')
     if response.status_code == 404:
         return None
@@ -69,7 +71,7 @@ def LoadingIndicator(stopEvent: threading.Event):
     while not stopEvent.is_set():
         numPeriods += 1
         print("Querying PokeAPI" + '.' * numPeriods, end='\r')
-        time.sleep(0.2)
+        time.sleep(0.33)
 
 
 def SaveCache(cacheType, cache):
