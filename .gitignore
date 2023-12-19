@@ -6,6 +6,11 @@ gen
 
 # Python files
 .venv
+__pycache__/
+*.py[cod]
+*$py.class
+
 
 # Project specific files
 cache
+*.pyc
