@@ -16,7 +16,7 @@ def main():
     Utils.ClearScreen()
     prompt = "What to search for?"
     options = [
-        # 'Pokemon',
+        'Pokemon',
         # 'Ability',
         # 'Type',
         'Move',

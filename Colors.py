@@ -1,6 +1,36 @@
-from typing import Optional
-
 from termcolor import COLORS
+
+def GetStatFormatting(statName: str) -> (COLORS, str):
+    outName = statName
+    match statName:
+        case 'hp':
+            color = 'red'
+            outName = 'HP'
+        case 'attack':
+            color = 'blue'
+            outName = 'Attack'
+        case 'defense':
+            color = 'green'
+            outName = 'Defense'
+        case 'special-attack':
+            color = 'yellow'
+            outName = 'Sp. Attack'
+        case 'special-defense':
+            color = 'magenta'
+            outName = 'Sp. Defense'
+        case 'speed':
+            color = 'cyan'
+            outName = 'Speed'
+        case 'accuracy':
+            color = 'white'
+            outName = 'Accuracy'
+        case 'evasion':
+            color = 'light_gray'
+            outName = 'Evasion'
+        case _:
+            color = None      # color will be None if none of the cases match
+
+    return color, outName
 
 
 def GetMoveClassColor(moveClass: str) -> COLORS:
@@ -32,7 +62,7 @@ def GetTypeColor(checkType: str) -> COLORS:
         case 'ice':
             color = 'light_cyan'
         case 'fighting':
-            color = 'magenta'
+            color = 'red'
         case 'poison':
             color = 'magenta'  # Using magenta as replacement for purple
         case 'ground':

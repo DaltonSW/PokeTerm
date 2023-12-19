@@ -8,11 +8,11 @@ class PokeWrapper:
     def HandleSearch(cls, optionName):
         match optionName:
             case 'Pokemon':
-                return
+                result = Pokemon.HandleSearch()
             case 'Ability':
                 result = Ability.HandleSearch()
             case 'Type':
-                return
+                result = Type.HandleSearch()
             case 'Move':
                 result = Move.HandleSearch()
             case 'Berry':
@@ -22,15 +22,29 @@ class PokeWrapper:
             case 'Item':
                 return
             case 'Version':
-                return
+                result = Version.HandleSearch()
             case _:
                 result = "Not a valid search!"
         Utils.PrintData(result)
 
     @staticmethod
     def SaveCaches():
+        Pokemon.SaveCache()
+        Ability.SaveCache()
+        Type.SaveCache()
         Move.SaveCache()
+        # Berry.SaveCache()
+        # Location.SaveCache()
+        # Item.SaveCache()
+        Version.SaveCache()
 
     @staticmethod
     def LoadCaches():
+        Pokemon.LoadCache()
+        Ability.LoadCache()
+        Type.LoadCache()
         Move.LoadCache()
+        # Berry.LoadCache()
+        # Location.LoadCache()
+        # Item.LoadCache()
+        Version.LoadCache()
