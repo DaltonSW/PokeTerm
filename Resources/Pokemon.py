@@ -2,43 +2,36 @@ import time
 
 import Colors
 import Utils
-from .Data import AbstractData
+from Resources.Data import AbstractData
 from tabulate import tabulate
 from termcolor import colored, cprint
-from . import Species, Ability
-
-ID_TO_NAME_CACHE = {}
-NAME_TO_DATA_CACHE = {}
-ENDPOINT = 'pokemon'
+from Resources import Species, Ability
 
 
 class Pokemon(AbstractData):
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
+    ENDPOINT = 'pokemon'
+
     def __init__(self, data):
-        super().__init__()
-        global ID_TO_NAME_CACHE
-        self.ID: int = data.get('id')
-        self.name: str = data.get('name')
+        super().__init__(data)
 
         # Abilities
         self.possibleAbilities = []
         self.hiddenAbility = None
         abilityList: list = data.get('abilities')
         for ability in abilityList:
-            newAbility = Ability.CheckCaches(ability.get('ability').get('name'))
-            if newAbility is None:
-                newAbility = Ability.Ability(Utils.GetFromURL(ability.get('ability').get('url')))
-                Ability.AddToCache(newAbility)
-            if ability.get('get_hidden') is True:
-                self.hiddenAbility = newAbility
-            else:
-                self.possibleAbilities.append(newAbility)
+            newAbility = Ability.Ability.HandleSearch(ability.get('ability').get('name'))
+            if newAbility is not None:
+                if ability.get('get_hidden') is True:
+                    self.hiddenAbility = newAbility
+                else:
+                    self.possibleAbilities.append(newAbility)
 
         # Species
-        species = Species.CheckCaches(data.get('species').get('name'))
-        if species is None:
-            species = Species.Species(Utils.GetFromURL(data.get('species').get('url')))
-            Species.AddToCache(species)
-        self.speciesID = species.ID
+        species = Species.Species.HandleSearch((data.get('species').get('name')))
+        if species is not None:
+            self.speciesID = species.ID
 
         # Stats
         self.baseStats = {}
@@ -48,7 +41,8 @@ class Pokemon(AbstractData):
             self.baseStats[statName] = int(stat.get('base_stat'))
             self.EVs[statName] = int(stat.get('effort'))
 
-        # Available Locations TODO: Pivot this to the PokeDB scraper
+        # TODO: Pivot this to the PokeDB scraper
+        # Available Locations
         # encountersURL = data.get('location_area_encounters')
         # encountersData = Utils.GetFromURL(encountersURL)
         # self.availableVersions = {}
@@ -75,12 +69,10 @@ class Pokemon(AbstractData):
         # EVs given -- Also dunno if this one can even be gotten from PokeAPI?
         # Evolutions
 
-        ID_TO_NAME_CACHE[self.ID] = self.name
-
     def PrintData(self):
         Utils.ClearScreen()
 
-        infoTable = [[colored(f"{ENDPOINT.title()}:", attrs=["bold"]), f' {self.PrintName} [{self.ID}]'],
+        infoTable = [[colored(f"{self.ENDPOINT.title()}:", attrs=["bold"]), f' {self.PrintName} [{self.ID}]'],
                      self.GetTypeArray()]
 
         print(tabulate(infoTable, tablefmt='plain'))
@@ -148,54 +140,18 @@ class Pokemon(AbstractData):
 
     # endregion
 
-
-def LoadCache():
-    global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
-    data = Utils.LoadCache(ENDPOINT)
-    try:
-        ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE = data
-    except TypeError:
-        print(f"Failed to load {ENDPOINT.upper()} cache")
-        pass
-
-
-def SaveCache():
-    global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
-    if len(NAME_TO_DATA_CACHE) == 0:
-        return
-    output = (ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE)
-    Utils.SaveCache(ENDPOINT, output)
-
-
-def HandleSearch() -> Pokemon | None:
-    global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
-    query = input(f'{ENDPOINT.title()} Name or ID: ').lower()
-
-    if query == '':
-        return None
-
-    if query.isdigit():
-        query = Utils.ProperQueryFromID(int(query), ID_TO_NAME_CACHE)
-
-    if query in NAME_TO_DATA_CACHE:
-        return NAME_TO_DATA_CACHE[query]
-
-    data = Utils.GetFromAPIWrapper(ENDPOINT, query)
-    if data is not None:
-        newObject = Pokemon(data)
-        NAME_TO_DATA_CACHE[newObject.name] = newObject
-        return newObject
-
-    return None
-
+    def AddToCache(self):
+        super().AddToCache()
 
 def CacheTest():
+    NAME_TO_DATA_CACHE = {}
+    ID_TO_NAME_CACHE = {}
     for i in range(1, 152):
-        data = Utils.GetFromAPI(ENDPOINT, i)
+        data = Utils.GetFromAPI('pokemon', i)
         if data is not None:
             newObject = Pokemon(data)
             NAME_TO_DATA_CACHE[newObject.name] = newObject
             ID_TO_NAME_CACHE[newObject.ID] = newObject.name
         print(f"Processed {i}")
         time.sleep(1)
-    SaveCache()
+    Pokemon.SaveCache()

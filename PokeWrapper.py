@@ -2,20 +2,23 @@ import os
 
 import Utils
 from Resources import Move, Ability, Type, Version, Pokemon, Species
+from Resources import VersionGroup, Generation
 
 class PokeWrapper:
     BASE_URL = 'https://pokeapi.co/api/v2/'
 
     RESOURCES = {
-        'Pokemon': Pokemon,
-        'Ability': Ability,
-        'Type': Type,
-        'Move': Move,
-        'Version': Version,
+        'Pokemon': Pokemon.Pokemon,
+        'Ability': Ability.Ability,
+        # 'Type': Type,
+        # 'Move': Move,
+        'Version': Version.Version,
         # 'Berry': Berry,
         # 'Location': Location,
         # 'Item': Item,
-        'Species': Species,
+        'Species': Species.Species,
+        # 'VersionGroup': VersionGroup,
+        # 'Generation': Generation
     }
 
     @classmethod

@@ -19,6 +19,9 @@ def PrintData(data: AbstractData) -> None:
 def ClearScreen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def GetIDFromURL(URL: str) -> int:
+    return int(URL.split('/')[-2])
+
 
 def ProperQueryFromID(query: int, idToNameCache) -> str | int:
     if query in idToNameCache:
