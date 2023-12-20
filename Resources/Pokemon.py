@@ -1,4 +1,3 @@
-import time
 from bs4 import BeautifulSoup
 import requests
 import Colors
@@ -8,14 +7,18 @@ from tabulate import tabulate
 from termcolor import colored, cprint
 from Resources import Species, Ability
 
+from rich.table import Table
+from rich import box
+from console import console
+
 
 class Pokemon(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
     FLAGS = {
-        'abilities': 1,
-        'stats': 1,
-        'available': 1,
+        'abilities'  : 1,
+        'stats'      : 1,
+        'available'  : 1,
         'unavailable': 1
     }
     ENDPOINT = 'pokemon'
@@ -23,7 +26,7 @@ class Pokemon(AbstractData):
     def __init__(self, data):
         super().__init__(data)
 
-        # Abilities
+        # region Abilities
         self.possibleAbilities = []
         self.hiddenAbility = None
         abilityList: list = data.get('abilities')
@@ -34,6 +37,7 @@ class Pokemon(AbstractData):
                     self.hiddenAbility = newAbility
                 else:
                     self.possibleAbilities.append(newAbility)
+        # endregion
 
         # Species
         species = Species.Species.HandleSearch((data.get('species').get('name')))
@@ -88,32 +92,44 @@ class Pokemon(AbstractData):
 
     def PrintAbilities(self) -> None:
         print()
-        cprint("[P]ossible Abilities:", attrs=["bold"])
         if not self.FLAGS['abilities']:
+            print("[P]ossible Abilities")
             return
-        abilityTable = []
+
+        abilityTable = Table(title="[P]ossible Abilities", box=box.ROUNDED, title_justify='left', show_lines=True)
+
+        abilityTable.add_column("Ability")
+        abilityTable.add_column("Description")
+
         for ability in self.possibleAbilities:
-            abilityTable.append([colored(f"{ability.name.title()}", attrs=["bold"]), ability.description])
+            abilityTable.add_row(f"[bold]{ability.name.title()}[/]", ability.description)
         if self.hiddenAbility is not None:
-            abilityTable.append([colored(f"(Hidden) {self.hiddenAbility.name.title()}", attrs=["bold"])])
-        print(tabulate(abilityTable, headers=[Colors.GetBoldText('Ability'), Colors.GetBoldText('Description')],
-                       tablefmt='rounded_grid'))
+            abilityTable.add_row(f"[bold](Hidden) {self.hiddenAbility.name.title()}[/]", self.hiddenAbility.description)
+        console.print(abilityTable)
 
     def PrintBaseStats(self) -> None:
         print()
-        cprint("Base [S]tats:", attrs=["bold"])
         if not self.FLAGS['stats']:
+            print("Base [S]tats")
             return
-        stats = {}
-        total = 0
-        for stat, value in self.baseStats.items():
-            color, name = Colors.GetStatFormatting(stat)
-            stats[colored(name, color=color)] = [value]
-            total += value
 
-        stats["Total"] = [total]
+        # Don't care about hardcoding, this is way more readable
+        statsTable = Table(title="Base [S]tats", box=box.ROUNDED, title_justify='left')
 
-        print(tabulate(stats, headers='keys', tablefmt='rounded_grid', numalign='center', stralign='center'))
+        statsTable.add_column("HP", header_style="hp")
+        statsTable.add_column("Attack", header_style="attack")
+        statsTable.add_column("Defense", header_style="defense")
+        statsTable.add_column("Sp Atk", header_style="special-attack")
+        statsTable.add_column("Sp Def", header_style="special-defense")
+        statsTable.add_column("Speed", header_style="speed")
+        statsTable.add_column("Total")
+
+        statsTable.add_row(str(self.baseStats['hp']), str(self.baseStats['attack']),
+                           str(self.baseStats['defense']), str(self.baseStats['special-attack']),
+                           str(self.baseStats['special-defense']), str(self.baseStats['speed']),
+                           str(sum(self.baseStats.values())))
+
+        console.print(statsTable)
 
     def PrintVersionInfo(self) -> None:
         available, unavailable = [], []

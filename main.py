@@ -3,7 +3,7 @@ import shutil
 from InquirerPy import inquirer
 from PokeWrapper import PokeWrapper
 import Utils
-from termcolor import colored
+from console import console
 
 # TODO: Set up "configuration" to collapse/expand certain sections
 
@@ -14,7 +14,6 @@ from termcolor import colored
 def main():
     PokeWrapper.LoadCaches()
     Utils.ClearScreen()
-    welcome = f"{colored('Welcome to ', color='white', attrs=['bold'])}{colored('Poké', 'red', attrs=['bold'])}{colored('Term!', 'white', attrs=['bold'])}"
     prompt = "What to search for?"
     options = [
         'Pokemon',
@@ -34,7 +33,7 @@ def main():
     choice = ''
 
     while True:
-        print(welcome)
+        console.print(f"Welcome to [bold][red]Poké[/][white]Term![/][/]")
         try:
             choice = inquirer.select(
                 message=prompt,
