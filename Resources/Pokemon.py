@@ -1,3 +1,5 @@
+import time
+
 import Colors
 import Utils
 from .Data import AbstractData
@@ -8,6 +10,7 @@ from . import Species, Ability
 ID_TO_NAME_CACHE = {}
 NAME_TO_DATA_CACHE = {}
 ENDPOINT = 'pokemon'
+
 
 class Pokemon(AbstractData):
     def __init__(self, data):
@@ -45,6 +48,18 @@ class Pokemon(AbstractData):
             self.baseStats[statName] = int(stat.get('base_stat'))
             self.EVs[statName] = int(stat.get('effort'))
 
+        # Available Locations TODO: Pivot this to the PokeDB scraper
+        # encountersURL = data.get('location_area_encounters')
+        # encountersData = Utils.GetFromURL(encountersURL)
+        # self.availableVersions = {}
+        # for encounter in encountersData:
+        #     location = encounter.get('location_area').get('name')
+        #     version = encounter.get('version_details')[0].get('version').get('name')
+        #     self.availableVersions[version] = 1
+        #     method = encounter.get('version_details')[0].get('encounter_details')[0].get('method').get('name')
+        #     level = encounter.get('version_details')[0].get('encounter_details')[0].get('level')
+        #     # print(f"Location: {location}, Version: {version}, Method: {method}, Level: {level}")
+
         # TODO: Set up type information and classes
         self.types = [t.get('type').get('name') for t in data.get('types')]
 
@@ -54,11 +69,9 @@ class Pokemon(AbstractData):
 
         # TODO: Type Effectiveness Charts
 
-        # TODO: EVs?????
-
         # Regional forms
         # We gotta first find what games this can be found in
-        # Then we can figure out held items, locations, etc
+        # Then we can figure out held items, locations, etc.
         # EVs given -- Also dunno if this one can even be gotten from PokeAPI?
         # Evolutions
 
@@ -73,6 +86,7 @@ class Pokemon(AbstractData):
         print(tabulate(infoTable, tablefmt='plain'))
         self.PrintAbilities()
         self.PrintBaseStats()
+        # self.PrintAvailableVersions()
         return
 
     def GetTypeArray(self) -> list:
@@ -94,7 +108,8 @@ class Pokemon(AbstractData):
             abilityTable.append([colored(f"{ability.name.title()}", attrs=["bold"]), ability.description])
         if self.hiddenAbility is not None:
             abilityTable.append([colored(f"(Hidden) {self.hiddenAbility.name.title()}", attrs=["bold"])])
-        print(tabulate(abilityTable, headers=[Colors.GetBoldText('Ability'), Colors.GetBoldText('Description')], tablefmt='rounded_grid'))
+        print(tabulate(abilityTable, headers=[Colors.GetBoldText('Ability'), Colors.GetBoldText('Description')],
+                       tablefmt='rounded_grid'))
 
     def PrintBaseStats(self) -> None:
         print()
@@ -110,6 +125,11 @@ class Pokemon(AbstractData):
 
         print(tabulate(stats, headers='keys', tablefmt='rounded_grid', numalign='center', stralign='center'))
 
+    # def PrintAvailableVersions(self) -> None:
+    #     print()
+    #     print("Available Versions:")
+    #     for version in self.availableVersions.keys():
+    #         print(version)
 
     # region Formatted Getters
     # @property
@@ -167,3 +187,15 @@ def HandleSearch() -> Pokemon | None:
         return newObject
 
     return None
+
+
+def CacheTest():
+    for i in range(1, 152):
+        data = Utils.GetFromAPI(ENDPOINT, i)
+        if data is not None:
+            newObject = Pokemon(data)
+            NAME_TO_DATA_CACHE[newObject.name] = newObject
+            ID_TO_NAME_CACHE[newObject.ID] = newObject.name
+        print(f"Processed {i}")
+        time.sleep(1)
+    SaveCache()

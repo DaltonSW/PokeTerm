@@ -26,6 +26,7 @@ def main():
         # 'Location',
         # 'Item',
         # 'Version',
+        'Cache Test',
         'Clear Cache',
         'Quit'
     ]
@@ -49,6 +50,10 @@ def main():
             if os.path.exists('./cache'):
                 shutil.rmtree('./cache')
             Utils.ClearScreen()
+
+        elif choice == 'Cache Test':
+            PokeWrapper.HandleCacheTest()
+            QuitGracefully()
 
         else:
             try:

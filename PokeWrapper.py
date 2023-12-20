@@ -29,6 +29,12 @@ class PokeWrapper:
             print("Not a valid search!")
 
     @staticmethod
+    def HandleCacheTest():
+        print("Cache Test")
+        Pokemon.CacheTest()
+        return
+
+    @staticmethod
     def SaveCaches():
         if not os.path.exists(Utils.CACHE_DIR):
             os.makedirs(Utils.CACHE_DIR)
