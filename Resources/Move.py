@@ -4,17 +4,15 @@ from .Data import AbstractData
 from tabulate import tabulate
 from termcolor import colored
 
-ID_TO_NAME_CACHE = {}
-NAME_TO_DATA_CACHE = {}
-ENDPOINT = 'move'
-
 # TODO: Descriptions and stuff
 class Move(AbstractData):
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
+    ENDPOINT = 'move'
+
     def __init__(self, data):
-        super().__init__()
-        global ID_TO_NAME_CACHE
-        self.ID: int = data.get('id')
-        self.name: str = data.get('name')
+        super().__init__(data)
+
         self.accuracy: int = data.get('accuracy')
         self.effectChance: int = data.get('effect_chance')
         self.PP: int = data.get('pp')
@@ -22,7 +20,6 @@ class Move(AbstractData):
         self.power: int = data.get('power')
         self.moveClass: str = data.get('damage_class').get('name')
         self.type: str = data.get('type').get('name')
-        ID_TO_NAME_CACHE[self.ID] = self.name
 
     def PrintData(self):
         Utils.ClearScreen()
@@ -38,6 +35,9 @@ class Move(AbstractData):
         print(tabulate(statCells, headers=statHeaders))
         return
 
+    def AddToCache(self):
+        super().AddToCache()
+
     # region Formatted Getters
     @property
     def FormattedMoveClass(self) -> str:
@@ -49,37 +49,3 @@ class Move(AbstractData):
 
     # endregion
 
-
-def LoadCache():
-    global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
-    data = Utils.LoadCache(ENDPOINT)
-    try:
-        ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE = data
-    except TypeError:
-        print(f"Failed to load {ENDPOINT.upper()} cache")
-        pass
-
-
-def SaveCache():
-    global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
-    if len(NAME_TO_DATA_CACHE) == 0:
-        return
-    output = (ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE)
-    Utils.SaveCache(ENDPOINT, output)
-
-
-def HandleSearch() -> Move | None:
-    global ID_TO_NAME_CACHE, NAME_TO_DATA_CACHE
-    query = input(f'{ENDPOINT.title()} Name or ID: ').lower()
-
-    if query.isdigit():
-        query = Utils.ProperQueryFromID(int(query), ID_TO_NAME_CACHE)
-
-    if query in NAME_TO_DATA_CACHE:
-        return NAME_TO_DATA_CACHE[query]
-
-    data = Utils.GetFromAPIWrapper(ENDPOINT, query)
-    if data is not None:
-        newObject = Move(data)
-        NAME_TO_DATA_CACHE[newObject.name] = newObject
-        return newObject

@@ -23,6 +23,10 @@ class AbstractData(ABC):
         self.NAME_TO_DATA_CACHE[self.name] = self
 
     @classmethod
+    def ToggleFlag(cls, flag: str):
+        pass
+
+    @classmethod
     def LoadCache(cls):
         data = Utils.LoadCache(cls.ENDPOINT)
         try:

@@ -5,9 +5,8 @@ from PokeWrapper import PokeWrapper
 import Utils
 from termcolor import colored
 
-# TODO: Get basic information searching working
-# TODO: Format information well
-# TODO: Make it pretty with Colorama at first
+# TODO: Set up "configuration" to collapse/expand certain sections
+
 # TODO: Make it pretty AND interactive with some TUI framework
 # TODO: Once you've got basic information searching working, set up links between them
 # TODO: Make links clickable
@@ -19,16 +18,17 @@ def main():
     prompt = "What to search for?"
     options = [
         'Pokemon',
-        # 'Ability',
+        'Ability',
         # 'Type',
-        # 'Move',
+        'Move',
         # 'Berry',
         # 'Location',
         # 'Item',
         'Version',
-        # 'Generation',
+        'Generation',
         'Cache Test',
         'Clear Cache',
+        'Clear & Quit',
         'Quit'
     ]
     choice = ''
@@ -47,12 +47,16 @@ def main():
         if choice == 'Quit' or choice == '':
             QuitGracefully()
 
-        elif choice == 'Clear Cache':
+        elif choice == 'Clear Cache' or choice == 'Clear & Quit':
             if os.path.exists('./cache'):
                 shutil.rmtree('./cache')
             Utils.ClearScreen()
+            if choice == 'Clear & Quit':
+                quit(0)
 
         elif choice == 'Cache Test':
+            if os.path.exists('./cache'):
+                shutil.rmtree('./cache')
             PokeWrapper.HandleCacheTest()
             QuitGracefully()
 

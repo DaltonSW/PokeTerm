@@ -4,16 +4,21 @@ import pickle
 import threading
 import time
 import re
+import msvcrt
 from Resources.Data import AbstractData
 
 BASE_URL = 'https://pokeapi.co/api/v2'
 CACHE_DIR = './cache'
 
-
 def PrintData(data: AbstractData) -> None:
-    data.PrintData()
-    print()
-    input('Press any key to continue...')
+    while True:
+        data.PrintData()
+        print()
+        print('Press any bracketed letter to expand/collapse the section. Press "Enter" to return.')
+        key = msvcrt.getch().decode('utf-8')
+        if key == '\r':
+            return
+        data.ToggleFlag(key)
 
 
 def ClearScreen():

@@ -1,4 +1,5 @@
 import os
+import time
 
 import Utils
 from Resources import Move, Ability, Type, Version, Pokemon, Species
@@ -10,15 +11,15 @@ class PokeWrapper:
     RESOURCES = {
         'Pokemon': Pokemon.Pokemon,
         'Ability': Ability.Ability,
-        # 'Type': Type,
-        # 'Move': Move,
+        # 'Type': Type.Type,
+        'Move': Move.Move,
         'Version': Version.Version,
-        # 'Berry': Berry,
-        # 'Location': Location,
-        # 'Item': Item,
+        # 'Berry': Berry.Berry,
+        # 'Location': Location.Location,
+        # 'Item': Item.Item,
         'Species': Species.Species,
-        # 'VersionGroup': VersionGroup,
-        # 'Generation': Generation
+        # 'VersionGroup': VersionGroup.VersionGroup,
+        'Generation': Generation.Generation
     }
 
     @classmethod
@@ -34,7 +35,10 @@ class PokeWrapper:
     @staticmethod
     def HandleCacheTest():
         print("Cache Test")
-        Pokemon.CacheTest()
+        for i in range(1, 51):
+            Pokemon.Pokemon.HandleSearch(str(i))
+            print(f"Processed {i}")
+            time.sleep(0.33)
         return
 
     @staticmethod

@@ -1,5 +1,6 @@
 import time
-
+from bs4 import BeautifulSoup
+import requests
 import Colors
 import Utils
 from Resources.Data import AbstractData
@@ -11,6 +12,12 @@ from Resources import Species, Ability
 class Pokemon(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
+    FLAGS = {
+        'abilities': 1,
+        'stats': 1,
+        'available': 1,
+        'unavailable': 1
+    }
     ENDPOINT = 'pokemon'
 
     def __init__(self, data):
@@ -41,23 +48,11 @@ class Pokemon(AbstractData):
             self.baseStats[statName] = int(stat.get('base_stat'))
             self.EVs[statName] = int(stat.get('effort'))
 
-        # TODO: Pivot this to the PokeDB scraper
         # Available Locations
-        # encountersURL = data.get('location_area_encounters')
-        # encountersData = Utils.GetFromURL(encountersURL)
-        # self.availableVersions = {}
-        # for encounter in encountersData:
-        #     location = encounter.get('location_area').get('name')
-        #     version = encounter.get('version_details')[0].get('version').get('name')
-        #     self.availableVersions[version] = 1
-        #     method = encounter.get('version_details')[0].get('encounter_details')[0].get('method').get('name')
-        #     level = encounter.get('version_details')[0].get('encounter_details')[0].get('level')
-        #     # print(f"Location: {location}, Version: {version}, Method: {method}, Level: {level}")
+        self.locationInformation = self.LocationLoader()
 
         # TODO: Set up type information and classes
         self.types = [t.get('type').get('name') for t in data.get('types')]
-
-        # TODO: List what games is available in
 
         # TODO: Pull other forms
 
@@ -66,7 +61,6 @@ class Pokemon(AbstractData):
         # Regional forms
         # We gotta first find what games this can be found in
         # Then we can figure out held items, locations, etc.
-        # EVs given -- Also dunno if this one can even be gotten from PokeAPI?
         # Evolutions
 
     def PrintData(self):
@@ -78,7 +72,7 @@ class Pokemon(AbstractData):
         print(tabulate(infoTable, tablefmt='plain'))
         self.PrintAbilities()
         self.PrintBaseStats()
-        # self.PrintAvailableVersions()
+        self.PrintVersionInfo()
         return
 
     def GetTypeArray(self) -> list:
@@ -94,7 +88,9 @@ class Pokemon(AbstractData):
 
     def PrintAbilities(self) -> None:
         print()
-        cprint("Possible Abilities:", attrs=["bold"])
+        cprint("[P]ossible Abilities:", attrs=["bold"])
+        if not self.FLAGS['abilities']:
+            return
         abilityTable = []
         for ability in self.possibleAbilities:
             abilityTable.append([colored(f"{ability.name.title()}", attrs=["bold"]), ability.description])
@@ -105,7 +101,9 @@ class Pokemon(AbstractData):
 
     def PrintBaseStats(self) -> None:
         print()
-        cprint("Base Stats:", attrs=["bold"])
+        cprint("Base [S]tats:", attrs=["bold"])
+        if not self.FLAGS['stats']:
+            return
         stats = {}
         total = 0
         for stat, value in self.baseStats.items():
@@ -117,16 +115,59 @@ class Pokemon(AbstractData):
 
         print(tabulate(stats, headers='keys', tablefmt='rounded_grid', numalign='center', stralign='center'))
 
-    # def PrintAvailableVersions(self) -> None:
-    #     print()
-    #     print("Available Versions:")
-    #     for version in self.availableVersions.keys():
-    #         print(version)
+    def PrintVersionInfo(self) -> None:
+        available, unavailable = [], []
+        if self.locationInformation is None:
+            return
+        for game in self.locationInformation.keys():
+            locations = self.locationInformation[game]
+            if len(locations) == 0:
+                unavailable.append(game)
+            else:
+                available.append(game)
 
-    # region Formatted Getters
-    # @property
-    # def FormattedResourceProperty(self) -> str:
-    #     return colored(self.property.title(), Colors.GetWhateverColor(self.property))
+        print("[A]vailable in: ")
+        if self.FLAGS['available']:
+            print("\t {}".format(", ".join(available)))
+
+        print("[U]navailable in: ")
+        if self.FLAGS['unavailable']:
+            print("\t {}".format(", ".join(unavailable)))
+
+    def LocationLoader(self) -> dict[str, list[str]] | None:  # eventually dict[int, list[int]] for IDs instead
+        queryURL = f"https://pokemondb.net/pokedex/{self.name}"
+        response = requests.get(queryURL)
+        if response.status_code != 200:
+            return None
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # Extract the table with location information
+        locationsDiv = soup.find('div', {'id': 'dex-locations'})
+
+        locationsTable = ''
+
+        # Find the first table after the 'dex-locations' div
+        if locationsDiv:
+            locationsTable = locationsDiv.find_next('table')
+
+        # Assuming 'location_table' is the BeautifulSoup object for the table
+        locationRows = locationsTable.find_all('tr')
+
+        encounters = {}
+        for row in locationRows:
+            games = []
+            locations = []
+            gamesHTML = row.find_next('th')
+            for game in gamesHTML.find_all('span'):
+                games.append(game.text)
+            locationsHTML = row.find_next('td')
+            for location in locationsHTML.find_all('a'):
+                locations.append(location.text)
+
+            for gameName in games:
+                encounters[gameName] = locations
+
+        return encounters
 
     @property
     def FormattedTypeOne(self) -> str:
@@ -143,15 +184,16 @@ class Pokemon(AbstractData):
     def AddToCache(self):
         super().AddToCache()
 
-def CacheTest():
-    NAME_TO_DATA_CACHE = {}
-    ID_TO_NAME_CACHE = {}
-    for i in range(1, 152):
-        data = Utils.GetFromAPI('pokemon', i)
-        if data is not None:
-            newObject = Pokemon(data)
-            NAME_TO_DATA_CACHE[newObject.name] = newObject
-            ID_TO_NAME_CACHE[newObject.ID] = newObject.name
-        print(f"Processed {i}")
-        time.sleep(1)
-    Pokemon.SaveCache()
+    @classmethod
+    def ToggleFlag(cls, flag: str):
+        match flag:
+            case 'p':
+                cls.FLAGS['abilities'] = not cls.FLAGS['abilities']
+            case 's':
+                cls.FLAGS['stats'] = not cls.FLAGS['stats']
+            case 'a':
+                cls.FLAGS['available'] = not cls.FLAGS['available']
+            case 'u':
+                cls.FLAGS['unavailable'] = not cls.FLAGS['unavailable']
+            case _:
+                return
