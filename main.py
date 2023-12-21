@@ -3,6 +3,7 @@ import shutil
 from InquirerPy import inquirer
 from PokeWrapper import PokeWrapper
 import Utils
+from rich.syntax import Syntax
 from console import console
 
 # TODO: Set up "configuration" to collapse/expand certain sections
@@ -33,7 +34,7 @@ def main():
     choice = ''
 
     while True:
-        console.print(f"Welcome to [bold][red]Poké[/][white]Term![/][/]")
+        PrintWelcome()
         try:
             choice = inquirer.select(
                 message=prompt,
@@ -65,6 +66,21 @@ def main():
                 Utils.ClearScreen()
             except KeyboardInterrupt:  # This handles Ctrl+C'ing out of the info screen
                 QuitGracefully()
+
+def PrintWelcome():
+    console.rule('[red]     #########    [/]', characters=' ')
+    console.rule('[red]   #############  [/]', characters=' ')
+    console.rule('[red]  ############### [/]', characters=' ')
+    console.rule('[red] #####       #####[/]', characters=' ')
+    console.rule('[white]        ###       [/]', characters=' ')
+    console.rule('[white]        ###       [/]', characters=' ')
+    console.rule('[white] #####       #####[/]', characters=' ')
+    console.rule('[white]  ############### [/]', characters=' ')
+    console.rule('[white]   #############  [/]', characters=' ')
+    console.rule('[white]     #########    [/]', characters=' ')
+    print()
+    console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style='white')
+
 
 def QuitGracefully():
     Utils.ClearScreen()

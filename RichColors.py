@@ -1,5 +1,8 @@
 from rich.theme import Theme
 
+# TODO:
+#   Egg groups
+#   Pokemon colors
 PokeTheme = Theme({
     # Types
     "normal": "#A8A77A",

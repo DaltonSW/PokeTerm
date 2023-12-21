@@ -55,28 +55,34 @@ class Pokemon(AbstractData):
         # Available Locations
         self.locationInformation = self.LocationLoader()
 
-        # TODO: Set up type information and classes
+        # TODO:
+        #   First Generation Appearance (Species)
+        #   National Dex Number (Species)
+
+        # TODO:
+        #   List of moves (probably just in Gen 9 for right now)
+        #   Evolution information (Looks like its own endpoint?)
+        #   Other forms
+        #   Type Effectiveness
+        #       Make Type class do a thing
+
         self.types = [t.get('type').get('name') for t in data.get('types')]
 
-        # TODO: Pull other forms
-
-        # TODO: Type Effectiveness Charts
-
-        # Regional forms
-        # We gotta first find what games this can be found in
-        # Then we can figure out held items, locations, etc.
-        # Evolutions
-
     def PrintData(self):
-        Utils.ClearScreen()
+        console.rule(self.name.title(), align='left')
 
-        infoTable = [[colored(f"{self.ENDPOINT.title()}:", attrs=["bold"]), f' {self.PrintName} [{self.ID}]'],
-                     self.GetTypeArray()]
+        self.PrintTypeInfo()
+        self.PrintBasicInfo()
+        self.PrintAbilityInfo()
+        self.PrintStatInfo()
+        # self.PrintVersionInfo()
+        return
 
-        console.print(tabulate(infoTable, tablefmt='plain'))
-        self.PrintAbilities()
-        self.PrintBaseStats()
-        self.PrintVersionInfo()
+    def PrintBasicInfo(self):
+        # self.PrintTypeInformation()
+        species = Species.Species.HandleSearch(self.speciesID)
+        if species is not None:
+            species.PrintDataForPokemonPage()
         return
 
     def GetTypeArray(self) -> list:
@@ -90,13 +96,37 @@ class Pokemon(AbstractData):
 
         return typeArray
 
-    def PrintAbilities(self) -> None:
+    def PrintTypeInfo(self) -> None:
         print()
         if not self.FLAGS['abilities']:
-            print("[P]ossible Abilities")
+            print("[T]ype Information")
             return
 
-        abilityTable = Table(title="[P]ossible Abilities", box=box.ROUNDED, title_justify='left', show_lines=True)
+        typeInfoTable = Table(title="[T]ype Information", box=box.ROUNDED, title_justify='left', show_lines=True)
+
+        typeInfoTable.add_column("Typings")
+        # abilityTable.add_column("Effectiveness")
+
+        typeInfoTable.add_row(f'{self.FormattedTypeOne}{self.FormattedTypeTwo}')
+
+        # abilityTable.add_row(stylized typings, function to build a type effectiveness table)
+
+        console.print(typeInfoTable)
+
+    def TypeEffectivenessTable(self) -> Table:
+        typeTable = Table()
+
+
+
+        return typeTable
+
+    def PrintAbilityInfo(self) -> None:
+        print()
+        console.rule("[P]ossible Abilities", align='left')
+        if not self.FLAGS['abilities']:
+            return
+
+        abilityTable = Table(box=box.ROUNDED, show_lines=True)
 
         abilityTable.add_column("Ability")
         abilityTable.add_column("Description")
@@ -107,14 +137,14 @@ class Pokemon(AbstractData):
             abilityTable.add_row(f"[bold](Hidden) {self.hiddenAbility.name.title()}[/]", self.hiddenAbility.description)
         console.print(abilityTable)
 
-    def PrintBaseStats(self) -> None:
+    # Don't care about hardcoding, this is way more readable
+    def PrintStatInfo(self) -> None:
         print()
+        console.rule("[S]tat Information", align='left')
         if not self.FLAGS['stats']:
-            print("Base [S]tats")
             return
 
-        # Don't care about hardcoding, this is way more readable
-        statsTable = Table(title="Base [S]tats", box=box.ROUNDED, title_justify='left')
+        statsTable = Table(box=box.ROUNDED)
 
         statsTable.add_column("HP", header_style="hp")
         statsTable.add_column("Attack", header_style="attack")
@@ -130,6 +160,22 @@ class Pokemon(AbstractData):
                            str(sum(self.baseStats.values())))
 
         console.print(statsTable)
+
+        outputStr = '[bold]EV Yield:[/] '
+        if self.EVs['hp'] != 0:
+            outputStr += f"[hp]{str(self.EVs['hp'])} HP[/hp], "
+        if self.EVs['attack'] != 0:
+            outputStr += f"[attack]{str(self.EVs['attack'])} Attack[/attack], "
+        if self.EVs['defense'] != 0:
+            outputStr += f"[defense]{str(self.EVs['defense'])} Defense[/defense], "
+        if self.EVs['special-attack'] != 0:
+            outputStr += f"[special-attack]{str(self.EVs['special-attack'])} Sp. Attack[/special-attack], "
+        if self.EVs['special-defense'] != 0:
+            outputStr += f"[special-defense]{str(self.EVs['special-defense'])} Sp. Defense[/special-defense], "
+        if self.EVs['speed'] != 0:
+            outputStr += f"[speed]{str(self.EVs['speed'])} Speed[/speed], "
+
+        console.print(outputStr[:-2])
 
     def PrintVersionInfo(self) -> None:
         print()
@@ -221,7 +267,7 @@ class Pokemon(AbstractData):
     def FormattedTypeTwo(self) -> str:
         if len(self.types) < 2:
             return ""
-        return f'[{self.types[1]}]{self.types[1].title()}[/]'
+        return f' / [{self.types[1]}]{self.types[1].title()}[/]'
 
     # endregion
 

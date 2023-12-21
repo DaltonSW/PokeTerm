@@ -12,6 +12,7 @@ CACHE_DIR = './cache'
 
 def PrintData(data: AbstractData) -> None:
     while True:
+        ClearScreen()
         data.PrintData()
         print()
         print('Press any bracketed letter to expand/collapse the section. Press "Enter" to return.')
@@ -83,6 +84,8 @@ def LoadCache(cacheType) -> (dict, dict):
         cache = pickle.load(f)
         print(f"Successfully loaded {cacheType.upper()} cache")
     return cache
+
+# region Constants
 
 VERSION_MAPPING_DICT = {
     'Red': 'red',
@@ -175,3 +178,4 @@ REVERSED_MAPPING_DICT = {
     'the-teal-mask': "The Teal Mask",
     'the-indigo-disk': "The Indigo Disk"
 }
+# endregion
