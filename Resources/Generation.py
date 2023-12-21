@@ -1,4 +1,3 @@
-import Colors
 import Utils
 from Resources.Data import AbstractData
 
@@ -21,7 +20,7 @@ class Generation(AbstractData):
 
     def PrintData(self):
         print()
-        print(Colors.GetBoldText(f"Generation {self.ID}"))
+        print(f"Generation {self.ID}")
         print(f'Abilities Introduced: {len(self.abilitiesIntroduced)}')
         print(f'Moves Introduced: {len(self.movesIntroduced)}')
         print(f'Species Introduced: {len(self.speciesIntroduced)}')

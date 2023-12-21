@@ -1,10 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
-import Colors
 import Utils
 from Resources.Data import AbstractData
-from tabulate import tabulate
-from termcolor import colored, cprint
 from Resources import Species, Ability, Generation, VersionGroup
 
 from rich.table import Table
@@ -84,17 +81,6 @@ class Pokemon(AbstractData):
         if species is not None:
             species.PrintDataForPokemonPage()
         return
-
-    def GetTypeArray(self) -> list:
-        typeArray = []
-        if len(self.types) == 2:
-            typeArray.append(colored("Types: ", attrs=["bold"]))
-            typeArray.append(f'{self.FormattedTypeOne} / {self.FormattedTypeTwo}')
-        else:
-            typeArray.append(colored("Type: ", attrs=["bold"]))
-            typeArray.append(f'{self.FormattedTypeOne}')
-
-        return typeArray
 
     def PrintTypeInfo(self) -> None:
         print()

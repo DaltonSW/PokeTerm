@@ -3,7 +3,6 @@ import shutil
 from InquirerPy import inquirer
 from PokeWrapper import PokeWrapper
 import Utils
-from rich.syntax import Syntax
 from console import console
 
 # TODO: Set up "configuration" to collapse/expand certain sections
