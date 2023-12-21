@@ -2,7 +2,7 @@ import Utils
 from Resources.Data import AbstractData
 
 
-class Version(AbstractData):
+class VersionGroup(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
     ENDPOINT = 'version-group'
@@ -11,6 +11,7 @@ class Version(AbstractData):
         super().__init__(data)
 
         self.generationID = Utils.GetIDFromURL(data['generation']['url'])
+        self.versions = [thing['name'] for thing in data['versions']]
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 

@@ -1,6 +1,7 @@
 from rich.theme import Theme
 
 PokeTheme = Theme({
+    # Types
     "normal": "#A8A77A",
     "fire": "#EE8130",
     "water": "#6390F0",
@@ -19,6 +20,8 @@ PokeTheme = Theme({
     "dark": "#705746",
     "steel": "#B7B7CE",
     "fairy": "#D685AD",
+
+    # Generations
     "red": "#FF1111",
     "blue": "#1111FF",
     "yellow": "#FFD733",
@@ -51,12 +54,16 @@ PokeTheme = Theme({
     "ultra-moon": "#1F62A3",
     "sword": "#00D1F6",
     "shield": "#9E2306",
+    "the-isle-of-armor": "#f6df2e",
+    "the-crown-tundra": "#009e8a",
     "brilliant-diamond": "#AFEDE4",
     "shining-pearl": "#E3B6DF",
     "scarlet": "#C91421",
     "violet": "#632EA6",
+    "the-teal-mask": "#00a29c",
+    "the-indigo-disk": "#025a84",
 
-    # These colors are pulled from color-picking the Feather sprites from Pokemon Dream
+    # Stats (pulled from color-picking the Feather sprites from Pokemon Dream)
     "hp": '#f5e287',
     "attack": '#ef8086',
     "defense": '#7c9fd3',

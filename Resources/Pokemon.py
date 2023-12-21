@@ -5,7 +5,7 @@ import Utils
 from Resources.Data import AbstractData
 from tabulate import tabulate
 from termcolor import colored, cprint
-from Resources import Species, Ability
+from Resources import Species, Ability, Generation, VersionGroup
 
 from rich.table import Table
 from rich import box
@@ -16,10 +16,10 @@ class Pokemon(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
     FLAGS = {
-        'abilities'  : 1,
-        'stats'      : 1,
-        'available'  : 1,
-        'unavailable': 1
+        'abilities'   : 1,
+        'stats'       : 1,
+        'availability': 1,
+        'unavailable' : 1
     }
     ENDPOINT = 'pokemon'
 
@@ -73,7 +73,7 @@ class Pokemon(AbstractData):
         infoTable = [[colored(f"{self.ENDPOINT.title()}:", attrs=["bold"]), f' {self.PrintName} [{self.ID}]'],
                      self.GetTypeArray()]
 
-        print(tabulate(infoTable, tablefmt='plain'))
+        console.print(tabulate(infoTable, tablefmt='plain'))
         self.PrintAbilities()
         self.PrintBaseStats()
         self.PrintVersionInfo()
@@ -132,6 +132,11 @@ class Pokemon(AbstractData):
         console.print(statsTable)
 
     def PrintVersionInfo(self) -> None:
+        print()
+        if not self.FLAGS['availability']:
+            print("[A]vailability Info")
+            return
+
         available, unavailable = [], []
         if self.locationInformation is None:
             return
@@ -142,13 +147,36 @@ class Pokemon(AbstractData):
             else:
                 available.append(game)
 
-        print("[A]vailable in: ")
-        if self.FLAGS['available']:
-            print("\t {}".format(", ".join(available)))
+        # print("[A]vailability Info (Toggle [U]navailable)")
+        # overallInfoTable = Table(title="[A]vailability Info (Toggle [U]navailable)", title_justify="left",
+        overallInfoTable = Table(title="[A]vailability Info", title_justify="left", box=box.HORIZONTALS, show_header=False, show_lines=True)
 
-        print("[U]navailable in: ")
-        if self.FLAGS['unavailable']:
-            print("\t {}".format(", ".join(unavailable)))
+        overallInfoTable.add_column()
+        overallInfoTable.add_column()
+        overallInfoTable.add_column()
+
+        overallInfoTable.add_row(self.GetGenerationTable(1), self.GetGenerationTable(2), self.GetGenerationTable(3))
+        overallInfoTable.add_row(self.GetGenerationTable(4), self.GetGenerationTable(5), self.GetGenerationTable(6))
+        overallInfoTable.add_row(self.GetGenerationTable(7), self.GetGenerationTable(8), self.GetGenerationTable(9))
+
+        # TODO: Eventually implement an "ignore certain generations" flag
+
+        console.print(overallInfoTable)
+
+    def GetGenerationTable(self, gen):
+        genTable = Table(title=f"Generation {gen}")
+        genTable.add_column("Game")
+        genTable.add_column("Location")
+        genInfo = Generation.Generation.HandleSearch(gen)
+        for versionGroup in genInfo.versionGroups:
+            groupInfo = VersionGroup.VersionGroup.HandleSearch(versionGroup)
+            for version in groupInfo.versions:
+                versionLocations = self.locationInformation.get(version)
+                if versionLocations is None or len(versionLocations) == 0:
+                    continue
+                secondCell = ", ".join(versionLocations)
+                genTable.add_row(f'[{version}]{Utils.REVERSED_MAPPING_DICT[version]}[/]', secondCell)
+        return genTable
 
     def LocationLoader(self) -> dict[str, list[str]] | None:  # eventually dict[int, list[int]] for IDs instead
         queryURL = f"https://pokemondb.net/pokedex/{self.name}"
@@ -181,19 +209,19 @@ class Pokemon(AbstractData):
                 locations.append(location.text)
 
             for gameName in games:
-                encounters[gameName] = locations
+                encounters[Utils.VERSION_MAPPING_DICT[gameName]] = locations
 
         return encounters
 
     @property
     def FormattedTypeOne(self) -> str:
-        return colored(self.types[0].title(), Colors.GetTypeColor(self.types[0]))
+        return f'[{self.types[0]}]{self.types[0].title()}[/]'
 
     @property
     def FormattedTypeTwo(self) -> str:
         if len(self.types) < 2:
             return ""
-        return colored(self.types[1].title(), Colors.GetTypeColor(self.types[1]))
+        return f'[{self.types[1]}]{self.types[1].title()}[/]'
 
     # endregion
 
@@ -208,7 +236,7 @@ class Pokemon(AbstractData):
             case 's':
                 cls.FLAGS['stats'] = not cls.FLAGS['stats']
             case 'a':
-                cls.FLAGS['available'] = not cls.FLAGS['available']
+                cls.FLAGS['availability'] = not cls.FLAGS['availability']
             case 'u':
                 cls.FLAGS['unavailable'] = not cls.FLAGS['unavailable']
             case _:

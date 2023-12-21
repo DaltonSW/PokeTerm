@@ -18,7 +18,7 @@ class PokeWrapper:
         # 'Location': Location.Location,
         # 'Item': Item.Item,
         'Species': Species.Species,
-        # 'VersionGroup': VersionGroup.VersionGroup,
+        'VersionGroup': VersionGroup.VersionGroup,
         'Generation': Generation.Generation
     }
 

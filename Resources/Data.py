@@ -9,8 +9,8 @@ class AbstractData(ABC):
 
     @abstractmethod
     def __init__(self, data):
-        self.ID: int = data['id']
-        self.name: str = data['name']
+        self.ID: int = data.get('id')
+        self.name: str = data.get('name')
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     @abstractmethod
@@ -46,6 +46,9 @@ class AbstractData(ABC):
     def HandleSearch(cls, query=None):
         if query is None:
             query = input(f'{cls.ENDPOINT.title()} Name or ID: ').lower()
+        if query == '':
+            return None
+        query = str(query)
         if query.isdigit():
             query = Utils.ProperQueryFromID(int(query), cls.ID_TO_NAME_CACHE)
         if query in cls.NAME_TO_DATA_CACHE:
