@@ -78,12 +78,12 @@ class Pokemon(AbstractData):
         self.PrintBasicInfo()
         self.PrintAbilityInfo()
         self.PrintStatInfo()
-        # self.PrintVersionInfo()
+        self.PrintVersionInfo()
         return
 
     def PrintBasicInfo(self):
         # self.PrintTypeInformation()
-        console.print(f'[link={self.shinyLink}]Shiny Link (click)[/]')
+        console.print(f'[link={self.shinyLink}]Shiny Link (ctrl + click)[/]')
         species = Species.Species.HandleSearch(self.speciesID)
         if species is not None:
             species.PrintDataForPokemonPage()
