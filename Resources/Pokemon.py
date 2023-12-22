@@ -8,6 +8,8 @@ from rich.table import Table
 from rich import box
 from console import console
 
+# TODO: Override the search so if it fails to find a pokemon by the name, it searches for a species, then shows the default form
+
 
 class Pokemon(AbstractData):
     ID_TO_NAME_CACHE = {}
@@ -16,7 +18,8 @@ class Pokemon(AbstractData):
         'abilities'   : 1,
         'stats'       : 1,
         'availability': 1,
-        'unavailable' : 1
+        'unavailable' : 1,
+        'typing'      : 1,
     }
     ENDPOINT = 'pokemon'
 
@@ -30,7 +33,7 @@ class Pokemon(AbstractData):
         for ability in abilityList:
             newAbility = Ability.Ability.HandleSearch(ability.get('ability').get('name'))
             if newAbility is not None:
-                if ability.get('get_hidden') is True:
+                if ability.get('is_hidden') is True:
                     self.hiddenAbility = newAbility
                 else:
                     self.possibleAbilities.append(newAbility)
@@ -51,6 +54,9 @@ class Pokemon(AbstractData):
 
         # Available Locations
         self.locationInformation = self.LocationLoader()
+
+        # TODO: Surface link to shiny sprite
+        self.shinyLink = data.get('sprites').get('other').get('official-artwork').get('front_shiny')
 
         # TODO:
         #   First Generation Appearance (Species)
@@ -77,6 +83,7 @@ class Pokemon(AbstractData):
 
     def PrintBasicInfo(self):
         # self.PrintTypeInformation()
+        console.print(f'[link={self.shinyLink}]Shiny Link (click)[/]')
         species = Species.Species.HandleSearch(self.speciesID)
         if species is not None:
             species.PrintDataForPokemonPage()
@@ -84,27 +91,36 @@ class Pokemon(AbstractData):
 
     def PrintTypeInfo(self) -> None:
         print()
-        if not self.FLAGS['abilities']:
-            print("[T]ype Information")
+        console.rule("[T]ype Information", align='left', characters=' ')
+        if not self.FLAGS['typing']:
             return
 
-        typeInfoTable = Table(title="[T]ype Information", box=box.ROUNDED, title_justify='left', show_lines=True)
+        title = f'{self.FormattedTypeOne}{self.FormattedTypeTwo}'
 
-        typeInfoTable.add_column("Typings")
-        # abilityTable.add_column("Effectiveness")
+        typeTable = Table(title=title, box=box.ROUNDED, title_justify='left', show_lines=True)
 
-        typeInfoTable.add_row(f'{self.FormattedTypeOne}{self.FormattedTypeTwo}')
+        typeTable.add_column("NOR", header_style='normal')
+        typeTable.add_column("FIR", header_style='fire')
+        typeTable.add_column("WAT", header_style='water')
+        typeTable.add_column("ELE", header_style='electric')
+        typeTable.add_column("GRA", header_style='grass')
+        typeTable.add_column("ICE", header_style='ice')
+        typeTable.add_column("FIG", header_style='fighting')
+        typeTable.add_column("POI", header_style='poison')
+        typeTable.add_column("GRO", header_style='ground')
+        typeTable.add_column("FLY", header_style='flying')
+        typeTable.add_column("PSY", header_style='psychic')
+        typeTable.add_column("BUG", header_style='bug')
+        typeTable.add_column("ROC", header_style='rock')
+        typeTable.add_column("GHO", header_style='ghost')
+        typeTable.add_column("DRA", header_style='dragon')
+        typeTable.add_column("DAR", header_style='dark')
+        typeTable.add_column("STE", header_style='steel')
+        typeTable.add_column("FAI", header_style='fairy')
 
-        # abilityTable.add_row(stylized typings, function to build a type effectiveness table)
+        typeTable.add_row("?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?")
 
-        console.print(typeInfoTable)
-
-    def TypeEffectivenessTable(self) -> Table:
-        typeTable = Table()
-
-
-
-        return typeTable
+        console.print(typeTable)
 
     def PrintAbilityInfo(self) -> None:
         print()
@@ -120,7 +136,7 @@ class Pokemon(AbstractData):
         for ability in self.possibleAbilities:
             abilityTable.add_row(f"[bold]{ability.name.title()}[/]", ability.description)
         if self.hiddenAbility is not None:
-            abilityTable.add_row(f"[bold](Hidden) {self.hiddenAbility.name.title()}[/]", self.hiddenAbility.description)
+            abilityTable.add_row(f"[bold]{self.hiddenAbility.name.title()} (H)[/]", self.hiddenAbility.description)
         console.print(abilityTable)
 
     # Don't care about hardcoding, this is way more readable
@@ -179,8 +195,6 @@ class Pokemon(AbstractData):
             else:
                 available.append(game)
 
-        # print("[A]vailability Info (Toggle [U]navailable)")
-        # overallInfoTable = Table(title="[A]vailability Info (Toggle [U]navailable)", title_justify="left",
         overallInfoTable = Table(title="[A]vailability Info", title_justify="left", box=box.HORIZONTALS, show_header=False, show_lines=True)
 
         overallInfoTable.add_column()
@@ -271,5 +285,7 @@ class Pokemon(AbstractData):
                 cls.FLAGS['availability'] = not cls.FLAGS['availability']
             case 'u':
                 cls.FLAGS['unavailable'] = not cls.FLAGS['unavailable']
+            case 't':
+                cls.FLAGS['typing'] = not cls.FLAGS['typing']
             case _:
                 return

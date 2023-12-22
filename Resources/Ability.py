@@ -1,8 +1,5 @@
-import Colors
 import Utils
 from .Data import AbstractData
-from tabulate import tabulate
-from termcolor import colored
 
 
 class Ability(AbstractData):
@@ -25,12 +22,6 @@ class Ability(AbstractData):
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     def PrintData(self):
-        Utils.ClearScreen()
-
-        infoTable = [
-            [colored(f"{self.ENDPOINT.title()}:", attrs=["bold"]), f' {self.PrintName} [{self.ID}]'],
-        ]
-        print(tabulate(infoTable, tablefmt='plain'))
         return
 
     def AddToCache(self):
