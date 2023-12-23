@@ -6,19 +6,24 @@ import Utils
 from console import console
 
 # TODO: Set up "configuration" to collapse/expand certain sections
-
-# TODO: Make it pretty AND interactive with some TUI framework
 # TODO: Once you've got basic information searching working, set up links between them
 # TODO: Make links clickable
 
 def main():
     PokeWrapper.LoadCaches()
     Utils.ClearScreen()
+    # TODO:
+    #   Egg Groups
+    #   Location
+    #   Item
+    #   Game/Version
+    #   PokeBalls
+    #   Catch Rate Calculator
     prompt = "What to search for?"
     options = [
         'Pokemon',
-        'Ability',
-        # 'Type',
+        # 'Ability',
+        'Type',
         'Move',
         # 'Berry',
         # 'Location',
@@ -26,8 +31,7 @@ def main():
         'Version',
         'Generation',
         'Cache Test',
-        'Clear Cache',
-        'Clear & Quit',
+        'Clear Cache & Quit',
         'Quit'
     ]
     choice = ''
@@ -46,12 +50,11 @@ def main():
         if choice == 'Quit' or choice == '':
             QuitGracefully()
 
-        elif choice == 'Clear Cache' or choice == 'Clear & Quit':
+        elif choice == 'Clear Cache & Quit':
             if os.path.exists('./cache'):
                 shutil.rmtree('./cache')
             Utils.ClearScreen()
-            if choice == 'Clear & Quit':
-                quit(0)
+            quit(0)
 
         elif choice == 'Cache Test':
             if os.path.exists('./cache'):

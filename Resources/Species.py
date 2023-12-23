@@ -27,7 +27,7 @@ class Species(AbstractData):
         # Misc Information
         self.growthRate: str = data.get('growth_rate').get('name')
         self.baseHappiness: int = data.get('base_happiness')
-        self.captureRate: int = data.get('capture_rate')
+        self.catchRate: int = data.get('capture_rate')
 
         pokedexData = data.get('pokedex_numbers')
         self.pokedexNumbers = {}
@@ -40,42 +40,75 @@ class Species(AbstractData):
 
         return
 
+    # TODO:
+    #   Finish basic info formatting
+    #   Evolution line
+    #   Type effectiveness
+
     def AddToCache(self):
         super().AddToCache()
 
     @property
     def GenderRatio(self) -> str:
-        return str(self.genderRatio)
+        if self.genderRatio == -1:
+            return 'Genderless'
 
+        if self.genderRatio == 0:
+            return '[male]100%[/] male'
+
+        if self.genderRatio == 8:
+            return '[female]100%[/] female'
+
+        return f'[female]{self.genderRatio * 12.5}%[/] female / [male]{(8 - self.genderRatio) * 12.5}%[/] male'
+
+    # Formula gotten from Smogon guide, originally from forum user X-Act
+    # https://www.smogon.com/ingame/guides/capture_mechanics
     @property
     def CaptureRate(self) -> str:
-        return str(self.captureRate)
+        maxHP = 100
+        ballRate = 1  # 1 is Pokeball, 1.5 for Great, 2 for Ultra
+        status = 1  # 1 is None, 1.5 is poison, burn, or paralysis, 2 is sleep or freeze
+        captureRate = float(((1 + (maxHP * 3 - maxHP * 2) * self.catchRate * ballRate * status) / (maxHP * 3)) / 256)
+
+        return str(f"{self.catchRate} (~{(captureRate * 100):.2f}% in PokeBall @ full HP)")
 
     @property
     def HatchCycles(self) -> str:
-        return str(self.hatchCycles)
+        return f"{str(self.hatchCycles)} ({(self.hatchCycles * 128):,} - {(self.hatchCycles * 257):,} steps)"
 
     @property
     def EggGroups(self) -> str:
-        return ', '.join(self.eggGroups)
+        return ', '.join(group.title() for group in self.eggGroups)
 
     @property
     def GrowthRate(self) -> str:
+        match self.growthRate:
+            case 'erratic':
+                return 'Erratic (Lvl 100: 600,000 XP)'
+            case 'fast':
+                return 'Fast (Lvl 100: 800,000 XP)'
+            case 'medium-fast':
+                return 'Medium Fast (Lvl 100: 1,000,000 XP)'
+            case 'medium-slow':
+                return 'Medium Slow (Lvl 100: 1,059,860 XP)'
+            case 'slow':
+                return 'Slow (Lvl 100: 1,250,000 XP)'
+            case 'fluctuating':
+                return 'Fluctuating (Lvl 100: 1,640,000 XP)'
+
         return str(self.growthRate)
 
     def PrintDataForPokemonPage(self):
-        infoTable = Table(show_header=False, box=box.SIMPLE)
+        infoTable = Table(show_header=False, box=box.ROUNDED, show_lines=True)
 
-        infoTable.add_column("Gender/Capture", ratio=3)
-        infoTable.add_column("#s", ratio=1)
-        infoTable.add_column("Groups/Cycles", ratio=3)
-        infoTable.add_column("#s", ratio=1)
-        infoTable.add_column("Growth/Happiness", ratio=3)
+        infoTable.add_column("Gender/EggGroups/Happiness", ratio=2)
         infoTable.add_column("#s", ratio=3)
+        infoTable.add_column("CaptureRate/HatchCycles/GrowthRate", ratio=2)
+        infoTable.add_column("Values", ratio=5)
 
-        infoTable.add_row('Gender Ratio', self.GenderRatio, 'Hatch Cycles', self.HatchCycles,
-                          'Egg Groups', self.EggGroups)
-        infoTable.add_row('Capture Rate', self.CaptureRate, 'Base Happiness', str(self.baseHappiness),
-                          'EXP Growth Rate', self.GrowthRate)
+        infoTable.add_row('[b]Gender Ratio:[/]', self.GenderRatio, '[b]Capture Rate:[/]', self.CaptureRate)
+        infoTable.add_row('[b]Egg Groups:[/]', self.EggGroups, '[b]Hatch Cycles:[/]', self.HatchCycles)
+        # infoTable.add_row('Base Happiness', str(self.baseHappiness), 'EXP Growth Rate', self.GrowthRate)
+        infoTable.add_row('[b]EXP Growth Rate:[/]', self.GrowthRate, '[b]Base Happiness:[/]', str(self.baseHappiness))
 
         console.print(infoTable)

@@ -72,15 +72,15 @@ def LoadingIndicator(stopEvent: threading.Event):
 
 
 def SaveCache(cacheType, cache):
-    with open(f'{CACHE_DIR}/{cacheType}.pickle', 'wb') as f:
+    with open(f'{CACHE_DIR}/{cacheType}.cache', 'wb') as f:
         pickle.dump(cache, f)
         print(f"Successfully saved {cacheType.upper()} cache")
 
 
 def LoadCache(cacheType) -> (dict, dict):
-    if not os.path.exists(f'{CACHE_DIR}/{cacheType}.pickle'):
+    if not os.path.exists(f'{CACHE_DIR}/{cacheType}.cache'):
         return None
-    with open(f'{CACHE_DIR}/{cacheType}.pickle', 'rb') as f:
+    with open(f'{CACHE_DIR}/{cacheType}.cache', 'rb') as f:
         cache = pickle.load(f)
         print(f"Successfully loaded {cacheType.upper()} cache")
     return cache

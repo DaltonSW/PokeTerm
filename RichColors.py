@@ -81,4 +81,7 @@ PokeTheme = Theme({
     "special-defenseDark": '#b74b97',
     "speedDark": '#6fbe59',
 
+    # Pokemon identifiers
+    "male": "#59b9e3",
+    "female": "#f081e8"
 })

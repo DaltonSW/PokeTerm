@@ -2,11 +2,12 @@ from bs4 import BeautifulSoup
 import requests
 import Utils
 from Resources.Data import AbstractData
-from Resources import Species, Ability, Generation, VersionGroup
+from Resources import Species, Ability, Generation, VersionGroup, Type
 
 from rich.table import Table
 from rich import box
 from console import console
+
 
 # TODO: Override the search so if it fails to find a pokemon by the name, it searches for a species, then shows the default form
 
@@ -17,9 +18,10 @@ class Pokemon(AbstractData):
     FLAGS = {
         'abilities'   : 1,
         'stats'       : 1,
-        'availability': 1,
+        'availability': 0,
         'unavailable' : 1,
         'typing'      : 1,
+        'species'     : 1,
     }
     ENDPOINT = 'pokemon'
 
@@ -55,7 +57,6 @@ class Pokemon(AbstractData):
         # Available Locations
         self.locationInformation = self.LocationLoader()
 
-        # TODO: Surface link to shiny sprite
         self.shinyLink = data.get('sprites').get('other').get('official-artwork').get('front_shiny')
 
         # TODO:
@@ -66,24 +67,31 @@ class Pokemon(AbstractData):
         #   List of moves (probably just in Gen 9 for right now)
         #   Evolution information (Looks like its own endpoint?)
         #   Other forms
-        #   Type Effectiveness
-        #       Make Type class do a thing
 
-        self.types = [t.get('type').get('name') for t in data.get('types')]
+        typeArray = data.get('types')
+
+        self.typeOne = Type.Type.HandleSearch(typeArray[0].get('type').get('name'))
+        if len(typeArray) > 1:
+            self.typeTwo = Type.Type.HandleSearch(typeArray[1].get('type').get('name'))
 
     def PrintData(self):
-        console.rule(self.name.title(), align='left')
+        console.rule(f"[bold]{self.name.upper()}[/]", style='none')
+        console.print(f'[link={self.shinyLink}]Shiny Link (ctrl + click)[/]')
 
         self.PrintTypeInfo()
-        self.PrintBasicInfo()
+        self.PrintSpeciesInfo()
         self.PrintAbilityInfo()
         self.PrintStatInfo()
         self.PrintVersionInfo()
         return
 
-    def PrintBasicInfo(self):
-        # self.PrintTypeInformation()
-        console.print(f'[link={self.shinyLink}]Shiny Link (ctrl + click)[/]')
+    def PrintSpeciesInfo(self):
+        print()
+        if not self.FLAGS['species']:
+            console.rule("Spe\[c]ies Information ▶", align='left', characters=' ')
+            return
+
+        console.rule("Spe\[c]ies Information ▼", align='left', characters=' ')
         species = Species.Species.HandleSearch(self.speciesID)
         if species is not None:
             species.PrintDataForPokemonPage()
@@ -91,42 +99,46 @@ class Pokemon(AbstractData):
 
     def PrintTypeInfo(self) -> None:
         print()
-        console.rule("[T]ype Information", align='left', characters=' ')
         if not self.FLAGS['typing']:
+            console.rule("[T]ype Information ▶", align='left', characters=' ')
             return
 
-        title = f'{self.FormattedTypeOne}{self.FormattedTypeTwo}'
+        console.rule("[T]ype Information ▼", align='left', characters=' ')
+        print()
+        console.print(f'Typing: {self.FormattedTypeOne}{self.FormattedTypeTwo}')
 
-        typeTable = Table(title=title, box=box.ROUNDED, title_justify='left', show_lines=True)
+        typeTable = Type.Type.GetTypeTable("Type Defenses")
 
-        typeTable.add_column("NOR", header_style='normal')
-        typeTable.add_column("FIR", header_style='fire')
-        typeTable.add_column("WAT", header_style='water')
-        typeTable.add_column("ELE", header_style='electric')
-        typeTable.add_column("GRA", header_style='grass')
-        typeTable.add_column("ICE", header_style='ice')
-        typeTable.add_column("FIG", header_style='fighting')
-        typeTable.add_column("POI", header_style='poison')
-        typeTable.add_column("GRO", header_style='ground')
-        typeTable.add_column("FLY", header_style='flying')
-        typeTable.add_column("PSY", header_style='psychic')
-        typeTable.add_column("BUG", header_style='bug')
-        typeTable.add_column("ROC", header_style='rock')
-        typeTable.add_column("GHO", header_style='ghost')
-        typeTable.add_column("DRA", header_style='dragon')
-        typeTable.add_column("DAR", header_style='dark')
-        typeTable.add_column("STE", header_style='steel')
-        typeTable.add_column("FAI", header_style='fairy')
+        typeEffs = [1 for _ in range(18)]
 
-        typeTable.add_row("?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?")
+        for index, otherType in enumerate(Type.TYPE_ARRAY):
+            typeEffs[index] *= self.typeOne.GetDefensiveEffectiveness(otherType)
+            if self.typeTwo:
+                typeEffs[index] *= self.typeTwo.GetDefensiveEffectiveness(otherType)
+
+        strEffs = []
+        for t in typeEffs:
+            match t:
+                case 0.5:
+                    out = '[red]1/2'
+                case 0.25:
+                    out = '[red]1/4'
+                case 2:
+                    out = '[green]2'
+                case _:
+                    out = '[gray]1'
+            strEffs.append(out)
+        typeTable.add_row(*strEffs)
 
         console.print(typeTable)
 
     def PrintAbilityInfo(self) -> None:
         print()
-        console.rule("[P]ossible Abilities", align='left')
         if not self.FLAGS['abilities']:
+            console.rule("[P]ossible Abilities ▶", align='left', characters=' ')
             return
+
+        console.rule("[P]ossible Abilities ▼", align='left', characters=' ')
 
         abilityTable = Table(box=box.ROUNDED, show_lines=True)
 
@@ -142,9 +154,11 @@ class Pokemon(AbstractData):
     # Don't care about hardcoding, this is way more readable
     def PrintStatInfo(self) -> None:
         print()
-        console.rule("[S]tat Information", align='left')
         if not self.FLAGS['stats']:
+            console.rule("[S]tat Information ▶", align='left', characters=' ')
             return
+
+        console.rule("[S]tat Information ▼", align='left', characters=' ')
 
         statsTable = Table(box=box.ROUNDED)
 
@@ -182,7 +196,7 @@ class Pokemon(AbstractData):
     def PrintVersionInfo(self) -> None:
         print()
         if not self.FLAGS['availability']:
-            print("[A]vailability Info")
+            print("[A]vailability Info ▶")
             return
 
         available, unavailable = [], []
@@ -195,15 +209,17 @@ class Pokemon(AbstractData):
             else:
                 available.append(game)
 
-        overallInfoTable = Table(title="[A]vailability Info", title_justify="left", box=box.HORIZONTALS, show_header=False, show_lines=True)
+        overallInfoTable = Table(title="[A]vailability Info ▼", title_justify="left", box=box.HORIZONTALS,
+                                 show_header=False, show_lines=True)
 
         overallInfoTable.add_column()
         overallInfoTable.add_column()
         overallInfoTable.add_column()
 
-        overallInfoTable.add_row(self.GetGenerationTable(1), self.GetGenerationTable(2), self.GetGenerationTable(3))
-        overallInfoTable.add_row(self.GetGenerationTable(4), self.GetGenerationTable(5), self.GetGenerationTable(6))
-        overallInfoTable.add_row(self.GetGenerationTable(7), self.GetGenerationTable(8), self.GetGenerationTable(9))
+        with console.status("Querying for location data..."):
+            overallInfoTable.add_row(self.GetGenerationTable(1), self.GetGenerationTable(2), self.GetGenerationTable(3))
+            overallInfoTable.add_row(self.GetGenerationTable(4), self.GetGenerationTable(5), self.GetGenerationTable(6))
+            overallInfoTable.add_row(self.GetGenerationTable(7), self.GetGenerationTable(8), self.GetGenerationTable(9))
 
         # TODO: Eventually implement an "ignore certain generations" flag
 
@@ -258,18 +274,17 @@ class Pokemon(AbstractData):
                 encounters[Utils.VERSION_MAPPING_DICT[gameName]] = locations
 
         return encounters
+    # endregion
 
     @property
     def FormattedTypeOne(self) -> str:
-        return f'[{self.types[0]}]{self.types[0].title()}[/]'
+        return self.typeOne.PrintName
 
     @property
     def FormattedTypeTwo(self) -> str:
-        if len(self.types) < 2:
-            return ""
-        return f' / [{self.types[1]}]{self.types[1].title()}[/]'
-
-    # endregion
+        if self.typeTwo is None:
+            return ''
+        return ' [white]/[/] ' + self.typeTwo.PrintName
 
     def AddToCache(self):
         super().AddToCache()
@@ -287,5 +302,7 @@ class Pokemon(AbstractData):
                 cls.FLAGS['unavailable'] = not cls.FLAGS['unavailable']
             case 't':
                 cls.FLAGS['typing'] = not cls.FLAGS['typing']
+            case 'c':
+                cls.FLAGS['species'] = not cls.FLAGS['species']
             case _:
                 return
