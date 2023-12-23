@@ -40,14 +40,26 @@ class PokeWrapper:
 
     @staticmethod
     def HandleCacheTest():
-        print("Cache Test")
-        for i in track(range(1, 10), description="Fetching generation data..."):
+        console.rule("Cache Test", style='white')
+        for i in track(range(1, 10), description="Fetching Generation 1-9 data..."):
             Generation.Generation.HandleSearch(str(i))
             time.sleep(0.1)
 
-        for i in track(range(1, 51), description="Fetching Pokemon data..."):
+        for i in track(range(1, 51), description="Fetching Pokemon 1-50 data..."):
             Pokemon.Pokemon.HandleSearch(str(i))
             time.sleep(0.25)
+
+        for i in track(range(1, 101), description="Fetching Move 1-100 data..."):
+            Pokemon.Pokemon.HandleSearch(str(i))
+            time.sleep(0.1)
+
+        for i in track(range(51, 101), description="Fetching Pokemon 51-100 data..."):
+            Pokemon.Pokemon.HandleSearch(str(i))
+            time.sleep(0.25)
+
+        for i in track(range(1, 101), description="Fetching Ability 1-100 data..."):
+            Pokemon.Pokemon.HandleSearch(str(i))
+            time.sleep(0.1)
         return
 
     @staticmethod
