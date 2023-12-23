@@ -30,7 +30,7 @@ class PokeWrapper:
         resource = cls.RESOURCES.get(optionName)
         if resource is not None:
             query = input(f'{optionName.title()} Name or ID: ').lower()
-            if query is not '':
+            if query != '':
                 with console.status("Querying..."):
                     result = resource.HandleSearch(query)
                 if result is not None:

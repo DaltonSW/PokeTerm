@@ -68,11 +68,13 @@ class Pokemon(AbstractData):
         #   Evolution information (Looks like its own endpoint?)
         #   Other forms
 
-        typeArray = data.get('types')
+        typeData = data.get('types')
 
-        self.typeOne = Type.Type.HandleSearch(typeArray[0].get('type').get('name'))
-        if len(typeArray) > 1:
-            self.typeTwo = Type.Type.HandleSearch(typeArray[1].get('type').get('name'))
+        self.typeArray = []
+
+        self.typeArray.append(Type.Type.HandleSearch(typeData[0].get('type').get('name')))
+        if len(typeData) > 1:
+            self.typeArray.append(Type.Type.HandleSearch(typeData[1].get('type').get('name')))
 
     def PrintData(self):
         console.rule(f"[bold]{self.name.upper()}[/]", style='none')
@@ -112,9 +114,9 @@ class Pokemon(AbstractData):
         typeEffs = [1 for _ in range(18)]
 
         for index, otherType in enumerate(Type.TYPE_ARRAY):
-            typeEffs[index] *= self.typeOne.GetDefensiveEffectiveness(otherType)
-            if self.typeTwo:
-                typeEffs[index] *= self.typeTwo.GetDefensiveEffectiveness(otherType)
+            typeEffs[index] *= self.typeArray[0].GetDefensiveEffectiveness(otherType)
+            if len(self.typeArray) > 1:
+                typeEffs[index] *= self.typeArray[1].GetDefensiveEffectiveness(otherType)
 
         strEffs = []
         for t in typeEffs:
@@ -278,13 +280,13 @@ class Pokemon(AbstractData):
 
     @property
     def FormattedTypeOne(self) -> str:
-        return self.typeOne.PrintName
+        return self.typeArray[0].PrintName
 
     @property
     def FormattedTypeTwo(self) -> str:
-        if self.typeTwo is None:
+        if len(self.typeArray) == 1:
             return ''
-        return ' [white]/[/] ' + self.typeTwo.PrintName
+        return ' [white]/[/] ' + self.typeArray[1].PrintName
 
     def AddToCache(self):
         super().AddToCache()
