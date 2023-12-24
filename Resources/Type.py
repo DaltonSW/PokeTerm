@@ -8,6 +8,9 @@ TYPE_ARRAY = ['normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting',
               'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost',
               'dragon', 'dark', 'steel', 'fairy']
 
+# TODO:
+#   Pokemon w/ this as primary and secondary type, two tables next to each other
+
 class Type(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}

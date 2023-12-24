@@ -3,7 +3,10 @@ from .Data import AbstractData
 from tabulate import tabulate
 from console import console
 
-# TODO: Descriptions and stuff
+# TODO:
+#   List Pokemon that can learn this move
+#   List TM number in each gen, if applicable
+
 class Move(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}

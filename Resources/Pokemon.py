@@ -8,9 +8,9 @@ from rich.table import Table
 from rich import box
 from console import console
 
-
-# TODO: Override the search so if it fails to find a pokemon by the name, it searches for a species, then shows the default form
-
+# TODO:
+#   Override the search so if it fails to find a pokemon by the name, it searches for a species, then shows the default form
+#   Dex information
 
 class Pokemon(AbstractData):
     ID_TO_NAME_CACHE = {}
@@ -97,6 +97,7 @@ class Pokemon(AbstractData):
         species = Species.Species.HandleSearch(self.speciesID)
         if species is not None:
             species.PrintDataForPokemonPage()
+            species.PrintData()
         return
 
     def PrintTypeInfo(self) -> None:

@@ -5,9 +5,17 @@ from PokeWrapper import PokeWrapper
 import Utils
 from console import console
 
-# TODO: Set up "configuration" to collapse/expand certain sections
-# TODO: Once you've got basic information searching working, set up links between them
-# TODO: Make links clickable
+# Known Pokemon Edge Cases:
+#   Searching Pokemon for "Minior"
+#   Printing out Eevee's evolutions
+
+# TODO:
+#   Overhaul the choice system to make it character based like the rest of the screens
+#   Set up "configuration" to collapse/expand certain sections
+#   Once you've got basic information searching working, set up links between them
+#   Make links "clickable"
+#       Ask Discord if I can have clicking a link redirect to a funcion instead?
+#       First just look into the code and see if it can be overridden or something?
 
 def main():
     PokeWrapper.LoadCaches()

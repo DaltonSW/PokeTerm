@@ -1,6 +1,10 @@
 import Utils
 from Resources.Data import AbstractData
 
+# TODO:
+#   List out each ability
+#   List out each move
+#   List out each Species added
 
 class Generation(AbstractData):
     ID_TO_NAME_CACHE = {}
