@@ -11,10 +11,9 @@ from console import console
 
 # TODO:
 #   Overhaul the choice system to make it character based like the rest of the screens
-#   Set up "configuration" to collapse/expand certain sections
 #   Once you've got basic information searching working, set up links between them
 #   Make links "clickable"
-#       Ask Discord if I can have clicking a link redirect to a funcion instead?
+#       Ask Discord if I can have clicking a link redirect to a function instead?
 #       First just look into the code and see if it can be overridden or something?
 
 def main():
@@ -27,6 +26,7 @@ def main():
     #   Game/Version
     #   PokeBalls
     #   Catch Rate Calculator
+    #   Nature
     prompt = "What to search for?"
     options = [
         'Pokemon',
@@ -36,9 +36,9 @@ def main():
         # 'Berry',
         # 'Location',
         # 'Item',
-        'Version',
+        # 'Version',
         'Generation',
-        'Cache Test',
+        # 'Cache Test',
         'Clear Cache & Quit',
         'Quit'
     ]

@@ -5,6 +5,8 @@ import Utils
 from Resources import Move, Ability, Type, Version, Pokemon, Species
 from Resources import VersionGroup, Generation
 
+from Config import Config
+
 from rich.progress import track
 from console import console
 
@@ -69,7 +71,11 @@ class PokeWrapper:
         for resource in PokeWrapper.RESOURCES.values():
             resource.SaveCache()
 
+        Config.SaveCache()
+
     @staticmethod
     def LoadCaches():
         for resource in PokeWrapper.RESOURCES.values():
             resource.LoadCache()
+
+        Config.LoadCache()

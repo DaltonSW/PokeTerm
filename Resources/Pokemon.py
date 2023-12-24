@@ -4,6 +4,8 @@ import Utils
 from Resources.Data import AbstractData
 from Resources import Species, Ability, Generation, VersionGroup, Type
 
+from Config import Config
+
 from rich.table import Table
 from rich import box
 from console import console
@@ -15,14 +17,6 @@ from console import console
 class Pokemon(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
-    FLAGS = {
-        'abilities'   : 1,
-        'stats'       : 1,
-        'availability': 0,
-        'unavailable' : 1,
-        'typing'      : 1,
-        'species'     : 1,
-    }
     ENDPOINT = 'pokemon'
 
     def __init__(self, data):
@@ -89,7 +83,7 @@ class Pokemon(AbstractData):
 
     def PrintSpeciesInfo(self):
         print()
-        if not self.FLAGS['species']:
+        if not Config.POKEMON_FLAGS['species']:
             console.rule("Spe\[c]ies Information ▶", align='left', characters=' ')
             return
 
@@ -102,7 +96,7 @@ class Pokemon(AbstractData):
 
     def PrintTypeInfo(self) -> None:
         print()
-        if not self.FLAGS['typing']:
+        if not Config.POKEMON_FLAGS['typing']:
             console.rule("[T]ype Information ▶", align='left', characters=' ')
             return
 
@@ -137,7 +131,7 @@ class Pokemon(AbstractData):
 
     def PrintAbilityInfo(self) -> None:
         print()
-        if not self.FLAGS['abilities']:
+        if not Config.POKEMON_FLAGS['abilities']:
             console.rule("[P]ossible Abilities ▶", align='left', characters=' ')
             return
 
@@ -154,10 +148,10 @@ class Pokemon(AbstractData):
             abilityTable.add_row(f"[bold]{self.hiddenAbility.name.title()} (H)[/]", self.hiddenAbility.description)
         console.print(abilityTable)
 
-    # Don't care about hardcoding, this is way more readable
+    # I don't care about the hardcoding, this is way more readable
     def PrintStatInfo(self) -> None:
         print()
-        if not self.FLAGS['stats']:
+        if not Config.POKEMON_FLAGS['stats']:
             console.rule("[S]tat Information ▶", align='left', characters=' ')
             return
 
@@ -198,7 +192,7 @@ class Pokemon(AbstractData):
 
     def PrintVersionInfo(self) -> None:
         print()
-        if not self.FLAGS['availability']:
+        if not Config.POKEMON_FLAGS['availability']:
             print("[A]vailability Info ▶")
             return
 
@@ -296,16 +290,16 @@ class Pokemon(AbstractData):
     def ToggleFlag(cls, flag: str):
         match flag:
             case 'p':
-                cls.FLAGS['abilities'] = not cls.FLAGS['abilities']
+                Config.POKEMON_FLAGS['abilities'] = not Config.POKEMON_FLAGS['abilities']
             case 's':
-                cls.FLAGS['stats'] = not cls.FLAGS['stats']
+                Config.POKEMON_FLAGS['stats'] = not Config.POKEMON_FLAGS['stats']
             case 'a':
-                cls.FLAGS['availability'] = not cls.FLAGS['availability']
+                Config.POKEMON_FLAGS['availability'] = not Config.POKEMON_FLAGS['availability']
             case 'u':
-                cls.FLAGS['unavailable'] = not cls.FLAGS['unavailable']
+                Config.POKEMON_FLAGS['unavailable'] = not Config.POKEMON_FLAGS['unavailable']
             case 't':
-                cls.FLAGS['typing'] = not cls.FLAGS['typing']
+                Config.POKEMON_FLAGS['typing'] = not Config.POKEMON_FLAGS['typing']
             case 'c':
-                cls.FLAGS['species'] = not cls.FLAGS['species']
+                Config.POKEMON_FLAGS['species'] = not Config.POKEMON_FLAGS['species']
             case _:
                 return

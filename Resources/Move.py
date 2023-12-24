@@ -1,6 +1,5 @@
 import Utils
 from .Data import AbstractData
-from tabulate import tabulate
 from console import console
 
 # TODO:

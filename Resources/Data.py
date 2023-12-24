@@ -44,9 +44,9 @@ class AbstractData(ABC):
 
     @classmethod
     def HandleSearch(cls, query=None):
-        if query is None or query is '':
+        if query is None or query == '':
             query = input(f'{cls.ENDPOINT.title()} Name or ID: ').lower()
-        if query is '':
+        if query == '':
             return None
         query = str(query)
         if query.isdigit():
