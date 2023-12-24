@@ -1,5 +1,6 @@
 import Utils
 from .Data import AbstractData
+from Resources import EvolutionChain
 from console import console
 from rich.table import Table
 from rich import box
@@ -29,21 +30,20 @@ class Species(AbstractData):
         self.baseHappiness: int = data.get('base_happiness')
         self.catchRate: int = data.get('capture_rate')
 
+        # PokeDex Numbers
         pokedexData = data.get('pokedex_numbers')
         self.pokedexNumbers = {}
         for entry in pokedexData:
             self.pokedexNumbers[entry['pokedex']['name']] = entry['entry_number']
 
+        # Evolution Chain
+        self.evolutionChain = EvolutionChain.EvolutionChain(Utils.GetFromURL(data.get('evolution_chain').get('url')))
+
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     def PrintData(self):
-
+        self.evolutionChain.PrintData()
         return
-
-    # TODO:
-    #   Finish basic info formatting
-    #   Evolution line
-    #   Type effectiveness
 
     def AddToCache(self):
         super().AddToCache()
