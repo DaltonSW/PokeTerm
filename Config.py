@@ -3,7 +3,7 @@ import Utils
 class Config:
     PROGRAM_FLAGS = {
         'colorblind': 0,
-        'firstLaunch': 1
+        'firstLaunch': 1,
     }
 
     POKEMON_FLAGS = {

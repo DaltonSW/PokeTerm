@@ -1,4 +1,5 @@
 import os
+import shutil
 import requests
 import pickle
 import threading
@@ -24,6 +25,10 @@ def PrintData(data: AbstractData) -> None:
 
 def ClearScreen():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+def ClearCache():
+    if os.path.exists(CACHE_DIR):
+        shutil.rmtree(CACHE_DIR)
 
 def GetIDFromURL(URL: str) -> int:
     return int(URL.split('/')[-2])
