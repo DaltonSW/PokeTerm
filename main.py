@@ -1,6 +1,5 @@
 import msvcrt
 import os
-import time
 
 import Utils
 from console import console
@@ -20,6 +19,8 @@ from Config import Config
 #       Ask Discord if I can have clicking a link redirect to a function instead?
 #       First just look into the code and see if it can be overridden or something?
 
+VERSION = "0.1.0"
+
 BASE_URL = 'https://pokeapi.co/api/v2/'
 RESOURCES = {
     'Pokemon': Pokemon.Pokemon,
@@ -37,10 +38,10 @@ RESOURCES = {
 
 def main():
     LoadCaches()
-    Utils.ClearScreen()
     printWelcome = True
 
     while True:
+        Utils.ClearScreen()
         if printWelcome: PrintWelcome()
         printWelcome = True
         try:
@@ -50,7 +51,7 @@ def main():
                 QuitGracefully()
 
             match key:
-                case 'a': HandleSearch(Ability.Ability)
+                # case 'a': HandleSearch(Ability.Ability)
                 case 'g': HandleSearch(Generation.Generation)
                 case 'm': HandleSearch(Move.Move)
                 case 'p': HandleSearch(Pokemon.Pokemon)
@@ -87,11 +88,11 @@ def main():
 def PrintChoices():
     print()
     console.rule("[bold white]Press a bracketed letter to search on that topic.", characters=' ')
-    console.rule("[bold white]Press Enter or Ctrl+C to save caches and exit.", characters=' ')
+    console.rule("[bold white]Press Enter to save caches and exit.", characters=' ')
     print()
 
     options = [
-        "[A]bility",
+        # "[A]bility",
         # "[B]erry",
         # "[C]alculators",
         # "[E]gg Groups",
@@ -102,10 +103,12 @@ def PrintChoices():
         # "[N]ature",
         "[P]okemon",
         "[T]ype",
+        "",
         # "[1] Options",
         "[2] Clear Cache",
         "[3] Clear Cache & Quit",
         "[0] Quit Without Saving",
+        "[Enter] Save & Quit"
     ]
 
     for option in options:

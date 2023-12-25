@@ -24,9 +24,9 @@ class Generation(AbstractData):
     def PrintData(self):
         print()
         print(f"Generation {self.ID}")
-        print(f'[A]bilities Introduced: {len(self.abilitiesIntroduced)}')
-        print(f'[M]oves Introduced: {len(self.movesIntroduced)}')
-        print(f'[S]pecies Introduced: {len(self.speciesIntroduced)}')
+        print(f'Abilities Introduced: {len(self.abilitiesIntroduced)}')
+        print(f'Moves Introduced: {len(self.movesIntroduced)}')
+        print(f'Species Introduced: {len(self.speciesIntroduced)}')
 
         pass
 

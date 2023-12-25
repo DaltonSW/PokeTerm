@@ -1,3 +1,5 @@
+from rich.table import Table
+
 import Utils
 from .Data import AbstractData
 from console import console
@@ -25,15 +27,16 @@ class Move(AbstractData):
     def PrintData(self):
         Utils.ClearScreen()
 
-        infoTable = [
-            [f"[bold]Move:[/] {self.PrintName} [{self.ID}]"],
-            [f"[bold]Type:[/] {self.FormattedMoveType}"],
-            [f"[bold]Class:[/] {self.FormattedMoveClass}"]
-        ]
-        console.print(infoTable)
-        statHeaders = ["PP", "Power", "Accuracy", ]
-        statCells = [[self.PP, self.power, f'{self.accuracy}%']]
-        console.print(statCells)
+        console.print(f"[bold]Move:[/] {self.PrintName} [{self.ID}]")
+        console.print(f"[bold]Type:[/] {self.FormattedMoveType}")
+        console.print(f"[bold]Class:[/] {self.FormattedMoveClass}")
+
+        statTable = Table()
+        statTable.add_column("PP")
+        statTable.add_column("Power")
+        statTable.add_column("Accuracy")
+        statTable.add_row(str(self.PP), str(self.power), f'{self.accuracy}%')
+        console.print(statTable)
         return
 
     def AddToCache(self):
