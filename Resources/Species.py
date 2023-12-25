@@ -16,14 +16,20 @@ class Species(AbstractData):
 
         # Colors, Egg Groups, Evolution Chains, Pokedexes, and Shapes COULD all be their own classes/endpoint
         # Physical identifiers
-        self.shape: str = data.get('shape').get('name')
-        self.color: str = data.get('color').get('name')
+        try:
+            self.shape: str = data.get('shape').get('name')
+        except AttributeError:
+            pass
+        try:
+            self.color: str = data.get('color').get('name')
+        except AttributeError:
+            pass
 
         # Egg information
         self.eggGroups: list[str] = [group['name'] for group in data.get('egg_groups')]
         self.hatchCycles: int = data.get('hatch_counter')
         self.genderRatio: float = data.get(
-            'gender_rate')  # "Chance of this pokemon being female, in eights. -1 if genderless"
+            'gender_rate')  # "Chance of this pokemon being female, in eighths. -1 if genderless"
 
         # Misc Information
         self.growthRate: str = data.get('growth_rate').get('name')

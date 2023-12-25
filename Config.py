@@ -26,14 +26,6 @@ class Config:
 
     MOVE_FLAGS = {}
 
-    # FLAG_LIST = [
-    #     PROGRAM_FLAGS,
-    #     SPECIES_FLAGS,
-    #     TYPE_FLAGS,
-    #     MOVE_FLAGS,
-    #     POKEMON_FLAGS
-    # ]
-
     @classmethod
     def LoadCache(cls):
         cache = Utils.LoadCache('config')
@@ -45,7 +37,6 @@ class Config:
         # cls.SPECIES_FLAGS = cache['species']
         cls.TYPE_FLAGS = cache['type']
         # cls.MOVE_FLAGS = cache['move']
-
 
     @classmethod
     def SaveCache(cls):

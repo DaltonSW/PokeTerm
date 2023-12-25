@@ -2,14 +2,14 @@ import os
 import shutil
 import requests
 import pickle
-import threading
-import time
 import re
 import msvcrt
 from Resources.Data import AbstractData
 
 BASE_URL = 'https://pokeapi.co/api/v2'
 CACHE_DIR = './cache'
+
+LOADED_THIS_SESSION = set()
 
 def PrintData(data: AbstractData) -> None:
     while True:
@@ -30,6 +30,7 @@ def ClearCache():
     if os.path.exists(CACHE_DIR):
         shutil.rmtree(CACHE_DIR)
 
+
 def GetIDFromURL(URL: str) -> int:
     return int(URL.split('/')[-2])
 
@@ -39,16 +40,6 @@ def ProperQueryFromID(query: int, idToNameCache) -> str | int:
         return idToNameCache[query]
     else:
         return query
-
-
-def GetFromAPIWrapper(endpoint, searchTerm):
-    stopEvent = threading.Event()
-    loadThread = threading.Thread(target=LoadingIndicator, args=[stopEvent])
-    loadThread.start()
-    response = GetFromAPI(endpoint, searchTerm)
-    stopEvent.set()
-    loadThread.join()
-    return response
 
 
 def GetFromAPI(endpoint, searchTerm):
@@ -65,15 +56,6 @@ def GetFromURL(url):
     if response.status_code == 404:
         return None
     return response.json()
-
-
-def LoadingIndicator(stopEvent: threading.Event):
-    ClearScreen()
-    numPeriods = 0
-    while not stopEvent.is_set():
-        numPeriods += 1
-        print("Querying PokeAPI" + '.' * numPeriods, end='\r')
-        time.sleep(0.33)
 
 
 def SaveCache(cacheType, cache):

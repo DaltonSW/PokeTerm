@@ -32,9 +32,8 @@ class Type(AbstractData):
         self.secondaryPokes = []
 
         for poke in pokemon:
-            # pokeObj = Pokemon.Pokemon.HandleSearch(pokeName)
-
             pokeName = poke.get('pokemon').get('name')
+            # pokeObj = Pokemon.Pokemon.HandleSearch(pokeName)
 
             if poke.get('slot') == 1:
                 self.primaryPokes.append(pokeName.title())

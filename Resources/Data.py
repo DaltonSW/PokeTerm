@@ -55,6 +55,7 @@ class AbstractData(ABC):
             return cls.NAME_TO_DATA_CACHE[query]
         data = Utils.GetFromAPI(cls.ENDPOINT, query)
         if data is not None:
+            # print(f"Loaded {data.get('name')} from {cls.ENDPOINT} API")
             newObject = cls(data)
             cls.NAME_TO_DATA_CACHE[newObject.name] = newObject
             return newObject

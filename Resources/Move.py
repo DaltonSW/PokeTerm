@@ -30,10 +30,10 @@ class Move(AbstractData):
             [f"[bold]Type:[/] {self.FormattedMoveType}"],
             [f"[bold]Class:[/] {self.FormattedMoveClass}"]
         ]
-        console.print(tabulate(infoTable, tablefmt='plain'))
+        console.print(infoTable)
         statHeaders = ["PP", "Power", "Accuracy", ]
         statCells = [[self.PP, self.power, f'{self.accuracy}%']]
-        console.print(tabulate(statCells, headers=statHeaders))
+        console.print(statCells)
         return
 
     def AddToCache(self):
@@ -49,4 +49,3 @@ class Move(AbstractData):
         return f'[{self.type}]{self.type.title()}[/]'
 
     # endregion
-

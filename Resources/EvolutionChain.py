@@ -41,5 +41,3 @@ class EvolutionChain:
     def PrintData(self):
         PrintEvoChain(self.evoChain)
         pass
-
-

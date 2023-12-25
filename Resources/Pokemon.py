@@ -1,3 +1,5 @@
+import time
+
 from bs4 import BeautifulSoup
 import requests
 import Utils
@@ -59,16 +61,15 @@ class Pokemon(AbstractData):
 
         # TODO:
         #   List of moves (probably just in Gen 9 for right now)
-        #   Evolution information (Looks like its own endpoint?)
         #   Other forms
 
         typeData = data.get('types')
 
         self.typeArray = []
 
-        self.typeArray.append(Type.Type.HandleSearch(typeData[0].get('type').get('name')))
+        self.typeArray.append(typeData[0].get('type').get('name'))
         if len(typeData) > 1:
-            self.typeArray.append(Type.Type.HandleSearch(typeData[1].get('type').get('name')))
+            self.typeArray.append(typeData[1].get('type').get('name'))
 
     def PrintData(self):
         console.rule(f"[bold]{self.name.upper()}[/]", style='none')
@@ -148,7 +149,6 @@ class Pokemon(AbstractData):
             abilityTable.add_row(f"[bold]{self.hiddenAbility.name.title()} (H)[/]", self.hiddenAbility.description)
         console.print(abilityTable)
 
-    # I don't care about the hardcoding, this is way more readable
     def PrintStatInfo(self) -> None:
         print()
         if not Config.POKEMON_FLAGS['stats']:
@@ -159,6 +159,7 @@ class Pokemon(AbstractData):
 
         statsTable = Table(box=box.ROUNDED)
 
+        # I don't care about the hardcoding, this is way more readable
         statsTable.add_column("HP", header_style="hp")
         statsTable.add_column("Attack", header_style="attack")
         statsTable.add_column("Defense", header_style="defense")
@@ -269,19 +270,23 @@ class Pokemon(AbstractData):
 
             for gameName in games:
                 encounters[Utils.VERSION_MAPPING_DICT[gameName]] = locations
-
+        # time.sleep(0.1)
         return encounters
     # endregion
 
     @property
     def FormattedTypeOne(self) -> str:
-        return self.typeArray[0].PrintName
+        typeOneObj = Type.Type.HandleSearch(self.typeArray[0])
+        if typeOneObj is not None:
+            return typeOneObj.PrintName
 
     @property
     def FormattedTypeTwo(self) -> str:
         if len(self.typeArray) == 1:
             return ''
-        return ' [white]/[/] ' + self.typeArray[1].PrintName
+        typeTwoObj = Type.Type.HandleSearch(self.typeArray[1])
+        if typeTwoObj is not None:
+            return ' [white]/[/] ' + typeTwoObj.PrintName
 
     def AddToCache(self):
         super().AddToCache()

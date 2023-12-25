@@ -54,6 +54,7 @@ def main():
                 case 'g': HandleSearch(Generation.Generation)
                 case 'm': HandleSearch(Move.Move)
                 case 'p': HandleSearch(Pokemon.Pokemon)
+                # case 'q': HandleCacheTest()
                 case 't': HandleSearch(Type.Type)
                 # case '1':
                 case '2':
@@ -124,18 +125,16 @@ def PrintWelcome():
     print()
     console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style='white')
 
-
 def HandleSearch(resource):
     query = input(f'{resource.ENDPOINT.title()} Name or ID: ').lower()
     if query == '':
-        QuitGracefully()
+        return
 
     with console.status("Querying..."):
         result = resource.HandleSearch(query)
     if result is not None:
         Utils.PrintData(result)
     return
-
 
 def SaveCaches():
     if not os.path.exists(Utils.CACHE_DIR):
@@ -157,27 +156,25 @@ def QuitGracefully():
     quit(0)
 
 def HandleCacheTest():
+    Utils.ClearCache()
+    Utils.ClearScreen()
     console.rule("Cache Test", style='white')
-    for i in track(range(1, 10), description="Fetching Generation 1-9 data..."):
+    for i in track(range(1, 19), description='Fetching Type data...'):
+        Type.Type.HandleSearch(str(i))
+    for i in track(range(1, 10), description="Fetching Generation data..."):
         Generation.Generation.HandleSearch(str(i))
-        time.sleep(0.1)
-
-    for i in track(range(1, 51), description="Fetching Pokemon 1-50 data..."):
+    for i in track(range(1, 251), description="Fetching Pokemon 1-250 data..."):
         Pokemon.Pokemon.HandleSearch(str(i))
-        time.sleep(0.25)
-
-    for i in track(range(1, 101), description="Fetching Move 1-100 data..."):
+    for i in track(range(1, 251), description="Fetching Move 1-250 data..."):
         Pokemon.Pokemon.HandleSearch(str(i))
-        time.sleep(0.1)
-
-    for i in track(range(51, 101), description="Fetching Pokemon 51-100 data..."):
+    for i in track(range(251, 501), description="Fetching Pokemon 251-500 data..."):
         Pokemon.Pokemon.HandleSearch(str(i))
-        time.sleep(0.25)
-
-    for i in track(range(1, 101), description="Fetching Ability 1-100 data..."):
+    for i in track(range(1, 251), description="Fetching Ability 1-250 data..."):
         Pokemon.Pokemon.HandleSearch(str(i))
-        time.sleep(0.1)
-    return
+    for i in track(range(501, 751), description="Fetching Pokemon 501-750 data..."):
+        Pokemon.Pokemon.HandleSearch(str(i))
+    SaveCaches()
+    quit(0)
 
 if __name__ == '__main__':
     main()
