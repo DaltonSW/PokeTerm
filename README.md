@@ -12,6 +12,12 @@ You can view the results of the VirusTotal scan here: [Link](https://www.virusto
 
 Please reach out with any questions or issues. You can leave an issue on the repo, email me at [feedback@dalton.dog](mailto:feedback@dalton.dog), or message me on Discord `@DaltonSW`
 
+![Homescreen of the terminal application, displaying the title and some menu choices.](https://i.imgur.com/wRvhXIn.png)
+
+![Example of searching on Type, with "Fire" used as the example search.](https://i.imgur.com/PIc3WAq.png)
+
+![Example of searching on Pokemon, with "Dratini" used as the example search.](https://i.imgur.com/BpulMLS.png)
+
 <details>
 <summary>Manual Installation Instructions</summary>
 <b>Requirement:</b> You must have Python installed. I don't presently know what version range works, but I've been developing on 3.11.  

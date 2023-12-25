@@ -1,5 +1,3 @@
-import time
-
 from bs4 import BeautifulSoup
 import requests
 import Utils
@@ -110,9 +108,11 @@ class Pokemon(AbstractData):
         typeEffs = [1 for _ in range(18)]
 
         for index, otherType in enumerate(Type.TYPE_ARRAY):
-            typeEffs[index] *= self.typeArray[0].GetDefensiveEffectiveness(otherType)
+            typeOneObj = Type.Type.HandleSearch(self.typeArray[0])
+            typeEffs[index] *= typeOneObj.GetDefensiveEffectiveness(otherType)
             if len(self.typeArray) > 1:
-                typeEffs[index] *= self.typeArray[1].GetDefensiveEffectiveness(otherType)
+                typeTwoObj = Type.Type.HandleSearch(self.typeArray[1])
+                typeEffs[index] *= typeTwoObj.GetDefensiveEffectiveness(otherType)
 
         strEffs = []
         for t in typeEffs:
