@@ -1,6 +1,9 @@
 import msvcrt
 import os
 
+from rich import box
+from rich.table import Table
+
 import Utils
 from console import console
 from rich.progress import track
@@ -91,7 +94,9 @@ def PrintChoices():
     console.rule("[bold white]Press Enter to save caches and exit.", characters=' ')
     print()
 
-    options = [
+    overallTable = Table(show_header=False, box=box.SIMPLE)
+
+    searchOptions = [
         # "[A]bility",
         # "[B]erry",
         # "[C]alculators",
@@ -102,17 +107,29 @@ def PrintChoices():
         "[M]ove",
         # "[N]ature",
         "[P]okemon",
-        "[T]ype",
-        "",
+        "[T]ype"
+        ]
+
+    adminOptions = [
         # "[1] Options",
         "[2] Clear Cache",
         "[3] Clear Cache & Quit",
         "[0] Quit Without Saving",
-        "[Enter] Save & Quit"
+        # "[Enter] Save & Quit"
     ]
 
-    for option in options:
-        console.print(f'[bold]{option}[/]')
+    searchTable, adminTable = Table(show_header=False, box=box.SIMPLE), Table(show_header=False, box=box.SIMPLE)
+
+    for option in searchOptions:
+        searchTable.add_row(f'[bold]{option}[/]')
+
+    for option in adminOptions:
+        adminTable.add_row(f'[bold]{option}[/]')
+
+    overallTable.add_row(searchTable, adminTable)
+
+    console.print(overallTable, justify='center')
+    console.rule("[bold white]\[Enter] Save & Quit[/]", characters=' ')
 
 def PrintWelcome():
     console.rule('[red]     #########    [/]', characters=' ')
