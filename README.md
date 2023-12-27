@@ -12,6 +12,25 @@ You can view the results of the VirusTotal scan here: [Link](https://www.virusto
 
 Please reach out with any questions or issues. You can leave an issue on the repo, email me at [feedback@dalton.dog](mailto:feedback@dalton.dog), or message me on Discord `@DaltonSW`
 
+<details>
+<summary>Upcoming Features!</summary>
+ <ul>
+  <li>Configuration Options</li>
+   <ul>
+    <li>Colorblind Mode</li>
+    <li>Background caching of information</li>
+    <li>Limiting information by generations</li>
+   </ul>
+  <li>Prettier and Improved Layouts</li>
+  <li>More Accurate and Detailed Information</li>
+  <li>More Things to Search On</li>
+  <li>Fuzzy Searching</li>
+  <li>Rendering "Links" to Other Pages (Ex: Jump to "Grass" type screen directly from "Bulbasaur" page)</li>
+  <li>Calculators</li>
+  <li>Plenty of other stuff that I think of as the project continues!</li>
+ </ul>
+</details>
+
 ![Homescreen of the terminal application, displaying the title and some menu choices.](https://i.imgur.com/wRvhXIn.png)
 
 ![Example of searching on Type, with "Fire" used as the example search.](https://i.imgur.com/PIc3WAq.png)
