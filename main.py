@@ -1,4 +1,4 @@
-import msvcrt
+import getch
 import os
 
 from rich import box
@@ -49,7 +49,7 @@ def main():
         printWelcome = True
         try:
             PrintChoices()
-            key = msvcrt.getch().decode('utf-8')
+            key = Utils.GetChar()
             if key == '\r':
                 QuitGracefully()
 
