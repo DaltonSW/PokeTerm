@@ -18,7 +18,7 @@ def PrintData(data: AbstractData) -> None:
         print()
         print('Press any bracketed letter to expand/collapse the section. Press "Enter" to return.')
         key = getch.getch()
-        if key == os.linesep[0]:
+        if key == '\r':
             return
         data.ToggleFlag(key)
 

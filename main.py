@@ -47,7 +47,7 @@ def main():
         try:
             PrintChoices()
             key = getch.getch()
-            if key == os.linesep[0]:
+            if key == '\r':
                 QuitGracefully()
 
             match key:
