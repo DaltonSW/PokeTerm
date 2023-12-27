@@ -12,10 +12,10 @@ CACHE_DIR = './cache'
 LOADED_THIS_SESSION = set()
 
 def GetChar() -> str:
-    s = getch.getch()
-    if os.name == 'nt': #windows returns a byte string, so decode it
-        return s.decode('utf-8')
-    return s
+    key: str | bytes = getch.getch()
+    if os.name == 'nt':  # Windows' getch returns a byte string, so decode it
+        return key.decode('utf-8')
+    return key
 
 def PrintData(data: AbstractData) -> None:
     while True:

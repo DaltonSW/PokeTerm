@@ -1,4 +1,3 @@
-import getch
 import os
 
 from rich import box
