@@ -1,4 +1,4 @@
-import msvcrt
+import getch
 import os
 
 import Utils
@@ -46,8 +46,8 @@ def main():
         printWelcome = True
         try:
             PrintChoices()
-            key = msvcrt.getch().decode('utf-8')
-            if key == '\r':
+            key = getch.getch()
+            if key == os.linesep[0]:
                 QuitGracefully()
 
             match key:

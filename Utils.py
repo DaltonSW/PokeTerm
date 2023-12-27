@@ -3,7 +3,7 @@ import shutil
 import requests
 import pickle
 import re
-import msvcrt
+import getch
 from Resources.Data import AbstractData
 
 BASE_URL = 'https://pokeapi.co/api/v2'
@@ -17,8 +17,8 @@ def PrintData(data: AbstractData) -> None:
         data.PrintData()
         print()
         print('Press any bracketed letter to expand/collapse the section. Press "Enter" to return.')
-        key = msvcrt.getch().decode('utf-8')
-        if key == '\r':
+        key = getch.getch()
+        if key == os.linesep[0]:
             return
         data.ToggleFlag(key)
 
