@@ -46,7 +46,7 @@ def main():
         printWelcome = True
         try:
             PrintChoices()
-            key = getch.getch()
+            key = Utils.GetChar()
             if key == '\r':
                 QuitGracefully()
 
