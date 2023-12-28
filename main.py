@@ -9,7 +9,7 @@ from console import console
 from rich.progress import track
 
 from Resources import Move, Ability, Type, Version, Pokemon, Species
-from Resources import VersionGroup, Generation
+from Resources import VersionGroup, Generation, Nature
 from Config import Config
 
 # Known Pokemon Edge Cases:
@@ -36,7 +36,8 @@ RESOURCES = {
     # 'Item': Item.Item,
     'Species': Species.Species,
     'VersionGroup': VersionGroup.VersionGroup,
-    'Generation': Generation.Generation
+    'Generation': Generation.Generation,
+    'Nature': Nature.Nature
 }
 
 def main():
@@ -57,6 +58,7 @@ def main():
                 # case 'a': HandleSearch(Ability.Ability)
                 case 'g': HandleSearch(Generation.Generation)
                 case 'm': HandleSearch(Move.Move)
+                case 'n': HandleSearch(Nature.Nature)
                 case 'p': HandleSearch(Pokemon.Pokemon)
                 # case 'q': HandleCacheTest()
                 case 't': HandleSearch(Type.Type)
@@ -86,13 +88,11 @@ def main():
     #   Game/Version
     #   PokeBalls
     #   Catch Rate Calculator
-    #   Nature
 
 def PrintChoices():
     print()
     console.rule("[bold white]Press a bracketed letter to search on that topic.", characters=' ')
     console.rule("[bold white]Press Enter to save caches and exit.", characters=' ')
-    print()
 
     overallTable = Table(show_header=False, box=box.SIMPLE)
 
@@ -105,7 +105,7 @@ def PrintChoices():
         # "[I]tem",
         # "[L]ocation",
         "[M]ove",
-        # "[N]ature",
+        "[N]ature",
         "[P]okemon",
         "[T]ype"
         ]
@@ -144,8 +144,7 @@ def PrintWelcome():
     console.rule('[white]     #########    [/]', characters=' ')
     print()
     console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style='white')
-    printDir = '~\\.poketerm' if Utils.IsWindowsOS() else '~/.poketerm'
-    console.rule(f"Cache is stored at {printDir}", characters=' ')
+    console.rule(f"Cache is stored at ~{os.sep}.poketerm", characters=' ')
 
 def HandleSearch(resource):
     query = input(f'{resource.ENDPOINT.title()} Name or ID: ').lower()
