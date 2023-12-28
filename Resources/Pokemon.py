@@ -144,9 +144,9 @@ class Pokemon(AbstractData):
         abilityTable.add_column("Description")
 
         for ability in self.possibleAbilities:
-            abilityTable.add_row(f"[bold]{ability.name.title()}[/]", ability.description)
+            abilityTable.add_row(f"[bold]{ability.name.title()}[/]", ability.PrintDescription)
         if self.hiddenAbility is not None:
-            abilityTable.add_row(f"[bold]{self.hiddenAbility.name.title()} (H)[/]", self.hiddenAbility.description)
+            abilityTable.add_row(f"[bold]{self.hiddenAbility.name.title()} (H)[/]", self.hiddenAbility.PrintDescription)
         console.print(abilityTable)
 
     def PrintStatInfo(self) -> None:

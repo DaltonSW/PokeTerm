@@ -1,7 +1,7 @@
 # Welcome to PokéTerm!
 A terminal based PokéDex. It retrieves information from [PokeAPI](https://pokeapi.co/), and some very light web-scraping of [PokemonDB](https://pokemondb.net/) as a backup source. All data obtained is cached locally. The cache is stored in your home directory in a `.poketerm` folder 
 
-Stylization is handled with [Rich](https://github.com/Textualize/rich). This program was tested with, and is intended to be used with, [Windows Terminal](https://apps.microsoft.com/detail/9N0DX20HK701?hl=en-US&gl=US). I have tested on WSL Ubuntu through Windows Terminal, so Linux works, but I can't verify any other terminal programs on other systems.
+Stylization is handled with [Rich](https://github.com/Textualize/rich). This program was tested with, and is intended to be used with, [Windows Terminal](https://apps.microsoft.com/detail/9N0DX20HK701?hl=en-US&gl=US). I have tested on WSL Ubuntu through Windows Terminal, and it has been run from source on macOS, but I can't verify any other specific terminal programs on other systems.
 
 ### Go to the Releases tab and download the latest release. ###
 
