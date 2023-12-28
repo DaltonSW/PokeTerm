@@ -1,5 +1,6 @@
 from rich.table import Table
 from rich import box
+from rich.progress import Progress, TextColumn, MofNCompleteColumn, BarColumn, TimeRemainingColumn
 from console import console
 from Resources.Data import AbstractData
 from Resources import Pokemon, Move
@@ -145,17 +146,17 @@ class Type(AbstractData):
         moveTable = self.GetAvailableMovesTable()
 
         if primaryPokes is None:
-            primary = "[P]rimary Typing ▶"
+            primary = f"[P]rimary Typing ({len(self.primaryPokes)}) ▶"
         else:
             primary = primaryPokes
 
         if secondaryPokes is None:
-            secondary = "[S]econdary Typing ▶"
+            secondary = f"[S]econdary Typing ({len(self.secondaryPokes)}) ▶"
         else:
             secondary = secondaryPokes
 
         if moveTable is None:
-            moveTable = "[M]oves Available ▶"
+            moveTable = f"[M]oves Available ({len(self.moves)}) ▶"
 
         infoTable.add_row(primary, secondary, moveTable)
 
@@ -166,7 +167,7 @@ class Type(AbstractData):
             return None
 
         else:
-            pokeTable = Table(title="[P]rimary Typing ▼")
+            pokeTable = Table(title=f"[P]rimary Typing ({len(self.primaryPokes)}) ▼")
             pokeTable.add_column("Pokemon")
             # pokeTable.add_column("Type 1")
             # pokeTable.add_column("Type 2")
@@ -181,7 +182,7 @@ class Type(AbstractData):
             return None
 
         else:
-            pokeTable = Table(title="[S]econdary Typing ▼")
+            pokeTable = Table(title=f"[S]econdary Typing ({len(self.secondaryPokes)}) ▼")
             pokeTable.add_column("Pokemon")
             # pokeTable.add_column("Type 1")
             # pokeTable.add_column("Type 2")
@@ -195,22 +196,30 @@ class Type(AbstractData):
         if not Config.TYPE_FLAGS['moves']:
             return None
 
-        newTable = Table(title="[M]oves ▼")
+        newTable = Table(title=f"[M]oves Available ({len(self.moves)}) ▼")
         newTable.add_column("Move")
         newTable.add_column("Power")
         newTable.add_column("Acc.")
         newTable.add_column("PP")
 
-        for moveName in self.moves:
-            moveObj = Move.Move.HandleSearch(moveName)
-            if moveObj:
-                newTable.add_row(moveObj.PrintName, str(moveObj.power), str(moveObj.accuracy), str(moveObj.PP))
+        with Progress(
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                MofNCompleteColumn(),
+                TimeRemainingColumn(),
+                transient=True) as progress:
+            moveQuery = progress.add_task('Querying moves...', total=len(self.moves))
+            for moveName in self.moves:
+                moveObj = Move.Move.HandleSearch(moveName)
+                if moveObj:
+                    newTable.add_row(moveObj.PrintName, str(moveObj.power), str(moveObj.accuracy), str(moveObj.PP))
+                progress.update(moveQuery, advance=1)
 
         return newTable
 
     def AddToCache(self):
         super().AddToCache()
-        
+
     @classmethod
     def ToggleFlag(cls, flag: str):
         match flag:

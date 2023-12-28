@@ -152,7 +152,7 @@ def HandleSearch(resource):
     if query == '':
         return
 
-    with console.status("Querying..."):
+    with console.status(f"Querying for {resource.ENDPOINT.title()}..."):
         result = resource.HandleSearch(query)
     if result is not None:
         Utils.PrintData(result)
