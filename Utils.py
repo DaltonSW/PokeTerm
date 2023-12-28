@@ -6,14 +6,12 @@ import re
 import getch
 from Resources.Data import AbstractData
 
-BASE_URL = 'https://pokeapi.co/api/v2'
-CACHE_DIR = './cache'
-
-LOADED_THIS_SESSION = set()
+def IsWindowsOS():
+    return os.name == 'nt'
 
 def GetChar() -> str:
     key: str | bytes = getch.getch()
-    if os.name == 'nt':  # Windows' getch returns a byte string, so decode it
+    if IsWindowsOS():  # Windows' getch returns a byte string, so decode it
         return key.decode('utf-8')
     return key
 
@@ -79,6 +77,9 @@ def LoadCache(cacheType) -> (dict, dict):
     return cache
 
 # region Constants
+
+BASE_URL = 'https://pokeapi.co/api/v2'
+CACHE_DIR = f'{os.path.expanduser("~")}\\.poketerm' if IsWindowsOS() else f'{os.path.expanduser("~")}/.poketerm'
 
 VERSION_MAPPING_DICT = {
     'Red': 'red',

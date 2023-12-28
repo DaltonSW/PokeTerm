@@ -1,4 +1,5 @@
 import os
+from sys import exit
 
 from rich import box
 from rich.table import Table
@@ -21,7 +22,7 @@ from Config import Config
 #       Ask Discord if I can have clicking a link redirect to a function instead?
 #       First just look into the code and see if it can be overridden or something?
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 BASE_URL = 'https://pokeapi.co/api/v2/'
 RESOURCES = {
@@ -65,10 +66,10 @@ def main():
                 case '3':
                     Utils.ClearCache()
                     Utils.ClearScreen()
-                    quit(0)
+                    exit(0)
                 case '0':
                     Utils.ClearScreen()
-                    quit(0)
+                    exit(0)
                 case _:
                     Utils.ClearScreen()
                     console.print("Not a valid key!")
@@ -143,6 +144,8 @@ def PrintWelcome():
     console.rule('[white]     #########    [/]', characters=' ')
     print()
     console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style='white')
+    printDir = '~\\.poketerm' if Utils.IsWindowsOS() else '~/.poketerm'
+    console.rule(f"Cache is stored at {printDir}", characters=' ')
 
 def HandleSearch(resource):
     query = input(f'{resource.ENDPOINT.title()} Name or ID: ').lower()
@@ -172,7 +175,7 @@ def LoadCaches():
 def QuitGracefully():
     Utils.ClearScreen()
     SaveCaches()
-    quit(0)
+    exit(0)
 
 def HandleCacheTest():
     Utils.ClearCache()
@@ -193,7 +196,7 @@ def HandleCacheTest():
     for i in track(range(501, 751), description="Fetching Pokemon 501-750 data..."):
         Pokemon.Pokemon.HandleSearch(str(i))
     SaveCaches()
-    quit(0)
+    exit(0)
 
 if __name__ == '__main__':
     main()
