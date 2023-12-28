@@ -22,13 +22,10 @@ class Generation(AbstractData):
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     def PrintData(self):
-        print()
         print(f"Generation {self.ID}")
         print(f'Abilities Introduced: {len(self.abilitiesIntroduced)}')
         print(f'Moves Introduced: {len(self.movesIntroduced)}')
         print(f'Species Introduced: {len(self.speciesIntroduced)}')
-
-        pass
 
     def __str__(self):
         return ''

@@ -133,6 +133,7 @@ class Type(AbstractData):
         offTable.add_row(*strEffs)
 
         console.print(offTable)
+        console.rule("Press any bracketed letter to expand/collapse the section.", characters=" ")
 
     def PrintPossibilities(self):
         infoTable = Table(box=box.SIMPLE, show_header=False)

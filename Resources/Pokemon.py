@@ -78,6 +78,7 @@ class Pokemon(AbstractData):
         self.PrintAbilityInfo()
         self.PrintStatInfo()
         self.PrintVersionInfo()
+        console.rule("Press any bracketed letter to expand/collapse the section.", characters=" ")
         return
 
     def PrintSpeciesInfo(self):

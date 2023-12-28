@@ -19,14 +19,12 @@ class Nature(AbstractData):
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     def PrintData(self):
-        print()
         console.rule(f"[bold]{self.PrintName}", align='left', style='none')
         console.print(f'[attack]Increased Stat: [/]{self.increasedStat.title()}')
         console.print(f'[defense]Decreased Stat: [/]{self.decreasedStat.title()}')
         print()
         console.print(f'[attack]Likes Flavor: [/]{self.likesFlavor.title()}')
         console.print(f'[defense]Hates Flavor: [/]{self.hatesFlavor.title()}')
-        pass
 
     def __str__(self):
         return ''

@@ -1,9 +1,9 @@
 import os
-import shutil
 import requests
 import pickle
 import re
 import getch
+from console import console
 from Resources.Data import AbstractData
 
 def IsWindowsOS():
@@ -20,7 +20,7 @@ def PrintData(data: AbstractData) -> None:
         ClearScreen()
         data.PrintData()
         print()
-        print('Press any bracketed letter to expand/collapse the section. Press "Enter" to return.')
+        console.rule("Press [Enter] to return to the menu.", characters=" ")
         key = GetChar()
         if key == '\r':
             return
@@ -29,10 +29,6 @@ def PrintData(data: AbstractData) -> None:
 
 def ClearScreen():
     os.system('cls' if os.name == 'nt' else 'clear')
-
-def ClearCache():
-    if os.path.exists(CACHE_DIR):
-        shutil.rmtree(CACHE_DIR)
 
 
 def GetIDFromURL(URL: str) -> int:

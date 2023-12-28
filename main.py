@@ -1,4 +1,5 @@
 import os
+import shutil
 from sys import exit
 
 from rich import box
@@ -22,7 +23,7 @@ from Config import Config
 #       Ask Discord if I can have clicking a link redirect to a function instead?
 #       First just look into the code and see if it can be overridden or something?
 
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 
 BASE_URL = 'https://pokeapi.co/api/v2/'
 RESOURCES = {
@@ -47,13 +48,14 @@ def main():
     while True:
         Utils.ClearScreen()
         if printWelcome: PrintWelcome()
-        printWelcome = True
+        # printWelcome = True
         try:
             PrintChoices()
             key = Utils.GetChar()
             if key == '\r':
                 QuitGracefully()
 
+            Utils.ClearScreen()
             match key:
                 # case 'a': HandleSearch(Ability.Ability)
                 case 'g': HandleSearch(Generation.Generation)
@@ -64,16 +66,13 @@ def main():
                 case 't': HandleSearch(Type.Type)
                 # case '1':
                 case '2':
-                    Utils.ClearCache()
+                    ClearCaches()
                 case '3':
-                    Utils.ClearCache()
-                    Utils.ClearScreen()
-                    exit(0)
+                    ClearCaches(True)
                 case '0':
                     Utils.ClearScreen()
                     exit(0)
                 case _:
-                    Utils.ClearScreen()
                     console.print("Not a valid key!")
                     printWelcome = False
                     pass
@@ -170,6 +169,17 @@ def LoadCaches():
         resource.LoadCache()
 
     Config.LoadCache()
+
+def ClearCaches(doQuit=False):
+    if os.path.exists(Utils.CACHE_DIR):
+        shutil.rmtree(Utils.CACHE_DIR)
+
+    for resource in RESOURCES.values():
+        resource.NAME_TO_DATA_CACHE.clear()
+        resource.ID_TO_NAME_CACHE.clear()
+
+    if doQuit:
+        exit(0)
 
 def QuitGracefully():
     Utils.ClearScreen()
