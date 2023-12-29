@@ -12,6 +12,8 @@ from rich.progress import track
 from Resources import Move, Ability, Type, Version, Pokemon, Species
 from Resources import VersionGroup, Generation, Nature
 from Config import Config
+import Testing
+import Updater
 
 # Known Pokemon Edge Cases:
 #   Searching Pokemon for "Minior" since apparently they exclusively exist in forms
@@ -41,11 +43,17 @@ RESOURCES = {
 
 def main():
     LoadCaches()
+    console.clear()
     printWelcome = True
+
+    if Updater.CheckForUpdate():
+        SaveCaches()
+        exit(0)
 
     while True:
         Utils.ClearScreen()
-        if printWelcome: PrintWelcome()
+        if printWelcome:
+            PrintWelcome()
         # printWelcome = True
         try:
             PrintChoices()
@@ -60,8 +68,9 @@ def main():
                 case 'm': HandleSearch(Move.Move)
                 case 'n': HandleSearch(Nature.Nature)
                 case 'p': HandleSearch(Pokemon.Pokemon)
-                # case 'q': HandleCacheTest()
+                case 'q': Testing.HandleCacheTest()
                 case 't': HandleSearch(Type.Type)
+
                 # case '1':
                 case '2':
                     ClearCaches()
@@ -181,27 +190,6 @@ def ClearCaches(doQuit=False):
 
 def QuitGracefully():
     Utils.ClearScreen()
-    SaveCaches()
-    exit(0)
-
-def HandleCacheTest():
-    Utils.ClearCache()
-    Utils.ClearScreen()
-    console.rule("Cache Test", style='white')
-    for i in track(range(1, 19), description='Fetching Type data...'):
-        Type.Type.HandleSearch(str(i))
-    for i in track(range(1, 10), description="Fetching Generation data..."):
-        Generation.Generation.HandleSearch(str(i))
-    for i in track(range(1, 251), description="Fetching Pokemon 1-250 data..."):
-        Pokemon.Pokemon.HandleSearch(str(i))
-    for i in track(range(1, 251), description="Fetching Move 1-250 data..."):
-        Pokemon.Pokemon.HandleSearch(str(i))
-    for i in track(range(251, 501), description="Fetching Pokemon 251-500 data..."):
-        Pokemon.Pokemon.HandleSearch(str(i))
-    for i in track(range(1, 251), description="Fetching Ability 1-250 data..."):
-        Pokemon.Pokemon.HandleSearch(str(i))
-    for i in track(range(501, 751), description="Fetching Pokemon 501-750 data..."):
-        Pokemon.Pokemon.HandleSearch(str(i))
     SaveCaches()
     exit(0)
 

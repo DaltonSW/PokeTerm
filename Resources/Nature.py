@@ -9,10 +9,14 @@ class Nature(AbstractData):
     def __init__(self, data):
         super().__init__(data)
 
-        self.decreasedStat = data.get('decreased_stat').get('name')
-        self.increasedStat = data.get('increased_stat').get('name')
-        self.hatesFlavor = data.get('hates_flavor').get('name')
-        self.likesFlavor = data.get('likes_flavor').get('name')
+        decreasedStatData = data.get('decreased_stat')
+        self.decreasedStat = "N/A" if decreasedStatData is None else decreasedStatData.get('name')
+        increasedStatData = data.get('increased_stat')
+        self.increasedStat = "N/A" if increasedStatData is None else increasedStatData.get('name')
+        hatesFlavorData = data.get('hates_flavor')
+        self.hatesFlavor = "N/A" if hatesFlavorData is None else hatesFlavorData.get('name')
+        likesFlavorData = data.get('likes_flavor')
+        self.likesFlavor = "N/A" if likesFlavorData is None else likesFlavorData.get('name')
 
         # also has move_battle_style_preferences and pokeathlon_stat_changes
 
