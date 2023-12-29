@@ -23,8 +23,6 @@ from Config import Config
 #       Ask Discord if I can have clicking a link redirect to a function instead?
 #       First just look into the code and see if it can be overridden or something?
 
-VERSION = "0.1.2"
-
 BASE_URL = 'https://pokeapi.co/api/v2/'
 RESOURCES = {
     'Pokemon': Pokemon.Pokemon,

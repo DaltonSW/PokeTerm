@@ -1,5 +1,8 @@
 import Utils
 
+APP_VERSION = "0.1.2"
+
+
 class Config:
     PROGRAM_FLAGS = {
         'colorblind': 0,

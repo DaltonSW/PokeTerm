@@ -5,15 +5,19 @@ import re
 import getch
 from console import console
 from Resources.Data import AbstractData
+from Config import APP_VERSION
+
 
 def IsWindowsOS():
     return os.name == 'nt'
+
 
 def GetChar() -> str:
     key: str | bytes = getch.getch()
     if IsWindowsOS():  # Windows' getch returns a byte string, so decode it
         return key.decode('utf-8')
     return key
+
 
 def PrintData(data: AbstractData) -> None:
     while True:
@@ -59,7 +63,7 @@ def GetFromURL(url):
 
 
 def SaveCache(cacheType, cache):
-    with open(f'{CACHE_DIR}/{cacheType}.cache', 'wb') as f:
+    with open(os.path.join(CACHE_DIR, f'{cacheType}.cache'), 'wb') as f:
         pickle.dump(cache, f)
         print(f"Successfully saved {cacheType.upper()} cache")
 
@@ -67,7 +71,7 @@ def SaveCache(cacheType, cache):
 def LoadCache(cacheType) -> (dict, dict):
     if not os.path.exists(f'{CACHE_DIR}/{cacheType}.cache'):
         return None
-    with open(f'{CACHE_DIR}/{cacheType}.cache', 'rb') as f:
+    with open(os.path.join(CACHE_DIR, f'{cacheType}.cache'), 'rb') as f:
         cache = pickle.load(f)
         print(f"Successfully loaded {cacheType.upper()} cache")
     return cache
@@ -75,7 +79,7 @@ def LoadCache(cacheType) -> (dict, dict):
 # region Constants
 
 BASE_URL = 'https://pokeapi.co/api/v2'
-CACHE_DIR = f'{os.path.expanduser("~")}\\.poketerm' if IsWindowsOS() else f'{os.path.expanduser("~")}/.poketerm'
+CACHE_DIR = os.path.expanduser("~") + os.sep + '.poketerm'
 
 VERSION_MAPPING_DICT = {
     'Red': 'red',
