@@ -3,7 +3,7 @@ from rich import box
 from rich.progress import Progress, TextColumn, MofNCompleteColumn, BarColumn, TimeRemainingColumn
 from console import console
 from Resources.Data import AbstractData
-from Resources import Pokemon, Move
+from Resources import Move
 
 from Config import Config
 

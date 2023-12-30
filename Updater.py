@@ -5,6 +5,8 @@ import Utils
 from Config import APP_VERSION
 import requests
 
+from readchar import readkey, key as keys
+
 from console import console
 from rich.progress import (
     BarColumn,
@@ -45,8 +47,10 @@ def CheckForUpdate() -> bool:
 
     if newVersion != APP_VERSION:
         console.print("New version found! Press \[Enter] to download.")
-        _ = Utils.GetChar()
-        return DownloadUpdate(newVersion)
+        key = readkey()
+        if key == keys.ENTER:
+            return DownloadUpdate(newVersion)
+        return False
     # If so, download it
     # Generate updater file to do the following:
     #   Delete current version
@@ -77,8 +81,10 @@ def DownloadUpdate(version: str) -> bool:
                     progress.update(downloadTaskID, advance=chunkSize)
 
     console.print("New version downloaded! Press \[Enter] to restart the program.")
-    _ = Utils.GetChar()
-    return CreateUpdateScriptAndUpdate()
+    key = readkey()
+    if key == keys.ENTER:
+        return CreateUpdateScriptAndUpdate()
+    return False
 
 def CreateUpdateScriptAndUpdate():
     if Utils.IsWindowsOS():

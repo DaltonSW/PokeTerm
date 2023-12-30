@@ -1,7 +1,6 @@
 from main import ClearCaches, SaveCaches
 from concurrent.futures import ThreadPoolExecutor
 from console import console
-import Utils
 
 from rich.progress import Progress, BarColumn, MofNCompleteColumn
 

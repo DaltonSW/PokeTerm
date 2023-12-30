@@ -1,6 +1,5 @@
 from rich.table import Table
 
-import Utils
 from .Data import AbstractData
 from console import console
 
