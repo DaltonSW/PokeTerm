@@ -50,11 +50,12 @@ def HandleCacheTest():
     Utils.ClearScreen()
     console.rule("Cache Test", style='white')
 
-    abilityID = progress.add_task("Loading Ability Information", total=ABILITY_COUNT)
-    moveID = progress.add_task("Loading Move Information", total=MOVE_COUNT)
     genID = progress.add_task("Loading Generation Information", total=GENERATION_COUNT)
-    # natureID = progress.add_task("Loading Nature Information", total=NATURE_COUNT)
     typeID = progress.add_task("Loading Type Information", total=TYPE_COUNT)
+    natureID = progress.add_task("Loading Nature Information", total=NATURE_COUNT)
+    abilityID = progress.add_task("Loading Ability Information", total=ABILITY_COUNT)
+    moveOneID = progress.add_task("Loading First Half of Move Information", total=MOVE_COUNT // 2)
+    moveTwoID = progress.add_task("Loading Second Half of Move Information", total=MOVE_COUNT - (MOVE_COUNT // 2))
 
     with progress:
         with ThreadPoolExecutor() as executor:
@@ -62,9 +63,10 @@ def HandleCacheTest():
                 pokeID = progress.add_task(f"Loading Pokemon from Gen {i}", total=POKE_COUNTS[i] - POKE_COUNTS[i - 1])
                 executor.submit(HandleSingleTest, Pokemon.Pokemon, pokeID, POKE_COUNTS[i], POKE_COUNTS[i - 1] + 1)
             executor.submit(HandleSingleTest, Ability.Ability, abilityID, ABILITY_COUNT, 1)
-            executor.submit(HandleSingleTest, Move.Move, moveID, MOVE_COUNT, 1)
+            executor.submit(HandleSingleTest, Move.Move, moveOneID, MOVE_COUNT // 2, 1)
+            executor.submit(HandleSingleTest, Move.Move, moveTwoID, MOVE_COUNT, (MOVE_COUNT // 2) + 1)
             executor.submit(HandleSingleTest, Generation.Generation, genID, GENERATION_COUNT, 1)
-            # executor.submit(HandleSingleTest, Nature.Nature, natureID, NATURE_COUNT, 1)
+            executor.submit(HandleSingleTest, Nature.Nature, natureID, NATURE_COUNT, 1)
             executor.submit(HandleSingleTest, Type.Type, typeID, TYPE_COUNT, 1)
     SaveCaches()
     exit(0)
