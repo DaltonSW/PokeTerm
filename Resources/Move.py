@@ -25,7 +25,7 @@ class Move(AbstractData):
         self.type: str = data.get('type').get('name')
 
     def PrintData(self):
-        Utils.ClearScreen()
+        console.clear()
 
         console.print(f"[bold]Move:[/] {self.PrintName} [{self.ID}]")
         console.print(f"[bold]Type:[/] {self.FormattedMoveType}")

@@ -1,38 +1,35 @@
 import os
-import requests
+import platform
 import pickle
 import re
-import getch
-from console import console
+
+import requests
+
 from Resources.Data import AbstractData
-from Config import APP_VERSION
+from console import console
+from readchar import readkey, key as keys
 
 
 def IsWindowsOS():
-    return os.name == 'nt'
+    return platform.system() == 'Windows'
 
+def IsLinuxOS():
+    return platform.system() == 'Linux'
 
-def GetChar() -> str:
-    key: str | bytes = getch.getch()
-    if IsWindowsOS():  # Windows' getch returns a byte string, so decode it
-        return key.decode('utf-8')
-    return key
+def IsMacOS():
+    return platform.system() == 'Darwin'
 
 
 def PrintData(data: AbstractData) -> None:
     while True:
-        ClearScreen()
+        console.clear()
         data.PrintData()
         print()
         console.rule("Press [Enter] to return to the menu.", characters=" ")
-        key = GetChar()
-        if key == '\r':
+        key = readkey()
+        if key == keys.ENTER:
             return
         data.ToggleFlag(key)
-
-
-def ClearScreen():
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def GetIDFromURL(URL: str) -> int:

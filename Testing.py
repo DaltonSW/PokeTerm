@@ -47,7 +47,7 @@ def HandleSingleTest(resource, taskID, rangeEnd: int, rangeStart=1):
 
 def HandleCacheTest():
     ClearCaches()
-    Utils.ClearScreen()
+    console.clear()
     console.rule("Cache Test", style='white')
 
     genID = progress.add_task("Loading Generation Information", total=GENERATION_COUNT)

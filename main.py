@@ -1,5 +1,6 @@
 import os
 import shutil
+from readchar import readkey, key as keys
 from sys import exit
 
 from rich import box
@@ -7,7 +8,6 @@ from rich.table import Table
 
 import Utils
 from console import console
-from rich.progress import track
 
 from Resources import Move, Ability, Type, Version, Pokemon, Species
 from Resources import VersionGroup, Generation, Nature
@@ -51,17 +51,17 @@ def main():
         exit(0)
 
     while True:
-        Utils.ClearScreen()
+        console.clear()
         if printWelcome:
             PrintWelcome()
         # printWelcome = True
         try:
             PrintChoices()
-            key = Utils.GetChar()
-            if key == '\r':
+            key = readkey()
+            if key == keys.ENTER:
                 QuitGracefully()
 
-            Utils.ClearScreen()
+            console.clear()
             match key:
                 # case 'a': HandleSearch(Ability.Ability)
                 case 'g': HandleSearch(Generation.Generation)
@@ -77,7 +77,7 @@ def main():
                 case '3':
                     ClearCaches(True)
                 case '0':
-                    Utils.ClearScreen()
+                    console.clear()
                     exit(0)
                 case _:
                     console.print("Not a valid key!")
@@ -189,7 +189,7 @@ def ClearCaches(doQuit=False):
         exit(0)
 
 def QuitGracefully():
-    Utils.ClearScreen()
+    console.clear()
     SaveCaches()
     exit(0)
 
