@@ -43,7 +43,6 @@ RESOURCES = {
 
 def main():
     LoadCaches()
-    console.clear()
     printWelcome = True
 
     if Updater.CheckForUpdate():
@@ -176,6 +175,7 @@ def LoadCaches():
         resource.LoadCache()
 
     Config.LoadCache()
+    console.clear()
 
 def ClearCaches(doQuit=False):
     if os.path.exists(Utils.CACHE_DIR):
