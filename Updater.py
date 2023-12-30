@@ -31,7 +31,12 @@ progress = Progress(
 
 
 def CheckForUpdate() -> bool:
-    # Check for updater of same version and delete it if it exists
+    # Check for updaters and delete them if they exist
+    if os.path.exists('update_poketerm.bat'):
+        os.remove('update_poketerm.bat')
+
+    if os.path.exists('update_poketerm.sh'):
+        os.remove('update_poketerm.sh')
 
     # Check GitHub for if "latest" is not current version
     req = requests.get('https://github.com/DaltonSW/PokeTerm/releases/latest')
@@ -41,22 +46,26 @@ def CheckForUpdate() -> bool:
 
     try:
         newVersion = req.url.split('/')[-1]
+        major, minor, patch = newVersion.split('.')
     except IndexError:
         console.print("Invalid URL loaded. Returning.")
         return False
 
-    if newVersion != APP_VERSION:
-        console.print("New version found! Press \[Enter] to download.")
-        key = readkey()
-        if key == keys.ENTER:
-            return DownloadUpdate(newVersion)
-        return False
-    # If so, download it
-    # Generate updater file to do the following:
-    #   Delete current version
-    #   Rename new version
-    #   Execute new version
-    #       New version should immediately check for update again, deleting the updater script
+    appMajor, appMinor, appPatch = APP_VERSION.split('.')
+    if int(appMajor) < int(major):
+        return PromptForUpdate(newVersion)
+    elif int(appMinor) < int(minor):
+        return PromptForUpdate(newVersion)
+    elif int(appPatch) < int(patch):
+        return PromptForUpdate(newVersion)
+
+    return False
+
+def PromptForUpdate(newVersion) -> bool:
+    console.print("New version found! Press \[Enter] to download.")
+    key = readkey()
+    if key == keys.ENTER:
+        return DownloadUpdate(newVersion)
     return False
 
 # Rich Progress bar implementation derived from Will McGugan's example
