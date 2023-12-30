@@ -38,6 +38,8 @@ def CheckForUpdate() -> bool:
     if os.path.exists('update_poketerm.sh'):
         os.remove('update_poketerm.sh')
 
+    console.clear()
+
     # Check GitHub for if "latest" is not current version
     req = requests.get('https://github.com/DaltonSW/PokeTerm/releases/latest')
     if req.status_code != 200:
@@ -77,23 +79,29 @@ def DownloadUpdate(version: str) -> bool:
 
     chunkSize = 32768
 
-    with requests.get(downloadURL, stream=True) as downloadRequest:
-        if downloadRequest.status_code != 200:
-            console.print("Couldn't download PokeTerm. Returning")
-            return False
+    try:
+        with requests.get(downloadURL, stream=True) as downloadRequest:
+            if downloadRequest.status_code != 200:
+                console.print("Couldn't download PokeTerm. Returning")
+                return False
 
-        with progress:
-            downloadTaskID = progress.add_task(f"Downloading PokeTerm v{version}", total=int(downloadRequest.headers.get('Content-Length', 0)), filename=fileName)
-            with open(f"./{fileName}", 'wb') as newFile:
-                for data in downloadRequest.iter_content(chunk_size=chunkSize):
-                    newFile.write(data)
-                    progress.update(downloadTaskID, advance=chunkSize)
+            with progress:
+                downloadTaskID = progress.add_task(f"Downloading PokeTerm v{version}", total=int(downloadRequest.headers.get('Content-Length', 0)), filename=fileName)
+                with open(f".{os.sep}'new'{fileName}", 'wb') as newFile:
+                    for data in downloadRequest.iter_content(chunk_size=chunkSize):
+                        newFile.write(data)
+                        progress.update(downloadTaskID, advance=chunkSize)
 
-    console.print("New version downloaded! Press \[Enter] to restart the program.")
-    key = readkey()
-    if key == keys.ENTER:
-        return CreateUpdateScriptAndUpdate()
-    return False
+        console.print("New version downloaded! Press \[Enter] to restart the program.")
+        key = readkey()
+        if key == keys.ENTER:
+            return CreateUpdateScriptAndUpdate()
+        return False
+
+    except PermissionError:
+        console.clear()
+        console.print("Insufficient permissions. Run the application as administrator and try again.")
+        _ = readkey()
 
 def CreateUpdateScriptAndUpdate():
     if Utils.IsWindowsOS():
@@ -113,24 +121,23 @@ WINDOWS_SCRIPT = """
 @echo off
 timeout /t 5 /nobreak >nul
 
-set "OLD_APP_PATH=.\\PokeTerm.exe"
-set "NEW_APP_PATH=.\\PokeTerm_Windows.exe"
+set "OLD_APP_PATH1=.\\PokeTerm.exe"
+set "OLD_APP_PATH2=.\\PokeTerm_Windows.exe"
+set "NEW_APP_PATH=.\\newPokeTerm_Windows.exe"
 
-:delete_old
-if exist "%OLD_APP_PATH%" (
-    del "%OLD_APP_PATH%"
-    goto rename_new
-) else (
-    echo Old application not found.
-    goto end
+if exist "%OLD_APP_PATH1%" (
+    del "%OLD_APP_PATH1%"
+)
+if exist "%OLD_APP_PATH2%" (
+    del "%OLD_APP_PATH2%"
 )
 
-:rename_new
-rename "%NEW_APP_PATH%" "PokeTerm.exe"
-start "" ".\\PokeTerm.exe"
-goto end
-
-:end
+if exist "%NEW_APP_PATH%" (
+    rename "%NEW_APP_PATH%" "PokeTerm.exe"
+    start "" ".\\PokeTerm.exe"
+) else (
+    echo New application not found.
+)
 """
 
 LINUX_SCRIPT = """
@@ -139,10 +146,11 @@ LINUX_SCRIPT = """
 sleep 5
 
 OLD_APP_PATH="./PokeTerm"
-NEW_APP_PATH="./PokeTerm_Linux"
+NEW_APP_PATH="./newPokeTerm_Linux"
 
-if [ -f "$OLD_APP_PATH" ]; then
-    rm "$OLD_APP_PATH"
+# Check if either PokeTerm or PokeTerm_Linux exists and remove it
+if [ -f "$OLD_APP_PATH" ] || [ -f "${OLD_APP_PATH}_Linux" ]; then
+    rm -f "$OLD_APP_PATH" "${OLD_APP_PATH}_Linux"
 fi
 
 mv "$NEW_APP_PATH" "$OLD_APP_PATH"
