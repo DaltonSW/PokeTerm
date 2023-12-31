@@ -19,49 +19,50 @@ from rich.progress import (
 
 progress = Progress(
     TextColumn("[bold blue]{task.fields[filename]}", justify="right"),
-    BarColumn(bar_width=None),
-    "[progress.percentage]{task.percentage:>3.1f}%",
-    "•",
-    DownloadColumn(),
-    "•",
-    TransferSpeedColumn(),
-    "•",
-    TimeRemainingColumn(),
+    BarColumn(bar_width=None), "[progress.percentage]{task.percentage:>3.1f}%", "•",
+    DownloadColumn(), "•", TransferSpeedColumn(), "•", TimeRemainingColumn(),
 )
 
-
-def CheckForUpdate() -> bool:
-    # Check for updaters and delete them if they exist
+def DeleteExistingUpdaters() -> None:
     if os.path.exists('update_poketerm.bat'):
         os.remove('update_poketerm.bat')
 
     if os.path.exists('update_poketerm.sh'):
         os.remove('update_poketerm.sh')
 
-    console.clear()
 
-    # Check GitHub for if "latest" is not current version
+def GetLatestVersionFromGithub():
     req = requests.get('https://github.com/DaltonSW/PokeTerm/releases/latest')
     if req.status_code != 200:
         console.print("Couldn't connect to repository. Returning.")
-        return False
+        return None
 
     try:
-        newVersion = req.url.split('/')[-1]
-        major, minor, patch = newVersion.split('.')
+        return req.url.split('/')[-1]
     except IndexError:
         console.print("Invalid URL loaded. Returning.")
+        return None
+
+def IsNewerVersion(version: str) -> bool:
+    appMajor, appMinor, appPatch = APP_VERSION.split('.')
+    latestMajor, latestMinor, latestPatch = version.split('.')
+
+    return int(appMajor) < int(latestMajor) or \
+        (int(appMajor) == int(latestMajor) and int(appMinor) < int(latestMinor)) or \
+        (int(appMajor) == int(latestMajor) and int(appMinor) == int(latestMinor) and int(appPatch) < int(latestPatch))
+
+
+def CheckForUpdate() -> bool:
+    DeleteExistingUpdaters()
+
+    Utils.ClearScreen()
+
+    latestVersion = GetLatestVersionFromGithub()
+
+    if latestVersion is None or not IsNewerVersion(latestVersion):
         return False
 
-    appMajor, appMinor, appPatch = APP_VERSION.split('.')
-    if int(appMajor) < int(major):
-        return PromptForUpdate(newVersion)
-    elif int(appMinor) < int(minor):
-        return PromptForUpdate(newVersion)
-    elif int(appPatch) < int(patch):
-        return PromptForUpdate(newVersion)
-
-    return False
+    return PromptForUpdate(latestVersion)
 
 def PromptForUpdate(newVersion) -> bool:
     console.print("New version found! Press \[Enter] to download.")
@@ -70,13 +71,15 @@ def PromptForUpdate(newVersion) -> bool:
         return DownloadUpdate(newVersion)
     return False
 
+def GetUpdateURL(version: str) -> (str, str):
+    fileName = 'PokeTerm_' + 'Windows.exe' if Utils.IsWindowsOS() else 'PokeTerm_' + 'Linux'
+    return f'https://github.com/DaltonSW/PokeTerm/releases/download/{version}/{fileName}', fileName
+
+
 # Rich Progress bar implementation derived from Will McGugan's example
 # https://github.com/Textualize/rich/blob/master/examples/downloader.py#L47
 def DownloadUpdate(version: str) -> bool:
-    baseURL = f'https://github.com/DaltonSW/PokeTerm/releases/download/{version}/'
-    fileName = 'PokeTerm_' + 'Windows.exe' if Utils.IsWindowsOS() else 'PokeTerm_' + 'Linux'
-    downloadURL = baseURL + fileName
-
+    downloadURL, fileName = GetUpdateURL(version)
     chunkSize = 32768
 
     try:
@@ -117,6 +120,7 @@ def CreateUpdateScriptAndUpdate():
     return True
 
 
+# Both of these scripts were obtained from ChatGPT
 WINDOWS_SCRIPT = """
 @echo off
 timeout /t 5 /nobreak >nul

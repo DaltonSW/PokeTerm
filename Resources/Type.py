@@ -20,31 +20,43 @@ class Type(AbstractData):
     def __init__(self, data):
         super().__init__(data)
 
-        damageRelations = data.get('damage_relations')
-        self.noDamageTo = [thing.get('name') for thing in damageRelations.get('no_damage_to')]
-        self.halfDamageTo = [thing.get('name') for thing in damageRelations.get('half_damage_to')]
-        self.doubleDamageTo = [thing.get('name') for thing in damageRelations.get('double_damage_to')]
-        self.noDamageFrom = [thing.get('name') for thing in damageRelations.get('no_damage_from')]
-        self.halfDamageFrom = [thing.get('name') for thing in damageRelations.get('half_damage_from')]
-        self.doubleDamageFrom = [thing.get('name') for thing in damageRelations.get('double_damage_from')]
+        damageRelationData = data.get('damage_relations')
+        (self.noDamageTo, self.halfDamageTo, self.doubleDamageTo,
+         self.noDamageFrom, self.halfDamageFrom, self.doubleDamageFrom) = self.ExtractDamageRelations(damageRelationData)
 
-        pokemon = data.get('pokemon')
-        self.primaryPokes = []
-        self.secondaryPokes = []
-
-        for poke in pokemon:
-            pokeName = poke.get('pokemon').get('name')
-            # pokeObj = Pokemon.Pokemon.HandleSearch(pokeName)
-
-            if poke.get('slot') == 1:
-                self.primaryPokes.append(pokeName.title())
-
-            elif poke.get('slot') == 2:
-                self.secondaryPokes.append(pokeName.title())
+        pokemonData = data.get('pokemon')
+        self.primaryPokes, self.secondaryPokes = self.ExtractPokemonRelations(pokemonData)
 
         self.moves = [thing.get('name') for thing in data.get('moves')]
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name
+
+    @staticmethod
+    def ExtractDamageRelations(damageRelationData):
+        noDamageTo = [thing.get('name') for thing in damageRelationData.get('no_damage_to')]
+        halfDamageTo = [thing.get('name') for thing in damageRelationData.get('half_damage_to')]
+        doubleDamageTo = [thing.get('name') for thing in damageRelationData.get('double_damage_to')]
+        noDamageFrom = [thing.get('name') for thing in damageRelationData.get('no_damage_from')]
+        halfDamageFrom = [thing.get('name') for thing in damageRelationData.get('half_damage_from')]
+        doubleDamageFrom = [thing.get('name') for thing in damageRelationData.get('double_damage_from')]
+        return noDamageTo, halfDamageTo, doubleDamageTo, noDamageFrom, halfDamageFrom, doubleDamageFrom
+
+    @staticmethod
+    def ExtractPokemonRelations(pokemonRelationData):
+        primaryPokes = []
+        secondaryPokes = []
+
+        for poke in pokemonRelationData:
+            pokeName = poke.get('pokemon').get('name')
+            # pokeObj = Pokemon.Pokemon.HandleSearch(pokeName)
+
+            if poke.get('slot') == 1:
+                primaryPokes.append(pokeName.title())
+
+            elif poke.get('slot') == 2:
+                secondaryPokes.append(pokeName.title())
+
+        return primaryPokes, secondaryPokes
 
     def __str__(self):
         return ''
@@ -88,36 +100,24 @@ class Type(AbstractData):
 
         console.rule("Type [E]ffectiveness ▼", align='left', characters=' ')
         defTable = Type.GetTypeTable("Defensive Information")
-
-        typeEffs = [1 for _ in range(18)]
-
-        for index, otherType in enumerate(TYPE_ARRAY):
-            typeEffs[index] *= self.GetDefensiveEffectiveness(otherType)
-
-        strEffs = []
-        for t in typeEffs:
-            match t:
-                case 0.5:
-                    out = '[red]1/2'
-                case 0.25:
-                    out = '[red]1/4'
-                case 2:
-                    out = '[green]2'
-                case _:
-                    out = '[gray]1'
-            strEffs.append(out)
-        defTable.add_row(*strEffs)
-
+        defTable = self.SetTableData(defTable, self.GetDefensiveEffectiveness)
         console.print(defTable)
-        print()
 
         offTable = Type.GetTypeTable("Offensive Information")
+        offTable = self.SetTableData(offTable, self.GetOffensiveEffectiveness)
+        console.print(offTable)
+        console.rule("Press any bracketed letter to expand/collapse the section.", characters=" ")
 
+    def SetTableData(self, table, effectivenessFunction):
         typeEffs = [1 for _ in range(18)]
-
         for index, otherType in enumerate(TYPE_ARRAY):
-            typeEffs[index] *= self.GetOffensiveEffectiveness(otherType)
+            typeEffs[index] *= effectivenessFunction(otherType)
+        str_effs = self.SetTypeEffectiveness(typeEffs)
+        table.add_row(*str_effs)
+        return table
 
+    @staticmethod
+    def SetTypeEffectiveness(typeEffs):
         strEffs = []
         for t in typeEffs:
             match t:
@@ -127,13 +127,13 @@ class Type(AbstractData):
                     out = '[red]1/4'
                 case 2:
                     out = '[green]2'
+                case 0:
+                    out = '[red]0'
                 case _:
                     out = '[gray]1'
             strEffs.append(out)
-        offTable.add_row(*strEffs)
 
-        console.print(offTable)
-        console.rule("Press any bracketed letter to expand/collapse the section.", characters=" ")
+        return strEffs
 
     def PrintPossibilities(self):
         infoTable = Table(box=box.SIMPLE, show_header=False)
