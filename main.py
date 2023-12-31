@@ -10,7 +10,7 @@ import Utils
 from console import console
 
 from Resources import Move, Ability, Type, Version, Pokemon, Species
-from Resources import VersionGroup, Generation, Nature
+from Resources import VersionGroup, Generation, Nature, EggGroup
 from Config import Config
 import Testing
 import Updater
@@ -27,18 +27,19 @@ import Updater
 
 BASE_URL = 'https://pokeapi.co/api/v2/'
 RESOURCES = {
-    'Pokemon': Pokemon.Pokemon,
     'Ability': Ability.Ability,
-    'Type': Type.Type,
-    'Move': Move.Move,
-    'Version': Version.Version,
     # 'Berry': Berry.Berry,
-    # 'Location': Location.Location,
+    'EggGroup': EggGroup.EggGroup,
+    'Generation': Generation.Generation,
     # 'Item': Item.Item,
+    # 'Location': Location.Location,
+    'Move': Move.Move,
+    'Nature': Nature.Nature,
+    'Pokemon': Pokemon.Pokemon,
+    'Type': Type.Type,
+    'Version': Version.Version,
     'Species': Species.Species,
     'VersionGroup': VersionGroup.VersionGroup,
-    'Generation': Generation.Generation,
-    'Nature': Nature.Nature
 }
 
 def main():
@@ -63,6 +64,7 @@ def main():
             console.clear()
             match key:
                 # case 'a': HandleSearch(Ability.Ability)
+                case 'e': HandleSearch(EggGroup.EggGroup)
                 case 'g': HandleSearch(Generation.Generation)
                 case 'm': HandleSearch(Move.Move)
                 case 'n': HandleSearch(Nature.Nature)
@@ -87,7 +89,6 @@ def main():
             QuitGracefully()
 
     # TODO:
-    #   Egg Groups
     #   Location
     #   Item
     #   Game/Version
@@ -105,7 +106,7 @@ def PrintChoices():
         # "[A]bility",
         # "[B]erry",
         # "[C]alculators",
-        # "[E]gg Groups",
+        "[E]gg Groups",
         "[G]eneration",
         # "[I]tem",
         # "[L]ocation",
@@ -189,8 +190,8 @@ def ClearCaches(doQuit=False):
         exit(0)
 
 def QuitGracefully():
-    console.clear()
     SaveCaches()
+    console.clear()
     exit(0)
 
 if __name__ == '__main__':

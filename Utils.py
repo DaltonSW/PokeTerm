@@ -22,7 +22,7 @@ def IsMacOS():
 
 def PrintData(data: AbstractData) -> None:
     while True:
-        console.clear()
+        ClearScreen()
         data.PrintData()
         print()
         console.rule("Press [Enter] to return to the menu.", characters=" ")
@@ -58,6 +58,13 @@ def GetFromURL(url):
         return None
     return response.json()
 
+
+def ClearScreen(keepHistory=False) -> None:
+    if keepHistory:
+        console.clear()
+        return
+
+    os.system('cls' if IsWindowsOS() else 'clear')
 
 def SaveCache(cacheType, cache):
     with open(os.path.join(CACHE_DIR, f'{cacheType}.cache'), 'wb') as f:
