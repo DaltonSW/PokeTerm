@@ -44,9 +44,9 @@ def GetLatestVersionFromGithub() -> Optional[str]:
         console.print("Invalid URL loaded. Returning.")
         return None
 
-def IsNewerVersion(version: str) -> bool:
+def IsNewerVersion(latestVersion: str) -> bool:
     appMajor, appMinor, appPatch = APP_VERSION.split('.')
-    latestMajor, latestMinor, latestPatch = version.split('.')
+    latestMajor, latestMinor, latestPatch = latestVersion.split('.')
 
     return int(appMajor) < int(latestMajor) or \
         (int(appMajor) == int(latestMajor) and int(appMinor) < int(latestMinor)) or \
