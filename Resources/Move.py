@@ -23,7 +23,7 @@ class Move(AbstractData):
         self.moveClass: str = data.get('damage_class').get('name')
         self.type: str = data.get('type').get('name')
 
-    def PrintData(self):
+    def PrintData(self) -> None:
         console.clear()
 
         console.print(f"[bold]Move:[/] {self.PrintName} [{self.ID}]")
@@ -36,9 +36,8 @@ class Move(AbstractData):
         statTable.add_column("Accuracy")
         statTable.add_row(str(self.PP), str(self.power), f'{self.accuracy}%')
         console.print(statTable)
-        return
 
-    def AddToCache(self):
+    def AddToCache(self) -> None:
         super().AddToCache()
 
     # region Formatted Getters

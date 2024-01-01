@@ -16,7 +16,7 @@ from Resources import VersionGroup, Generation, Nature, EggGroup
 
 
 # region Main Util Functions
-def SaveCaches():
+def SaveCaches() -> None:
     if not os.path.exists(Utils.CACHE_DIR):
         os.makedirs(Utils.CACHE_DIR)
     for resource in RESOURCES.values():
@@ -24,14 +24,14 @@ def SaveCaches():
 
     Config.SaveCache()
 
-def LoadCaches():
+def LoadCaches() -> None:
     for resource in RESOURCES.values():
         resource.LoadCache()
 
     Config.LoadCache()
     console.clear()
 
-def ClearCaches(doQuit=False):
+def ClearCaches(doQuit=False) -> None:
     if os.path.exists(Utils.CACHE_DIR):
         shutil.rmtree(Utils.CACHE_DIR)
 
@@ -42,7 +42,7 @@ def ClearCaches(doQuit=False):
     if doQuit:
         exit(0)
 
-def HandleSearch(resource):
+def HandleSearch(resource) -> None:
     query = input(f'{resource.ENDPOINT.title()} Name or ID: ').lower()
     if query == '':
         return
@@ -53,7 +53,7 @@ def HandleSearch(resource):
         Utils.PrintData(result)
     return
 
-def QuitGracefully():
+def QuitGracefully() -> None:
     SaveCaches()
     console.clear()
     exit(0)
@@ -113,7 +113,7 @@ ADMIN_DISPATCH = {
     '0': QuitGracefully
 }
 
-def main():
+def main() -> None:
     LoadCaches()
 
     if Updater.CheckForUpdate():
@@ -125,7 +125,7 @@ def main():
     while True:
         try:
             PrintChoices()
-            key = readkey()
+            key: str = readkey()
             if key == keys.ENTER:
                 QuitGracefully()
 
@@ -148,7 +148,7 @@ def main():
     #   PokeBalls
     #   Catch Rate Calculator
 
-def PrintChoices():
+def PrintChoices() -> None:
     print()
     console.rule("[bold white]Press a bracketed letter to search on that topic.", characters=' ')
     console.rule("[bold white]Press Enter to save caches and exit.", characters=' ')
@@ -168,7 +168,7 @@ def PrintChoices():
     console.print(overallTable, justify='center')
     console.rule("[bold white]\[Enter] Save & Quit[/]", characters=' ')
 
-def PrintWelcome():
+def PrintWelcome() -> None:
     console.rule('[red]     #########    [/]', characters=' ')
     console.rule('[red]   #############  [/]', characters=' ')
     console.rule('[red]  ############### [/]', characters=' ')

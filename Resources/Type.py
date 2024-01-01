@@ -1,3 +1,5 @@
+from typing import Optional
+
 from rich.table import Table
 from rich import box
 from rich.progress import Progress, TextColumn, MofNCompleteColumn, BarColumn, TimeRemainingColumn
@@ -135,7 +137,7 @@ class Type(AbstractData):
 
         return strEffs
 
-    def PrintPossibilities(self):
+    def PrintPossibilities(self) -> None:
         infoTable = Table(box=box.SIMPLE, show_header=False)
 
         infoTable.add_column("Primary")
@@ -163,7 +165,7 @@ class Type(AbstractData):
 
         console.print(infoTable)
 
-    def GetPrimaryPokesTable(self) -> Table | None:
+    def GetPrimaryPokesTable(self) -> Optional[Table]:
         if not Config.TYPE_FLAGS['primary']:
             return None
 
@@ -178,7 +180,7 @@ class Type(AbstractData):
 
         return pokeTable
 
-    def GetSecondaryPokesTable(self) -> Table | None:
+    def GetSecondaryPokesTable(self) -> Optional[Table]:
         if not Config.TYPE_FLAGS['secondary']:
             return None
 
@@ -193,7 +195,7 @@ class Type(AbstractData):
 
         return pokeTable
 
-    def GetAvailableMovesTable(self) -> Table | None:
+    def GetAvailableMovesTable(self) -> Optional[Table]:
         if not Config.TYPE_FLAGS['moves']:
             return None
 

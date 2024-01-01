@@ -1,5 +1,6 @@
 import subprocess
 import os
+from typing import Optional
 
 import Utils
 from Config import APP_VERSION
@@ -31,14 +32,14 @@ def DeleteExistingUpdaters() -> None:
         os.remove('update_poketerm.sh')
 
 
-def GetLatestVersionFromGithub():
-    req = requests.get('https://github.com/DaltonSW/PokeTerm/releases/latest')
-    if req.status_code != 200:
+def GetLatestVersionFromGithub() -> Optional[str]:
+    response = requests.get('https://github.com/DaltonSW/PokeTerm/releases/latest')
+    if response.status_code != 200:
         console.print("Couldn't connect to repository. Returning.")
         return None
 
     try:
-        return req.url.split('/')[-1]
+        return response.url.split('/')[-1]
     except IndexError:
         console.print("Invalid URL loaded. Returning.")
         return None
@@ -57,7 +58,7 @@ def CheckForUpdate() -> bool:
 
     Utils.ClearScreen()
 
-    latestVersion = GetLatestVersionFromGithub()
+    latestVersion: str = GetLatestVersionFromGithub()
 
     if latestVersion is None or not IsNewerVersion(latestVersion):
         return False
@@ -66,7 +67,7 @@ def CheckForUpdate() -> bool:
 
 def PromptForUpdate(newVersion) -> bool:
     console.print("New version found! Press \[Enter] to download.")
-    key = readkey()
+    key: str = readkey()
     if key == keys.ENTER:
         return DownloadUpdate(newVersion)
     return False
@@ -74,7 +75,6 @@ def PromptForUpdate(newVersion) -> bool:
 def GetUpdateURL(version: str) -> (str, str):
     fileName = 'PokeTerm_' + 'Windows.exe' if Utils.IsWindowsOS() else 'PokeTerm_' + 'Linux'
     return f'https://github.com/DaltonSW/PokeTerm/releases/download/{version}/{fileName}', fileName
-
 
 # Rich Progress bar implementation derived from Will McGugan's example
 # https://github.com/Textualize/rich/blob/master/examples/downloader.py#L47
@@ -96,7 +96,7 @@ def DownloadUpdate(version: str) -> bool:
                         progress.update(downloadTaskID, advance=chunkSize)
 
         console.print("New version downloaded! Press \[Enter] to restart the program.")
-        key = readkey()
+        key: str = readkey()
         if key == keys.ENTER:
             return CreateUpdateScriptAndUpdate()
         return False
@@ -106,7 +106,7 @@ def DownloadUpdate(version: str) -> bool:
         console.print("Insufficient permissions. Run the application as administrator and try again.")
         _ = readkey()
 
-def CreateUpdateScriptAndUpdate():
+def CreateUpdateScriptAndUpdate() -> bool:
     if Utils.IsWindowsOS():
         with open('.\\update_poketerm.bat', 'w') as file:
             file.write(WINDOWS_SCRIPT)

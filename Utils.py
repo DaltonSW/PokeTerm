@@ -2,6 +2,7 @@ import os
 import platform
 import pickle
 import re
+from typing import Optional
 
 import requests
 
@@ -10,13 +11,13 @@ from console import console
 from readchar import readkey, key as keys
 
 # region Version Checks
-def IsWindowsOS():
+def IsWindowsOS() -> bool:
     return platform.system() == 'Windows'
 
-def IsLinuxOS():
+def IsLinuxOS() -> bool:
     return platform.system() == 'Linux'
 
-def IsMacOS():
+def IsMacOS() -> bool:
     return platform.system() == 'Darwin'
 # endregion
 
@@ -27,7 +28,7 @@ def PrintData(data: AbstractData) -> None:
         data.PrintData()
         print()
         console.rule('Press [Enter] to return to the menu.', characters=' ')
-        key = readkey()
+        key: str = readkey()
         if key == keys.ENTER:
             return
         data.ToggleFlag(key)
@@ -45,11 +46,11 @@ def GetIDFromURL(URL: str) -> int:
     return int(URL.split('/')[-2])
 
 def NormalizeSearchTerm(searchTerm: str) -> str:
-    if str == type(searchTerm):
+    if isinstance(searchTerm, str):
         searchTerm = re.sub(' ', '-', searchTerm)
     return searchTerm
 
-def GetFromAPI(endpoint, searchTerm):
+def GetFromAPI(endpoint, searchTerm) -> Optional[dict]:
     searchTerm = NormalizeSearchTerm(searchTerm)
     response = requests.get(f'{BASE_URL}/{endpoint}/{searchTerm}')
     if response.status_code == 404:
@@ -59,7 +60,6 @@ def GetFromAPI(endpoint, searchTerm):
 # If the int being searched on is in the id->name cache, return the proper name. Otherwise, return the original param
 def ProperQueryFromID(query: int, idToNameCache) -> str | int:
     return query if query not in idToNameCache else idToNameCache[query]
-
 
 def GetFromURL(url) -> dict | None:
     response = requests.get(url)
@@ -81,7 +81,7 @@ def SaveCache(cacheType, cache) -> None:
         pickle.dump(cache, f)
         print(f'Successfully saved {cacheType.upper()} cache')
 
-def LoadCache(cacheType) -> dict | None:
+def LoadCache(cacheType) -> Optional[dict]:
     if not CacheExists(cacheType):
         return None
     with open(CacheFilePath(cacheType), 'rb') as f:
