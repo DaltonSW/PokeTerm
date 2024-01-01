@@ -1,8 +1,7 @@
-from rich.table import Table
-
 from .Data import AbstractData
-from console import console
-import Utils
+from PokeTerm.console import console
+from PokeTerm import Utils
+
 
 class EggGroup(AbstractData):
     ID_TO_NAME_CACHE = {}

@@ -3,11 +3,11 @@ from typing import Optional
 from rich.table import Table
 from rich import box
 from rich.progress import Progress, TextColumn, MofNCompleteColumn, BarColumn, TimeRemainingColumn
-from console import console
+from PokeTerm.console import console
 from Resources.Data import AbstractData
 from Resources import Move
 
-from Config import Config
+from PokeTerm.Config import Config
 
 TYPE_ARRAY = ['normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting',
               'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost',

@@ -1,14 +1,14 @@
 from bs4 import BeautifulSoup
 import requests
-import Utils
+from PokeTerm import Utils
 from Resources.Data import AbstractData
-from Resources import Species, Ability, Generation, VersionGroup, Type
+from Resources import Species, Type, VersionGroup, Generation, Ability
 
-from Config import Config
+from PokeTerm.Config import Config
 
 from rich.table import Table
 from rich import box
-from console import console
+from PokeTerm.console import console
 
 # TODO:
 #   Override the search so if it fails to find a pokemon by the name, it searches for a species, then shows the default form

@@ -6,8 +6,8 @@ from typing import Optional
 
 import requests
 
-from Resources.Data import AbstractData
-from console import console
+from Resources import AbstractData
+from PokeTerm.console import console
 from readchar import readkey, key as keys
 
 # region Version Checks

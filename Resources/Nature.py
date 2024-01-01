@@ -1,4 +1,4 @@
-from console import console
+from PokeTerm.console import console
 from Resources.Data import AbstractData
 
 class Nature(AbstractData):

@@ -1,4 +1,4 @@
-from console import console
+from PokeTerm.console import console
 
 def PrintEvoChain(chain, charsPrinted=0):
     species = chain["species"]["name"]

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import re
-import Utils
+from PokeTerm import Utils
+
 
 class AbstractData(ABC):
     ENDPOINT = None

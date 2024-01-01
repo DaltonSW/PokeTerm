@@ -1,7 +1,7 @@
-import Utils
+from PokeTerm import Utils
 from .Data import AbstractData
-from Resources import EvolutionChain
-from console import console
+from . import EvolutionChain
+from PokeTerm.console import console
 from rich.table import Table
 from rich import box
 

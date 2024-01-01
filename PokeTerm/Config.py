@@ -1,4 +1,4 @@
-import Utils
+from PokeTerm import Utils
 
 APP_VERSION = "0.2.2"
 

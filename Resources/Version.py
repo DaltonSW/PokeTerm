@@ -1,4 +1,4 @@
-import Utils
+from PokeTerm import Utils
 from Resources.Data import AbstractData
 
 class Version(AbstractData):

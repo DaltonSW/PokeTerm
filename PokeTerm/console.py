@@ -1,3 +1,3 @@
 from rich.console import Console
-from RichColors import PokeTheme
+from PokeTerm.RichColors import PokeTheme
 console = Console(theme=PokeTheme)
