@@ -1,45 +1,95 @@
 from rich.table import Table
 from rich import box
-from rich.progress import Progress, TextColumn, MofNCompleteColumn, BarColumn, TimeRemainingColumn
+from rich.progress import (
+    Progress,
+    TextColumn,
+    MofNCompleteColumn,
+    BarColumn,
+    TimeRemainingColumn,
+)
 from console import console
 from Resources.Data import AbstractData
 from Resources import Move
 
 from Config import Config
 
-TYPE_ARRAY = ['normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting',
-              'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost',
-              'dragon', 'dark', 'steel', 'fairy']
+TYPE_ARRAY = [
+    "normal",
+    "fire",
+    "water",
+    "electric",
+    "grass",
+    "ice",
+    "fighting",
+    "poison",
+    "ground",
+    "flying",
+    "psychic",
+    "bug",
+    "rock",
+    "ghost",
+    "dragon",
+    "dark",
+    "steel",
+    "fairy",
+]
 
 
 class Type(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
-    ENDPOINT = 'type'
+    ENDPOINT = "type"
 
     def __init__(self, data):
         super().__init__(data)
 
-        damageRelationData = data.get('damage_relations')
-        (self.noDamageTo, self.halfDamageTo, self.doubleDamageTo,
-         self.noDamageFrom, self.halfDamageFrom, self.doubleDamageFrom) = self.ExtractDamageRelations(damageRelationData)
+        damageRelationData = data.get("damage_relations")
+        (
+            self.noDamageTo,
+            self.halfDamageTo,
+            self.doubleDamageTo,
+            self.noDamageFrom,
+            self.halfDamageFrom,
+            self.doubleDamageFrom,
+        ) = self.ExtractDamageRelations(damageRelationData)
 
-        pokemonData = data.get('pokemon')
-        self.primaryPokes, self.secondaryPokes = self.ExtractPokemonRelations(pokemonData)
+        pokemonData = data.get("pokemon")
+        self.primaryPokes, self.secondaryPokes = self.ExtractPokemonRelations(
+            pokemonData
+        )
 
-        self.moves = [thing.get('name') for thing in data.get('moves')]
+        self.moves = [thing.get("name") for thing in data.get("moves")]
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     @staticmethod
     def ExtractDamageRelations(damageRelationData):
-        noDamageTo = [thing.get('name') for thing in damageRelationData.get('no_damage_to')]
-        halfDamageTo = [thing.get('name') for thing in damageRelationData.get('half_damage_to')]
-        doubleDamageTo = [thing.get('name') for thing in damageRelationData.get('double_damage_to')]
-        noDamageFrom = [thing.get('name') for thing in damageRelationData.get('no_damage_from')]
-        halfDamageFrom = [thing.get('name') for thing in damageRelationData.get('half_damage_from')]
-        doubleDamageFrom = [thing.get('name') for thing in damageRelationData.get('double_damage_from')]
-        return noDamageTo, halfDamageTo, doubleDamageTo, noDamageFrom, halfDamageFrom, doubleDamageFrom
+        noDamageTo = [
+            thing.get("name") for thing in damageRelationData.get("no_damage_to")
+        ]
+        halfDamageTo = [
+            thing.get("name") for thing in damageRelationData.get("half_damage_to")
+        ]
+        doubleDamageTo = [
+            thing.get("name") for thing in damageRelationData.get("double_damage_to")
+        ]
+        noDamageFrom = [
+            thing.get("name") for thing in damageRelationData.get("no_damage_from")
+        ]
+        halfDamageFrom = [
+            thing.get("name") for thing in damageRelationData.get("half_damage_from")
+        ]
+        doubleDamageFrom = [
+            thing.get("name") for thing in damageRelationData.get("double_damage_from")
+        ]
+        return (
+            noDamageTo,
+            halfDamageTo,
+            doubleDamageTo,
+            noDamageFrom,
+            halfDamageFrom,
+            doubleDamageFrom,
+        )
 
     @staticmethod
     def ExtractPokemonRelations(pokemonRelationData):
@@ -47,19 +97,19 @@ class Type(AbstractData):
         secondaryPokes = []
 
         for poke in pokemonRelationData:
-            pokeName = poke.get('pokemon').get('name')
+            pokeName = poke.get("pokemon").get("name")
             # pokeObj = Pokemon.Pokemon.HandleSearch(pokeName)
 
-            if poke.get('slot') == 1:
+            if poke.get("slot") == 1:
                 primaryPokes.append(pokeName.title())
 
-            elif poke.get('slot') == 2:
+            elif poke.get("slot") == 2:
                 secondaryPokes.append(pokeName.title())
 
         return primaryPokes, secondaryPokes
 
     def __str__(self):
-        return ''
+        return ""
 
     def GetOffensiveEffectiveness(self, otherType) -> float:
         if otherType in self.noDamageTo:
@@ -83,7 +133,7 @@ class Type(AbstractData):
 
     @property
     def PrintName(self) -> str:
-        return f'[{self.name}]{self.name.title()}[/]'
+        return f"[{self.name}]{self.name.title()}[/]"
 
     def PrintData(self):
         console.print(f"[bold]Type: {self.PrintName}[/]")
@@ -94,11 +144,11 @@ class Type(AbstractData):
 
     def PrintTypeEfficacyTable(self):
         print()
-        if not Config.TYPE_FLAGS['efficacy']:
-            console.rule("Type [E]ffectiveness ▶", align='left', characters=' ')
+        if not Config.TYPE_FLAGS["efficacy"]:
+            console.rule("Type [E]ffectiveness ▶", align="left", characters=" ")
             return
 
-        console.rule("Type [E]ffectiveness ▼", align='left', characters=' ')
+        console.rule("Type [E]ffectiveness ▼", align="left", characters=" ")
         defTable = Type.GetTypeTable("Defensive Information")
         defTable = self.SetTableData(defTable, self.GetDefensiveEffectiveness)
         console.print(defTable)
@@ -106,7 +156,9 @@ class Type(AbstractData):
         offTable = Type.GetTypeTable("Offensive Information")
         offTable = self.SetTableData(offTable, self.GetOffensiveEffectiveness)
         console.print(offTable)
-        console.rule("Press any bracketed letter to expand/collapse the section.", characters=" ")
+        console.rule(
+            "Press any bracketed letter to expand/collapse the section.", characters=" "
+        )
 
     def SetTableData(self, table, effectivenessFunction):
         typeEffs = [1 for _ in range(18)]
@@ -122,15 +174,15 @@ class Type(AbstractData):
         for t in typeEffs:
             match t:
                 case 0.5:
-                    out = '[red]1/2'
+                    out = "[red]1/2"
                 case 0.25:
-                    out = '[red]1/4'
+                    out = "[red]1/4"
                 case 2:
-                    out = '[green]2'
+                    out = "[green]2"
                 case 0:
-                    out = '[red]0'
+                    out = "[red]0"
                 case _:
-                    out = '[gray]1'
+                    out = "[gray]1"
             strEffs.append(out)
 
         return strEffs
@@ -164,7 +216,7 @@ class Type(AbstractData):
         console.print(infoTable)
 
     def GetPrimaryPokesTable(self) -> Table | None:
-        if not Config.TYPE_FLAGS['primary']:
+        if not Config.TYPE_FLAGS["primary"]:
             return None
 
         else:
@@ -179,11 +231,13 @@ class Type(AbstractData):
         return pokeTable
 
     def GetSecondaryPokesTable(self) -> Table | None:
-        if not Config.TYPE_FLAGS['secondary']:
+        if not Config.TYPE_FLAGS["secondary"]:
             return None
 
         else:
-            pokeTable = Table(title=f"[S]econdary Typing ({len(self.secondaryPokes)}) ▼")
+            pokeTable = Table(
+                title=f"[S]econdary Typing ({len(self.secondaryPokes)}) ▼"
+            )
             pokeTable.add_column("Pokemon")
             # pokeTable.add_column("Type 1")
             # pokeTable.add_column("Type 2")
@@ -194,7 +248,7 @@ class Type(AbstractData):
         return pokeTable
 
     def GetAvailableMovesTable(self) -> Table | None:
-        if not Config.TYPE_FLAGS['moves']:
+        if not Config.TYPE_FLAGS["moves"]:
             return None
 
         newTable = Table(title=f"[M]oves Available ({len(self.moves)}) ▼")
@@ -204,16 +258,22 @@ class Type(AbstractData):
         newTable.add_column("PP")
 
         with Progress(
-                TextColumn("[progress.description]{task.description}"),
-                BarColumn(),
-                MofNCompleteColumn(),
-                TimeRemainingColumn(),
-                transient=True) as progress:
-            moveQuery = progress.add_task('Querying moves...', total=len(self.moves))
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TimeRemainingColumn(),
+            transient=True,
+        ) as progress:
+            moveQuery = progress.add_task("Querying moves...", total=len(self.moves))
             for moveName in self.moves:
                 moveObj = Move.Move.HandleSearch(moveName)
                 if moveObj:
-                    newTable.add_row(moveObj.PrintName, str(moveObj.power), str(moveObj.accuracy), str(moveObj.PP))
+                    newTable.add_row(
+                        moveObj.PrintName,
+                        str(moveObj.power),
+                        str(moveObj.accuracy),
+                        str(moveObj.PP),
+                    )
                 progress.update(moveQuery, advance=1)
 
         return newTable
@@ -224,38 +284,40 @@ class Type(AbstractData):
     @classmethod
     def ToggleFlag(cls, flag: str):
         match flag:
-            case 'e':
-                Config.TYPE_FLAGS['efficacy'] = not Config.TYPE_FLAGS['efficacy']
-            case 'p':
-                Config.TYPE_FLAGS['primary'] = not Config.TYPE_FLAGS['primary']
-            case 's':
-                Config.TYPE_FLAGS['secondary'] = not Config.TYPE_FLAGS['secondary']
-            case 'm':
-                Config.TYPE_FLAGS['moves'] = not Config.TYPE_FLAGS['moves']
+            case "e":
+                Config.TYPE_FLAGS["efficacy"] = not Config.TYPE_FLAGS["efficacy"]
+            case "p":
+                Config.TYPE_FLAGS["primary"] = not Config.TYPE_FLAGS["primary"]
+            case "s":
+                Config.TYPE_FLAGS["secondary"] = not Config.TYPE_FLAGS["secondary"]
+            case "m":
+                Config.TYPE_FLAGS["moves"] = not Config.TYPE_FLAGS["moves"]
             case _:
                 return
 
     @staticmethod
     def GetTypeTable(title: str) -> Table:
-        typeTable = Table(title=title, box=box.ROUNDED, title_justify='left', show_lines=True)
+        typeTable = Table(
+            title=title, box=box.ROUNDED, title_justify="left", show_lines=True
+        )
 
-        typeTable.add_column("NOR", header_style='normal', justify='center')
-        typeTable.add_column("FIR", header_style='fire', justify='center')
-        typeTable.add_column("WAT", header_style='water', justify='center')
-        typeTable.add_column("ELE", header_style='electric', justify='center')
-        typeTable.add_column("GRA", header_style='grass', justify='center')
-        typeTable.add_column("ICE", header_style='ice', justify='center')
-        typeTable.add_column("FIG", header_style='fighting', justify='center')
-        typeTable.add_column("POI", header_style='poison', justify='center')
-        typeTable.add_column("GRO", header_style='ground', justify='center')
-        typeTable.add_column("FLY", header_style='flying', justify='center')
-        typeTable.add_column("PSY", header_style='psychic', justify='center')
-        typeTable.add_column("BUG", header_style='bug', justify='center')
-        typeTable.add_column("ROC", header_style='rock', justify='center')
-        typeTable.add_column("GHO", header_style='ghost', justify='center')
-        typeTable.add_column("DRA", header_style='dragon', justify='center')
-        typeTable.add_column("DAR", header_style='dark', justify='center')
-        typeTable.add_column("STE", header_style='steel', justify='center')
-        typeTable.add_column("FAI", header_style='fairy', justify='center')
+        typeTable.add_column("NOR", header_style="normal", justify="center")
+        typeTable.add_column("FIR", header_style="fire", justify="center")
+        typeTable.add_column("WAT", header_style="water", justify="center")
+        typeTable.add_column("ELE", header_style="electric", justify="center")
+        typeTable.add_column("GRA", header_style="grass", justify="center")
+        typeTable.add_column("ICE", header_style="ice", justify="center")
+        typeTable.add_column("FIG", header_style="fighting", justify="center")
+        typeTable.add_column("POI", header_style="poison", justify="center")
+        typeTable.add_column("GRO", header_style="ground", justify="center")
+        typeTable.add_column("FLY", header_style="flying", justify="center")
+        typeTable.add_column("PSY", header_style="psychic", justify="center")
+        typeTable.add_column("BUG", header_style="bug", justify="center")
+        typeTable.add_column("ROC", header_style="rock", justify="center")
+        typeTable.add_column("GHO", header_style="ghost", justify="center")
+        typeTable.add_column("DRA", header_style="dragon", justify="center")
+        typeTable.add_column("DAR", header_style="dark", justify="center")
+        typeTable.add_column("STE", header_style="steel", justify="center")
+        typeTable.add_column("FAI", header_style="fairy", justify="center")
 
         return typeTable

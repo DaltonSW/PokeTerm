@@ -24,12 +24,14 @@ def SaveCaches():
 
     Config.SaveCache()
 
+
 def LoadCaches():
     for resource in RESOURCES.values():
         resource.LoadCache()
 
     Config.LoadCache()
     console.clear()
+
 
 def ClearCaches(doQuit=False):
     if os.path.exists(Utils.CACHE_DIR):
@@ -42,9 +44,10 @@ def ClearCaches(doQuit=False):
     if doQuit:
         exit(0)
 
+
 def HandleSearch(resource):
-    query = input(f'{resource.ENDPOINT.title()} Name or ID: ').lower()
-    if query == '':
+    query = input(f"{resource.ENDPOINT.title()} Name or ID: ").lower()
+    if query == "":
         return
 
     with console.status(f"Querying for {resource.ENDPOINT.title()}..."):
@@ -53,27 +56,30 @@ def HandleSearch(resource):
         Utils.PrintData(result)
     return
 
+
 def QuitGracefully():
     SaveCaches()
     console.clear()
     exit(0)
+
+
 # endregion
 
-BASE_URL = 'https://pokeapi.co/api/v2/'
+BASE_URL = "https://pokeapi.co/api/v2/"
 RESOURCES = {
-    'Ability': Ability.Ability,
+    "Ability": Ability.Ability,
     # 'Berry': Berry.Berry,
-    'EggGroup': EggGroup.EggGroup,
-    'Generation': Generation.Generation,
+    "EggGroup": EggGroup.EggGroup,
+    "Generation": Generation.Generation,
     # 'Item': Item.Item,
     # 'Location': Location.Location,
-    'Move': Move.Move,
-    'Nature': Nature.Nature,
-    'Pokemon': Pokemon.Pokemon,
-    'Type': Type.Type,
-    'Version': Version.Version,
-    'Species': Species.Species,
-    'VersionGroup': VersionGroup.VersionGroup,
+    "Move": Move.Move,
+    "Nature": Nature.Nature,
+    "Pokemon": Pokemon.Pokemon,
+    "Type": Type.Type,
+    "Version": Version.Version,
+    "Species": Species.Species,
+    "VersionGroup": VersionGroup.VersionGroup,
 }
 
 SEARCH_OPTIONS = [
@@ -87,7 +93,7 @@ SEARCH_OPTIONS = [
     "[M]ove",
     "[N]ature",
     "[P]okemon",
-    "[T]ype"
+    "[T]ype",
 ]
 
 ADMIN_OPTIONS = [
@@ -99,19 +105,16 @@ ADMIN_OPTIONS = [
 ]
 
 SEARCH_DISPATCH = {
-    'e': lambda: HandleSearch(EggGroup.EggGroup),
-    'g': lambda: HandleSearch(Generation.Generation),
-    'm': lambda: HandleSearch(Move.Move),
-    'n': lambda: HandleSearch(Nature.Nature),
-    'p': lambda: HandleSearch(Pokemon.Pokemon),
-    't': lambda: HandleSearch(Type.Type)
+    "e": lambda: HandleSearch(EggGroup.EggGroup),
+    "g": lambda: HandleSearch(Generation.Generation),
+    "m": lambda: HandleSearch(Move.Move),
+    "n": lambda: HandleSearch(Nature.Nature),
+    "p": lambda: HandleSearch(Pokemon.Pokemon),
+    "t": lambda: HandleSearch(Type.Type),
 }
 
-ADMIN_DISPATCH = {
-    '2': ClearCaches,
-    '3': lambda: ClearCaches(True),
-    '0': QuitGracefully
-}
+ADMIN_DISPATCH = {"2": ClearCaches, "3": lambda: ClearCaches(True), "0": QuitGracefully}
+
 
 def main():
     LoadCaches()
@@ -136,7 +139,7 @@ def main():
             elif key in ADMIN_DISPATCH:
                 ADMIN_DISPATCH[key]()
             else:
-                console.print('Not a valid key!')
+                console.print("Not a valid key!")
 
         except KeyboardInterrupt:  # This handles Ctrl+C'ing out of the menu
             QuitGracefully()
@@ -148,40 +151,47 @@ def main():
     #   PokeBalls
     #   Catch Rate Calculator
 
+
 def PrintChoices():
     print()
-    console.rule("[bold white]Press a bracketed letter to search on that topic.", characters=' ')
-    console.rule("[bold white]Press Enter to save caches and exit.", characters=' ')
+    console.rule(
+        "[bold white]Press a bracketed letter to search on that topic.", characters=" "
+    )
+    console.rule("[bold white]Press Enter to save caches and exit.", characters=" ")
 
     overallTable = Table(show_header=False, box=box.SIMPLE)
 
-    searchTable, adminTable = Table(show_header=False, box=box.SIMPLE), Table(show_header=False, box=box.SIMPLE)
+    searchTable, adminTable = Table(show_header=False, box=box.SIMPLE), Table(
+        show_header=False, box=box.SIMPLE
+    )
 
     for option in SEARCH_OPTIONS:
-        searchTable.add_row(f'[bold]{option}[/]')
+        searchTable.add_row(f"[bold]{option}[/]")
 
     for option in ADMIN_OPTIONS:
-        adminTable.add_row(f'[bold]{option}[/]')
+        adminTable.add_row(f"[bold]{option}[/]")
 
     overallTable.add_row(searchTable, adminTable)
 
-    console.print(overallTable, justify='center')
-    console.rule("[bold white]\[Enter] Save & Quit[/]", characters=' ')
+    console.print(overallTable, justify="center")
+    console.rule("[bold white]\[Enter] Save & Quit[/]", characters=" ")
+
 
 def PrintWelcome():
-    console.rule('[red]     #########    [/]', characters=' ')
-    console.rule('[red]   #############  [/]', characters=' ')
-    console.rule('[red]  ############### [/]', characters=' ')
-    console.rule('[red] #####       #####[/]', characters=' ')
-    console.rule('[white]        ###       [/]', characters=' ')
-    console.rule('[white]        ###       [/]', characters=' ')
-    console.rule('[white] #####       #####[/]', characters=' ')
-    console.rule('[white]  ############### [/]', characters=' ')
-    console.rule('[white]   #############  [/]', characters=' ')
-    console.rule('[white]     #########    [/]', characters=' ')
+    console.rule("[red]     #########    [/]", characters=" ")
+    console.rule("[red]   #############  [/]", characters=" ")
+    console.rule("[red]  ############### [/]", characters=" ")
+    console.rule("[red] #####       #####[/]", characters=" ")
+    console.rule("[white]        ###       [/]", characters=" ")
+    console.rule("[white]        ###       [/]", characters=" ")
+    console.rule("[white] #####       #####[/]", characters=" ")
+    console.rule("[white]  ############### [/]", characters=" ")
+    console.rule("[white]   #############  [/]", characters=" ")
+    console.rule("[white]     #########    [/]", characters=" ")
     print()
-    console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style='white')
-    console.rule(f"Cache is stored at ~{os.sep}.poketerm", characters=' ')
+    console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style="white")
+    console.rule(f"Cache is stored at ~{os.sep}.poketerm", characters=" ")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
