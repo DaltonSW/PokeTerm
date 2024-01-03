@@ -11,8 +11,8 @@ import updater
 
 from console import console
 from config import Config
-from Resources import move, ability, type, version, pokemon, species
-from Resources import version_group, generation, nature, egg_group
+from resources import move, ability, type, version, pokemon, species
+from resources import version_group, generation, nature, egg_group
 
 
 # region Main Util Functions

@@ -1,5 +1,5 @@
 import utils
-from Resources.data import AbstractData
+from resources.data import AbstractData
 
 
 class VersionGroup(AbstractData):

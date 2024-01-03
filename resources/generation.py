@@ -1,4 +1,4 @@
-from Resources.data import AbstractData
+from resources.data import AbstractData
 
 # TODO:
 #   List out each ability

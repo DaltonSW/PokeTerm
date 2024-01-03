@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
 import utils
-from Resources.data import AbstractData
-from Resources import species, ability, generation, version_group, type
+from resources.data import AbstractData
+from resources import species, ability, generation, version_group, type
 
 from config import Config
 

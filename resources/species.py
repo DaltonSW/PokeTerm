@@ -1,6 +1,6 @@
 import utils
 from .data import AbstractData
-from Resources import evolution_chain
+from resources import evolution_chain
 from console import console
 from rich.table import Table
 from rich import box

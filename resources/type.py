@@ -8,8 +8,8 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 from console import console
-from Resources.data import AbstractData
-from Resources import move
+from resources.data import AbstractData
+from resources import move
 
 from config import Config
 
