@@ -6,19 +6,19 @@ from readchar import readkey, key as keys
 from rich import box
 from rich.table import Table
 
-import Utils
-import Updater
+import utils
+import updater
 
 from console import console
-from Config import Config
-from Resources import Move, Ability, Type, Version, Pokemon, Species
-from Resources import VersionGroup, Generation, Nature, EggGroup
+from config import Config
+from Resources import move, ability, type, version, pokemon, species
+from Resources import version_group, generation, nature, egg_group
 
 
 # region Main Util Functions
 def SaveCaches():
-    if not os.path.exists(Utils.CACHE_DIR):
-        os.makedirs(Utils.CACHE_DIR)
+    if not os.path.exists(utils.CACHE_DIR):
+        os.makedirs(utils.CACHE_DIR)
     for resource in RESOURCES.values():
         resource.SaveCache()
 
@@ -34,8 +34,8 @@ def LoadCaches():
 
 
 def ClearCaches(doQuit=False):
-    if os.path.exists(Utils.CACHE_DIR):
-        shutil.rmtree(Utils.CACHE_DIR)
+    if os.path.exists(utils.CACHE_DIR):
+        shutil.rmtree(utils.CACHE_DIR)
 
     for resource in RESOURCES.values():
         resource.NAME_TO_DATA_CACHE.clear()
@@ -53,7 +53,7 @@ def HandleSearch(resource):
     with console.status(f"Querying for {resource.ENDPOINT.title()}..."):
         result = resource.HandleSearch(query)
     if result is not None:
-        Utils.PrintData(result)
+        utils.PrintData(result)
     return
 
 
@@ -67,19 +67,19 @@ def QuitGracefully():
 
 BASE_URL = "https://pokeapi.co/api/v2/"
 RESOURCES = {
-    "Ability": Ability.Ability,
+    "ability": ability.Ability,
     # 'Berry': Berry.Berry,
-    "EggGroup": EggGroup.EggGroup,
-    "Generation": Generation.Generation,
+    "EggGroup": egg_group.EggGroup,
+    "Generation": generation.Generation,
     # 'Item': Item.Item,
     # 'Location': Location.Location,
-    "Move": Move.Move,
-    "Nature": Nature.Nature,
-    "Pokemon": Pokemon.Pokemon,
-    "Type": Type.Type,
-    "Version": Version.Version,
-    "Species": Species.Species,
-    "VersionGroup": VersionGroup.VersionGroup,
+    "Move": move.Move,
+    "Nature": nature.Nature,
+    "Pokemon": pokemon.Pokemon,
+    "Type": type.Type,
+    "Version": version.Version,
+    "Species": species.Species,
+    "VersionGroup": version_group.VersionGroup,
 }
 
 SEARCH_OPTIONS = [
@@ -105,12 +105,12 @@ ADMIN_OPTIONS = [
 ]
 
 SEARCH_DISPATCH = {
-    "e": lambda: HandleSearch(EggGroup.EggGroup),
-    "g": lambda: HandleSearch(Generation.Generation),
-    "m": lambda: HandleSearch(Move.Move),
-    "n": lambda: HandleSearch(Nature.Nature),
-    "p": lambda: HandleSearch(Pokemon.Pokemon),
-    "t": lambda: HandleSearch(Type.Type),
+    "e": lambda: HandleSearch(egg_group.EggGroup),
+    "g": lambda: HandleSearch(generation.Generation),
+    "m": lambda: HandleSearch(move.Move),
+    "n": lambda: HandleSearch(nature.Nature),
+    "p": lambda: HandleSearch(pokemon.Pokemon),
+    "t": lambda: HandleSearch(type.Type),
 }
 
 ADMIN_DISPATCH = {"2": ClearCaches, "3": lambda: ClearCaches(True), "0": QuitGracefully}
@@ -119,11 +119,11 @@ ADMIN_DISPATCH = {"2": ClearCaches, "3": lambda: ClearCaches(True), "0": QuitGra
 def main():
     LoadCaches()
 
-    if Updater.CheckForUpdate():
+    if updater.CheckForUpdate():
         SaveCaches()
         exit(0)
 
-    Utils.ClearScreen(True)
+    utils.ClearScreen(True)
     PrintWelcome()
     while True:
         try:

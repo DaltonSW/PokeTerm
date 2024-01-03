@@ -1,4 +1,4 @@
-import Utils
+import utils
 
 APP_VERSION = "0.2.2"
 
@@ -26,7 +26,7 @@ class Config:
 
     @classmethod
     def LoadCache(cls):
-        cache = Utils.LoadCache("config")
+        cache = utils.LoadCache("config")
         if cache is None:
             return
 
@@ -45,4 +45,4 @@ class Config:
             "type": cls.TYPE_FLAGS,
             # "move": cls.MOVE_FLAGS
         }
-        Utils.SaveCache("config", flagList)
+        utils.SaveCache("config", flagList)

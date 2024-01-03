@@ -1,6 +1,6 @@
 from rich.table import Table
 
-from .Data import AbstractData
+from .data import AbstractData
 from console import console
 
 # TODO:

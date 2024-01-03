@@ -1,6 +1,6 @@
-import Utils
-from .Data import AbstractData
-from Resources import EvolutionChain
+import utils
+from .data import AbstractData
+from Resources import evolution_chain
 from console import console
 from rich.table import Table
 from rich import box
@@ -44,8 +44,8 @@ class Species(AbstractData):
             self.pokedexNumbers[entry["pokedex"]["name"]] = entry["entry_number"]
 
         # Evolution Chain
-        self.evolutionChain = EvolutionChain.EvolutionChain(
-            Utils.GetFromURL(data.get("evolution_chain").get("url"))
+        self.evolutionChain = evolution_chain.EvolutionChain(
+            utils.GetFromURL(data.get("evolution_chain").get("url"))
         )
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name

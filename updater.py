@@ -1,8 +1,8 @@
 import subprocess
 import os
 
-import Utils
-from Config import APP_VERSION
+import utils
+from config import APP_VERSION
 import requests
 
 from readchar import readkey, key as keys
@@ -69,7 +69,7 @@ def IsNewerVersion(version: str) -> bool:
 def CheckForUpdate() -> bool:
     DeleteExistingUpdaters()
 
-    Utils.ClearScreen()
+    utils.ClearScreen()
 
     latestVersion = GetLatestVersionFromGithub()
 
@@ -89,7 +89,7 @@ def PromptForUpdate(newVersion) -> bool:
 
 def GetUpdateURL(version: str) -> (str, str):
     fileName = (
-        "PokeTerm_" + "Windows.exe" if Utils.IsWindowsOS() else "PokeTerm_" + "Linux"
+        "PokeTerm_" + "Windows.exe" if utils.IsWindowsOS() else "PokeTerm_" + "Linux"
     )
     return (
         f"https://github.com/DaltonSW/PokeTerm/releases/download/{version}/{fileName}",
@@ -135,7 +135,7 @@ def DownloadUpdate(version: str) -> bool:
 
 
 def CreateUpdateScriptAndUpdate():
-    if Utils.IsWindowsOS():
+    if utils.IsWindowsOS():
         with open(".\\update_poketerm.bat", "w") as file:
             file.write(WINDOWS_SCRIPT)
         subprocess.Popen([".\\update_poketerm.bat"], shell=True)

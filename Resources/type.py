@@ -8,10 +8,10 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 from console import console
-from Resources.Data import AbstractData
-from Resources import Move
+from Resources.data import AbstractData
+from Resources import move
 
-from Config import Config
+from config import Config
 
 TYPE_ARRAY = [
     "normal",
@@ -266,7 +266,7 @@ class Type(AbstractData):
         ) as progress:
             moveQuery = progress.add_task("Querying moves...", total=len(self.moves))
             for moveName in self.moves:
-                moveObj = Move.Move.HandleSearch(moveName)
+                moveObj = move.Move.HandleSearch(moveName)
                 if moveObj:
                     newTable.add_row(
                         moveObj.PrintName,

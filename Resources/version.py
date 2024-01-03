@@ -1,5 +1,5 @@
-import Utils
-from Resources.Data import AbstractData
+import utils
+from Resources.data import AbstractData
 
 
 class Version(AbstractData):
@@ -10,7 +10,7 @@ class Version(AbstractData):
     def __init__(self, data):
         super().__init__(data)
 
-        self.versionGroupID = Utils.GetIDFromURL(data["version_group"]["url"])
+        self.versionGroupID = utils.GetIDFromURL(data["version_group"]["url"])
 
     def PrintData(self):
         print(self.PrintName)

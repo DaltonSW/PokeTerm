@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
-import Utils
-from Resources.Data import AbstractData
-from Resources import Species, Ability, Generation, VersionGroup, Type
+import utils
+from Resources.data import AbstractData
+from Resources import species, ability, generation, version_group, type
 
-from Config import Config
+from config import Config
 
 from rich.table import Table
 from rich import box
@@ -27,21 +27,19 @@ class Pokemon(AbstractData):
         self.possibleAbilities = []
         self.hiddenAbility = None
         abilityList: list = data.get("abilities")
-        for ability in abilityList:
-            newAbility = Ability.Ability.HandleSearch(
-                ability.get("ability").get("name")
-            )
+        for a in abilityList:
+            newAbility = ability.Ability.HandleSearch(a.get("ability").get("name"))
             if newAbility is not None:
-                if ability.get("is_hidden") is True:
+                if a.get("is_hidden") is True:
                     self.hiddenAbility = newAbility
                 else:
                     self.possibleAbilities.append(newAbility)
         # endregion
 
         # Species
-        species = Species.Species.HandleSearch((data.get("species").get("name")))
-        if species is not None:
-            self.speciesID = species.ID
+        spec = species.Species.HandleSearch((data.get("species").get("name")))
+        if spec is not None:
+            self.speciesID = spec.ID
 
         # Stats
         self.baseStats = {}
@@ -95,10 +93,10 @@ class Pokemon(AbstractData):
             return
 
         console.rule("Spe\[c]ies Information ▼", align="left", characters=" ")
-        species = Species.Species.HandleSearch(self.speciesID)
-        if species is not None:
-            species.PrintDataForPokemonPage()
-            species.PrintData()
+        spec = species.Species.HandleSearch(self.speciesID)
+        if spec is not None:
+            spec.PrintDataForPokemonPage()
+            spec.PrintData()
         return
 
     def PrintTypeInfo(self) -> None:
@@ -111,15 +109,15 @@ class Pokemon(AbstractData):
         print()
         console.print(f"Typing: {self.FormattedTypeOne}{self.FormattedTypeTwo}")
 
-        typeTable = Type.Type.GetTypeTable("Type Defenses")
+        typeTable = type.Type.GetTypeTable("Type Defenses")
 
         typeEffs = [1 for _ in range(18)]
 
-        for index, otherType in enumerate(Type.TYPE_ARRAY):
-            typeOneObj = Type.Type.HandleSearch(self.typeArray[0])
+        for index, otherType in enumerate(type.TYPE_ARRAY):
+            typeOneObj = type.Type.HandleSearch(self.typeArray[0])
             typeEffs[index] *= typeOneObj.GetDefensiveEffectiveness(otherType)
             if len(self.typeArray) > 1:
-                typeTwoObj = Type.Type.HandleSearch(self.typeArray[1])
+                typeTwoObj = type.Type.HandleSearch(self.typeArray[1])
                 typeEffs[index] *= typeTwoObj.GetDefensiveEffectiveness(otherType)
 
         strEffs = []
@@ -262,16 +260,16 @@ class Pokemon(AbstractData):
         genTable = Table(title=f"Generation {gen}")
         genTable.add_column("Game")
         genTable.add_column("Location")
-        genInfo = Generation.Generation.HandleSearch(gen)
+        genInfo = generation.Generation.HandleSearch(gen)
         for versionGroup in genInfo.versionGroups:
-            groupInfo = VersionGroup.VersionGroup.HandleSearch(versionGroup)
+            groupInfo = version_group.VersionGroup.HandleSearch(versionGroup)
             for version in groupInfo.versions:
                 versionLocations = self.locationInformation.get(version)
                 if versionLocations is None or len(versionLocations) == 0:
                     continue
                 secondCell = ", ".join(versionLocations)
                 genTable.add_row(
-                    f"[{version}]{Utils.REVERSED_MAPPING_DICT[version]}[/]", secondCell
+                    f"[{version}]{utils.REVERSED_MAPPING_DICT[version]}[/]", secondCell
                 )
         return genTable
 
@@ -308,7 +306,7 @@ class Pokemon(AbstractData):
                 locations.append(location.text)
 
             for gameName in games:
-                encounters[Utils.VERSION_MAPPING_DICT[gameName]] = locations
+                encounters[utils.VERSION_MAPPING_DICT[gameName]] = locations
         # time.sleep(0.1)
         return encounters
 
@@ -316,7 +314,7 @@ class Pokemon(AbstractData):
 
     @property
     def FormattedTypeOne(self) -> str:
-        typeOneObj = Type.Type.HandleSearch(self.typeArray[0])
+        typeOneObj = type.Type.HandleSearch(self.typeArray[0])
         if typeOneObj is not None:
             return typeOneObj.PrintName
 
@@ -324,7 +322,7 @@ class Pokemon(AbstractData):
     def FormattedTypeTwo(self) -> str:
         if len(self.typeArray) == 1:
             return ""
-        typeTwoObj = Type.Type.HandleSearch(self.typeArray[1])
+        typeTwoObj = type.Type.HandleSearch(self.typeArray[1])
         if typeTwoObj is not None:
             return " [white]/[/] " + typeTwoObj.PrintName
 

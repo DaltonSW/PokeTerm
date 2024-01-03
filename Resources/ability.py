@@ -1,4 +1,4 @@
-from .Data import AbstractData
+from .data import AbstractData
 
 
 class Ability(AbstractData):

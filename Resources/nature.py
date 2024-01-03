@@ -1,5 +1,5 @@
 from console import console
-from Resources.Data import AbstractData
+from Resources.data import AbstractData
 
 
 class Nature(AbstractData):

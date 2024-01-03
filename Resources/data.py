@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import re
-import Utils
+import utils
 
 
 class AbstractData(ABC):
@@ -29,7 +29,7 @@ class AbstractData(ABC):
 
     @classmethod
     def LoadCache(cls):
-        data = Utils.LoadCache(cls.ENDPOINT)
+        data = utils.LoadCache(cls.ENDPOINT)
         try:
             cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE = data
         except TypeError:
@@ -41,7 +41,7 @@ class AbstractData(ABC):
         if len(cls.NAME_TO_DATA_CACHE) == 0:
             return
         output = (cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE)
-        Utils.SaveCache(cls.ENDPOINT, output)
+        utils.SaveCache(cls.ENDPOINT, output)
 
     @classmethod
     def HandleSearch(cls, query=None):
@@ -51,10 +51,10 @@ class AbstractData(ABC):
             return None
         query = str(query)
         if query.isdigit():
-            query = Utils.ProperQueryFromID(int(query), cls.ID_TO_NAME_CACHE)
+            query = utils.ProperQueryFromID(int(query), cls.ID_TO_NAME_CACHE)
         if query in cls.NAME_TO_DATA_CACHE:
             return cls.NAME_TO_DATA_CACHE[query]
-        data = Utils.GetFromAPI(cls.ENDPOINT, query)
+        data = utils.GetFromAPI(cls.ENDPOINT, query)
         if data is not None:
             # print(f"Loaded {data.get('name')} from {cls.ENDPOINT} API")
             newObject = cls(data)

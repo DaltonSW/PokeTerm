@@ -1,8 +1,8 @@
 from rich.table import Table
 
-from .Data import AbstractData
+from .data import AbstractData
 from console import console
-import Utils
+import utils
 
 
 class EggGroup(AbstractData):
@@ -16,7 +16,7 @@ class EggGroup(AbstractData):
         self.pokemon = data["pokemon_species"]
 
     def PrintData(self):
-        Utils.ClearScreen()
+        utils.ClearScreen()
 
         console.rule(f"Egg Group: {self.PrintName}", style="")
         print()
