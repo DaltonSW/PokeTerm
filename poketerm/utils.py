@@ -5,8 +5,8 @@ import re
 
 import requests
 
-from resources.data import AbstractData
-from console import console
+from poketerm.resources.data import AbstractData
+from poketerm.console import console
 from readchar import readkey, key as keys
 
 

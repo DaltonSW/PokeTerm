@@ -1,5 +1,5 @@
-from console import console
-from resources.data import AbstractData
+from poketerm.console import console
+from poketerm.resources.data import AbstractData
 
 
 class Nature(AbstractData):

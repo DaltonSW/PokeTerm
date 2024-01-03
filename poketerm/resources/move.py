@@ -1,7 +1,7 @@
 from rich.table import Table
 
-from .data import AbstractData
-from console import console
+from poketerm.resources.data import AbstractData
+from poketerm.console import console
 
 # TODO:
 #   List Pokemon that can learn this move

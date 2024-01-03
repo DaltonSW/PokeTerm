@@ -1,7 +1,7 @@
-import utils
+from .. import utils
 from .data import AbstractData
-from resources import evolution_chain
-from console import console
+from . import evolution_chain
+from poketerm.console import console
 from rich.table import Table
 from rich import box
 

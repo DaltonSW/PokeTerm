@@ -1,4 +1,4 @@
-from console import console
+from poketerm.console import console
 
 
 def PrintEvoChain(chain, charsPrinted=0):

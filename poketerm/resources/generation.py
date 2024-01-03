@@ -1,4 +1,4 @@
-from resources.data import AbstractData
+from poketerm.resources.data import AbstractData
 
 # TODO:
 #   List out each ability

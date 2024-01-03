@@ -1,4 +1,4 @@
-from .data import AbstractData
+from poketerm.resources.data import AbstractData
 
 
 class Ability(AbstractData):

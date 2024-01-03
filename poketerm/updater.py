@@ -1,13 +1,13 @@
 import subprocess
 import os
 
-import utils
-from config import APP_VERSION
+import poketerm.utils as utils
+from poketerm.config import APP_VERSION
 import requests
 
 from readchar import readkey, key as keys
 
-from console import console
+from poketerm.console import console
 from rich.progress import (
     BarColumn,
     DownloadColumn,

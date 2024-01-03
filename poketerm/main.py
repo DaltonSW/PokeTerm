@@ -6,13 +6,14 @@ from readchar import readkey, key as keys
 from rich import box
 from rich.table import Table
 
-import utils
-import updater
+from poketerm import utils
+import poketerm.updater as updater
 
-from console import console
-from config import Config
-from resources import move, ability, type, version, pokemon, species
-from resources import version_group, generation, nature, egg_group
+from poketerm.console import console
+from poketerm.config import Config
+from poketerm.resources import move, ability, type, pokemon, species
+from poketerm.resources import version, generation
+from poketerm.resources import version_group, nature, egg_group
 
 
 # region Main Util Functions

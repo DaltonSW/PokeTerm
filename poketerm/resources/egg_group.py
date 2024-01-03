@@ -1,8 +1,6 @@
-from rich.table import Table
-
-from .data import AbstractData
-from console import console
-import utils
+from poketerm.resources.data import AbstractData
+from poketerm.console import console
+import poketerm.utils as utils
 
 
 class EggGroup(AbstractData):

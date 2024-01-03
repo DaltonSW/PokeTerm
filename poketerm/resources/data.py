@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import re
-import utils
+from poketerm import utils
 
 
 class AbstractData(ABC):

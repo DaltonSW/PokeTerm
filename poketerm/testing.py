@@ -4,8 +4,6 @@ from console import console
 
 from rich.progress import Progress, BarColumn, MofNCompleteColumn
 
-from resources import type, generation, pokemon, ability, move, nature
-
 GEN_ONE_POKES = 151
 GEN_TWO_POKES = 251
 GEN_THREE_POKES = 386

@@ -1,5 +1,5 @@
-import utils
-from resources.data import AbstractData
+from poketerm import utils
+from poketerm.resources.data import AbstractData
 
 
 class VersionGroup(AbstractData):

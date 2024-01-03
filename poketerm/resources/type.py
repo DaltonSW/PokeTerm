@@ -7,11 +7,11 @@ from rich.progress import (
     BarColumn,
     TimeRemainingColumn,
 )
-from console import console
-from resources.data import AbstractData
-from resources import move
+from poketerm.console import console
+from poketerm.resources.data import AbstractData
+from poketerm.resources import move
 
-from config import Config
+from poketerm.config import Config
 
 TYPE_ARRAY = [
     "normal",
