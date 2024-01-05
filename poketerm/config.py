@@ -1,44 +1,39 @@
-import Utils
+import poketerm.utils as utils
 
 APP_VERSION = "0.2.2"
 
 
 class Config:
     PROGRAM_FLAGS = {
-        'colorblind': 0,
-        'firstLaunch': 1,
+        "colorblind": 0,
+        "firstLaunch": 1,
     }
 
     POKEMON_FLAGS = {
-        'abilities': 1,
-        'stats': 1,
-        'availability': 0,
-        'unavailable': 1,
-        'typing': 1,
-        'species': 1,
+        "abilities": 1,
+        "stats": 1,
+        "availability": 0,
+        "unavailable": 1,
+        "typing": 1,
+        "species": 1,
     }
 
     SPECIES_FLAGS = {}
 
-    TYPE_FLAGS = {
-        'efficacy': 1,
-        'primary': 0,
-        'secondary': 0,
-        'moves': 0
-    }
+    TYPE_FLAGS = {"efficacy": 1, "primary": 0, "secondary": 0, "moves": 0}
 
     MOVE_FLAGS = {}
 
     @classmethod
     def LoadCache(cls):
-        cache = Utils.LoadCache('config')
+        cache = utils.LoadCache("config")
         if cache is None:
             return
 
-        cls.PROGRAM_FLAGS = cache['program']
-        cls.POKEMON_FLAGS = cache['pokemon']
+        cls.PROGRAM_FLAGS = cache["program"]
+        cls.POKEMON_FLAGS = cache["pokemon"]
         # cls.SPECIES_FLAGS = cache['species']
-        cls.TYPE_FLAGS = cache['type']
+        cls.TYPE_FLAGS = cache["type"]
         # cls.MOVE_FLAGS = cache['move']
 
     @classmethod
@@ -50,4 +45,4 @@ class Config:
             "type": cls.TYPE_FLAGS,
             # "move": cls.MOVE_FLAGS
         }
-        Utils.SaveCache('config', flagList)
+        utils.SaveCache("config", flagList)

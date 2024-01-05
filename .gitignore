@@ -16,3 +16,4 @@ cache
 *.pyc
 Testing Scripts/
 /pyinstaller/
+/pyproject.toml

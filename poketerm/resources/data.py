@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import re
-import Utils
+from poketerm import utils
+
 
 class AbstractData(ABC):
     ENDPOINT = None
@@ -9,8 +10,8 @@ class AbstractData(ABC):
 
     @abstractmethod
     def __init__(self, data):
-        self.ID: int = data.get('id')
-        self.name: str = data.get('name')
+        self.ID: int = data.get("id")
+        self.name: str = data.get("name")
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     @abstractmethod
@@ -28,7 +29,7 @@ class AbstractData(ABC):
 
     @classmethod
     def LoadCache(cls):
-        data = Utils.LoadCache(cls.ENDPOINT)
+        data = utils.LoadCache(cls.ENDPOINT)
         try:
             cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE = data
         except TypeError:
@@ -40,20 +41,20 @@ class AbstractData(ABC):
         if len(cls.NAME_TO_DATA_CACHE) == 0:
             return
         output = (cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE)
-        Utils.SaveCache(cls.ENDPOINT, output)
+        utils.SaveCache(cls.ENDPOINT, output)
 
     @classmethod
     def HandleSearch(cls, query=None):
-        if query is None or query == '':
-            query = input(f'{cls.ENDPOINT.title()} Name or ID: ').lower()
-        if query == '':
+        if query is None or query == "":
+            query = input(f"{cls.ENDPOINT.title()} Name or ID: ").lower()
+        if query == "":
             return None
         query = str(query)
         if query.isdigit():
-            query = Utils.ProperQueryFromID(int(query), cls.ID_TO_NAME_CACHE)
+            query = utils.ProperQueryFromID(int(query), cls.ID_TO_NAME_CACHE)
         if query in cls.NAME_TO_DATA_CACHE:
             return cls.NAME_TO_DATA_CACHE[query]
-        data = Utils.GetFromAPI(cls.ENDPOINT, query)
+        data = utils.GetFromAPI(cls.ENDPOINT, query)
         if data is not None:
             # print(f"Loaded {data.get('name')} from {cls.ENDPOINT} API")
             newObject = cls(data)
@@ -62,5 +63,5 @@ class AbstractData(ABC):
 
     @property
     def PrintName(self) -> str:
-        self.name = re.sub('-', ' ', self.name)
+        self.name = re.sub("-", " ", self.name)
         return self.name.title()

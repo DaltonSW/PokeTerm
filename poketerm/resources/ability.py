@@ -1,30 +1,30 @@
-from .Data import AbstractData
+from poketerm.resources.data import AbstractData
 
 
 class Ability(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
-    ENDPOINT = 'ability'
+    ENDPOINT = "ability"
 
     def __init__(self, data):
         super().__init__(data)
 
-        self.fromMainSeries = data.get('is_main_series')
-        self.firstGeneration = data.get('generation')
-        effects = data.get('effect_entries')
+        self.fromMainSeries = data.get("is_main_series")
+        self.firstGeneration = data.get("generation")
+        effects = data.get("effect_entries")
         self.shortEffect = None
         self.flavorText = None
         for effect in effects:
-            if effect.get('language').get('name') != 'en':
+            if effect.get("language").get("name") != "en":
                 continue
-            self.shortEffect = effect.get('short_effect')
+            self.shortEffect = effect.get("short_effect")
             break
 
-        flavorTexts = data.get('flavor_text_entries')
+        flavorTexts = data.get("flavor_text_entries")
         for text in flavorTexts:
-            if text.get('language').get('name') != 'en':
+            if text.get("language").get("name") != "en":
                 continue
-            self.flavorText = text.get('flavor_text')
+            self.flavorText = text.get("flavor_text")
             break
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name

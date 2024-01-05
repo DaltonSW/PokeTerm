@@ -1,27 +1,28 @@
 from rich.table import Table
 
-from .Data import AbstractData
-from console import console
+from poketerm.resources.data import AbstractData
+from poketerm.console import console
 
 # TODO:
 #   List Pokemon that can learn this move
 #   List TM number in each gen, if applicable
 
+
 class Move(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
-    ENDPOINT = 'move'
+    ENDPOINT = "move"
 
     def __init__(self, data):
         super().__init__(data)
 
-        self.accuracy: int = data.get('accuracy')
-        self.effectChance: int = data.get('effect_chance')
-        self.PP: int = data.get('pp')
-        self.priority: int = data.get('priority')
-        self.power: int = data.get('power')
-        self.moveClass: str = data.get('damage_class').get('name')
-        self.type: str = data.get('type').get('name')
+        self.accuracy: int = data.get("accuracy")
+        self.effectChance: int = data.get("effect_chance")
+        self.PP: int = data.get("pp")
+        self.priority: int = data.get("priority")
+        self.power: int = data.get("power")
+        self.moveClass: str = data.get("damage_class").get("name")
+        self.type: str = data.get("type").get("name")
 
     def PrintData(self):
         console.clear()
@@ -34,7 +35,7 @@ class Move(AbstractData):
         statTable.add_column("PP")
         statTable.add_column("Power")
         statTable.add_column("Accuracy")
-        statTable.add_row(str(self.PP), str(self.power), f'{self.accuracy}%')
+        statTable.add_row(str(self.PP), str(self.power), f"{self.accuracy}%")
         console.print(statTable)
         return
 
@@ -44,10 +45,10 @@ class Move(AbstractData):
     # region Formatted Getters
     @property
     def FormattedMoveClass(self) -> str:
-        return f'[{self.moveClass}]{self.moveClass.title()}[/]'
+        return f"[{self.moveClass}]{self.moveClass.title()}[/]"
 
     @property
     def FormattedMoveType(self) -> str:
-        return f'[{self.type}]{self.type.title()}[/]'
+        return f"[{self.type}]{self.type.title()}[/]"
 
     # endregion

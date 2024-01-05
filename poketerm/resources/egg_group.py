@@ -1,28 +1,27 @@
-from rich.table import Table
+from poketerm.resources.data import AbstractData
+from poketerm.console import console
+import poketerm.utils as utils
 
-from .Data import AbstractData
-from console import console
-import Utils
 
 class EggGroup(AbstractData):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
-    ENDPOINT = 'egg-group'
+    ENDPOINT = "egg-group"
 
     def __init__(self, data):
         super().__init__(data)
 
-        self.pokemon = data['pokemon_species']
+        self.pokemon = data["pokemon_species"]
 
     def PrintData(self):
-        Utils.ClearScreen()
+        utils.ClearScreen()
 
         console.rule(f"Egg Group: {self.PrintName}", style="")
         print()
-        console.print(f'Pokemon in this egg group:')
+        console.print(f"Pokemon in this egg group:")
 
         for pokemon in self.pokemon:
-            console.print(pokemon.get('name').title())
+            console.print(pokemon.get("name").title())
 
         return
 
