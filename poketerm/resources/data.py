@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 import re
-from poketerm import utils
 
 
 class AbstractData(ABC):
@@ -29,6 +28,8 @@ class AbstractData(ABC):
 
     @classmethod
     def LoadCache(cls):
+        from poketerm import utils
+
         data = utils.LoadCache(cls.ENDPOINT)
         try:
             cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE = data
@@ -38,6 +39,8 @@ class AbstractData(ABC):
 
     @classmethod
     def SaveCache(cls):
+        from poketerm import utils
+
         if len(cls.NAME_TO_DATA_CACHE) == 0:
             return
         output = (cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE)
@@ -45,6 +48,8 @@ class AbstractData(ABC):
 
     @classmethod
     def HandleSearch(cls, query=None):
+        from poketerm import utils
+
         if query is None or query == "":
             query = input(f"{cls.ENDPOINT.title()} Name or ID: ").lower()
         if query == "":

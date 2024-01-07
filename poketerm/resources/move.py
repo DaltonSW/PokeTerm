@@ -23,6 +23,7 @@ class Move(AbstractData):
         self.power: int = data.get("power")
         self.moveClass: str = data.get("damage_class").get("name")
         self.type: str = data.get("type").get("name")
+        self.effectEntry: str = data.get("effect_entries")[0].get("short_effect")
 
     def PrintData(self):
         console.clear()
@@ -30,6 +31,7 @@ class Move(AbstractData):
         console.print(f"[bold]Move:[/] {self.PrintName} [{self.ID}]")
         console.print(f"[bold]Type:[/] {self.FormattedMoveType}")
         console.print(f"[bold]Class:[/] {self.FormattedMoveClass}")
+        console.print(f"[bold]Description:[/] {self.effectEntry}")
 
         statTable = Table()
         statTable.add_column("PP")

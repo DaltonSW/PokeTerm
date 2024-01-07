@@ -5,7 +5,6 @@ import re
 
 import requests
 
-from poketerm.resources.data import AbstractData
 from poketerm.console import console
 from readchar import readkey, key as keys
 
@@ -27,7 +26,7 @@ def IsMacOS():
 
 
 # region Visuals
-def PrintData(data: AbstractData) -> None:
+def PrintData(data) -> None:
     while True:
         ClearScreen()
         data.PrintData()
