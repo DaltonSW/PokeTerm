@@ -124,10 +124,10 @@ def main():
         SaveCaches()
         exit(0)
 
-    utils.ClearScreen(True)
-    PrintWelcome()
     while True:
         try:
+            utils.ClearScreen(True)
+            PrintWelcome()
             PrintChoices()
             key = readkey()
             if key == keys.ENTER:

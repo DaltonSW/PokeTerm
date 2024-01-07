@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "poketerm"
+version = "0.2.2"
+description = "A terminal based PokeDex"
+authors = ["Dalton <daltonstwilliams@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "2.31.0"
+beautifulsoup4 = "4.12.2"
+rich = "13.7.0"
+readchar = "4.0.5"
+
+[tool.poetry.group.dev.dependencies]
+requests = "2.31.0"
+beautifulsoup4 = "4.12.2"
+rich = "13.7.0"
+readchar = "4.0.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
