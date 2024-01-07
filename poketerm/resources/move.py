@@ -29,7 +29,7 @@ class Move(AbstractData):
     def PrintData(self):
         console.clear()
 
-        console.print(f"[bold]Move:[/] {self.PrintName} [[bold]TM{self.ID}[/]]")
+        console.print(f"[bold]Move:[/] {self.PrintName} [[bold]{self.ID}[/]]")
         console.print(f"[bold]Type:[/] {self.FormattedMoveType}")
         console.print(f"[bold]Class:[/] {self.FormattedMoveClass}")
         console.print(f"[bold]Description:[/] {self.FormattedEffectEntry}")
