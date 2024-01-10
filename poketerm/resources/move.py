@@ -53,9 +53,11 @@ class Move(AbstractData):
     @property
     def FormattedMoveType(self) -> str:
         return f"[{self.type}]{self.type.title()}[/]"
-    
+
     @property
     def FormattedEffectEntry(self) -> str:
-        return f"{re.sub("\$effect_chance%", str(self.effectChance) + "%", self.effectEntry)}"
+        return re.sub(
+            "\$effect_chance%", str(self.effectChance) + "%", self.effectEntry
+        )
 
     # endregion
