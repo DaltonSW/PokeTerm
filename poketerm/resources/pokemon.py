@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from poketerm import utils
+from poketerm.utils.constants import VERSION_MAPPING_DICT, REVERSED_MAPPING_DICT
 from poketerm.resources.data import AbstractData
 from poketerm.resources import species, ability, version_group, type
 from poketerm.resources import generation
@@ -271,7 +271,7 @@ class Pokemon(AbstractData):
                     continue
                 secondCell = ", ".join(versionLocations)
                 genTable.add_row(
-                    f"[{version}]{utils.REVERSED_MAPPING_DICT[version]}[/]", secondCell
+                    f"[{version}]{REVERSED_MAPPING_DICT[version]}[/]", secondCell
                 )
         return genTable
 
@@ -308,7 +308,7 @@ class Pokemon(AbstractData):
                 locations.append(location.text)
 
             for gameName in games:
-                encounters[utils.VERSION_MAPPING_DICT[gameName]] = locations
+                encounters[VERSION_MAPPING_DICT[gameName]] = locations
         # time.sleep(0.1)
         return encounters
 

@@ -1,5 +1,3 @@
-# region Constants
-
 VERSION_MAPPING_DICT = {
     "Red": "red",
     "Blue": "blue",
@@ -91,4 +89,3 @@ REVERSED_MAPPING_DICT = {
     "the-teal-mask": "The Teal Mask",
     "the-indigo-disk": "The Indigo Disk",
 }
-# endregion
