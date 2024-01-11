@@ -1,52 +1,8 @@
 import os
-import platform
 import pickle
 import re
 
 import requests
-
-from poketerm.console import console
-from readchar import readkey, key as keys
-
-
-# region Version Checks
-def IsWindowsOS():
-    return platform.system() == "Windows"
-
-
-def IsLinuxOS():
-    return platform.system() == "Linux"
-
-
-def IsMacOS():
-    return platform.system() == "Darwin"
-
-
-# endregion
-
-
-# region Visuals
-def PrintData(data) -> None:
-    while True:
-        ClearScreen()
-        data.PrintData()
-        print()
-        console.rule("Press [Enter] to return to the menu.", characters=" ")
-        key = readkey()
-        if key == keys.ENTER:
-            return
-        data.ToggleFlag(key)
-
-
-def ClearScreen(keepHistory=False) -> None:
-    if keepHistory:
-        console.clear()
-        return
-
-    os.system("cls" if IsWindowsOS() else "clear")
-
-
-# endregion
 
 
 # region API Access

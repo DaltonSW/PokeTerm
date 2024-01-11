@@ -15,6 +15,7 @@ from poketerm.config import Config
 from poketerm.resources import move, ability, type, pokemon, species
 from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
+from poketerm.utils.visual import PrintData, ClearScreen
 
 
 # region Main Util Functions
@@ -55,7 +56,7 @@ def HandleSearch(resource):
     with console.status(f"Querying for {resource.ENDPOINT.title()}..."):
         result = resource.HandleSearch(query)
     if result is not None:
-        utils.PrintData(result)
+        PrintData(result)
     return
 
 
@@ -135,7 +136,7 @@ def main():
 
     while True:
         try:
-            utils.ClearScreen(True)
+            ClearScreen(True)
             PrintWelcome()
             PrintChoices()
             key = readkey()
