@@ -39,7 +39,6 @@ def GetFromURL(url) -> dict | None:
 
 # region Constants
 BASE_URL = "https://pokeapi.co/api/v2"
-CACHE_DIR = os.path.expanduser("~") + os.sep + ".poketerm"
 
 VERSION_MAPPING_DICT = {
     "Red": "red",

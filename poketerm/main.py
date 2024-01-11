@@ -1,12 +1,10 @@
 import os
-import shutil
 
 from sys import exit
 from readchar import readkey, key as keys
 from rich import box
 from rich.table import Table
 
-from poketerm import utils
 from poketerm.utils import testing
 import poketerm.utils.updater as updater
 
@@ -17,11 +15,12 @@ from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
 from poketerm.utils.visual import PrintData, ClearScreen
 
+from poketerm.utils.caching import VerifyCacheDir, RemoveCacheDir
+
 
 # region Main Util Functions
 def SaveCaches():
-    if not os.path.exists(utils.CACHE_DIR):
-        os.makedirs(utils.CACHE_DIR)
+    VerifyCacheDir()
     for resource in RESOURCES.values():
         resource.SaveCache()
 
@@ -37,9 +36,7 @@ def LoadCaches():
 
 
 def ClearCaches(doQuit=False):
-    if os.path.exists(utils.CACHE_DIR):
-        shutil.rmtree(utils.CACHE_DIR)
-
+    RemoveCacheDir()
     for resource in RESOURCES.values():
         resource.NAME_TO_DATA_CACHE.clear()
         resource.ID_TO_NAME_CACHE.clear()

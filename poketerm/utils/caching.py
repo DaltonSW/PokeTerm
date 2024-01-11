@@ -1,11 +1,24 @@
 import os
+import shutil
 import pickle
 
-CACHE_DIR = os.path.expanduser("~") + os.sep + ".poketerm"
+
+def CacheDirectory():
+    return os.path.join(os.path.expanduser("~"), os.sep, ".poketerm")
 
 
 def CacheFilePath(cacheType) -> str:
-    return os.path.join(CACHE_DIR, f"{cacheType}.cache")
+    return os.path.join(CacheDirectory(), f"{cacheType}.cache")
+
+
+def VerifyCacheDir():
+    if not os.path.exists(CacheDirectory()):
+        os.makedirs(CacheDirectory())
+
+
+def RemoveCacheDir():
+    if os.path.exists(CacheDirectory()):
+        shutil.rmtree(CacheDirectory())
 
 
 def CacheExists(cacheType) -> bool:
