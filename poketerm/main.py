@@ -7,7 +7,8 @@ from rich import box
 from rich.table import Table
 
 from poketerm import utils
-import poketerm.updater as updater
+from poketerm.utils import testing
+import poketerm.utils.updater as updater
 
 from poketerm.console import console
 from poketerm.config import Config
@@ -64,6 +65,13 @@ def QuitGracefully():
     exit(0)
 
 
+def HandleCacheTest():
+    ClearCaches()
+    testing.HandleCacheTest()
+    SaveCaches()
+    exit(0)
+
+
 # endregion
 
 BASE_URL = "https://pokeapi.co/api/v2/"
@@ -111,6 +119,7 @@ SEARCH_DISPATCH = {
     "m": lambda: HandleSearch(move.Move),
     "n": lambda: HandleSearch(nature.Nature),
     "p": lambda: HandleSearch(pokemon.Pokemon),
+    "q": lambda: testing.HandleCacheTest(),
     "t": lambda: HandleSearch(type.Type),
 }
 

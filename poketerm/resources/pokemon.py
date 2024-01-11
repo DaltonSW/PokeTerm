@@ -11,6 +11,9 @@ from rich.table import Table
 from rich import box
 from poketerm.console import console
 
+from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import Process
+
 # TODO:
 #   Override the search so if it fails to find a pokemon by the name, it searches for a species, then shows the default form
 #   Dex information
@@ -212,6 +215,8 @@ class Pokemon(AbstractData):
         print()
         if not Config.POKEMON_FLAGS["availability"]:
             print("[A]vailability Info ▶")
+            p = Process(target=self.LoadAllGenerations)
+            p.start()
             return
 
         available, unavailable = [], []
@@ -256,6 +261,10 @@ class Pokemon(AbstractData):
         # TODO: Eventually implement an "ignore certain generations" flag
 
         console.print(overallInfoTable)
+
+    def LoadAllGenerations(self):
+        for i in range(10):
+            self.GetGenerationTable(i)
 
     def GetGenerationTable(self, gen):
         genTable = Table(title=f"Generation {gen}")
