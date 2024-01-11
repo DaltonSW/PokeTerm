@@ -1,6 +1,7 @@
-from abc import ABC, abstractmethod
 import re
+from abc import ABC, abstractmethod
 from poketerm.utils.caching import SaveCache, LoadCache
+from poketerm.utils.api import ProperQueryFromID, GetFromAPI
 
 
 class AbstractData(ABC):
@@ -45,18 +46,16 @@ class AbstractData(ABC):
 
     @classmethod
     def HandleSearch(cls, query=None):
-        from poketerm import utils
-
         if query is None or query == "":
             query = input(f"{cls.ENDPOINT.title()} Name or ID: ").lower()
         if query == "":
             return None
         query = str(query)
         if query.isdigit():
-            query = utils.ProperQueryFromID(int(query), cls.ID_TO_NAME_CACHE)
+            query = ProperQueryFromID(int(query), cls.ID_TO_NAME_CACHE)
         if query in cls.NAME_TO_DATA_CACHE:
             return cls.NAME_TO_DATA_CACHE[query]
-        data = utils.GetFromAPI(cls.ENDPOINT, query)
+        data = GetFromAPI(cls.ENDPOINT, query)
         if data is not None:
             # print(f"Loaded {data.get('name')} from {cls.ENDPOINT} API")
             newObject = cls(data)

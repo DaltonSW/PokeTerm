@@ -1,7 +1,8 @@
 import subprocess
 import os
 
-import poketerm.utils as utils
+from poketerm.utils.general import IsWindowsOS
+from poketerm.utils.visual import ClearScreen
 from poketerm.config import APP_VERSION
 import requests
 
@@ -69,7 +70,7 @@ def IsNewerVersion(version: str) -> bool:
 def CheckForUpdate() -> bool:
     DeleteExistingUpdaters()
 
-    utils.ClearScreen()
+    ClearScreen()
 
     latestVersion = GetLatestVersionFromGithub()
 
@@ -88,9 +89,7 @@ def PromptForUpdate(newVersion) -> bool:
 
 
 def GetUpdateURL(version: str) -> (str, str):
-    fileName = (
-        "PokeTerm_" + "Windows.exe" if utils.IsWindowsOS() else "PokeTerm_" + "Linux"
-    )
+    fileName = "PokeTerm_" + "Windows.exe" if IsWindowsOS() else "PokeTerm_" + "Linux"
     return (
         f"https://github.com/DaltonSW/PokeTerm/releases/download/{version}/{fileName}",
         fileName,
@@ -135,7 +134,7 @@ def DownloadUpdate(version: str) -> bool:
 
 
 def CreateUpdateScriptAndUpdate():
-    if utils.IsWindowsOS():
+    if IsWindowsOS():
         with open(".\\update_poketerm.bat", "w") as file:
             file.write(WINDOWS_SCRIPT)
         subprocess.Popen([".\\update_poketerm.bat"], shell=True)
