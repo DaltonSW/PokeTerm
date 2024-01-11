@@ -1,4 +1,5 @@
-from poketerm import utils
+from poketerm.utils.api import GetIDFromURL
+
 from poketerm.resources.data import AbstractData
 
 
@@ -10,7 +11,7 @@ class VersionGroup(AbstractData):
     def __init__(self, data):
         super().__init__(data)
 
-        self.generationID = utils.GetIDFromURL(data["generation"]["url"])
+        self.generationID = GetIDFromURL(data["generation"]["url"])
         self.versions = [thing["name"] for thing in data["versions"]]
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name

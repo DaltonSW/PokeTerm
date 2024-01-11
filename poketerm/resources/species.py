@@ -1,6 +1,6 @@
-from .. import utils
-from .data import AbstractData
-from . import evolution_chain
+from poketerm.utils.api import GetFromURL
+from poketerm.resources.data import AbstractData
+from poketerm.resources import evolution_chain
 from poketerm.console import console
 from rich.table import Table
 from rich import box
@@ -45,7 +45,7 @@ class Species(AbstractData):
 
         # Evolution Chain
         self.evolutionChain = evolution_chain.EvolutionChain(
-            utils.GetFromURL(data.get("evolution_chain").get("url"))
+            GetFromURL(data.get("evolution_chain").get("url"))
         )
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name

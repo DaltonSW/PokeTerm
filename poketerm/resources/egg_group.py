@@ -1,6 +1,6 @@
 from poketerm.resources.data import AbstractData
 from poketerm.console import console
-import poketerm.utils as utils
+from poketerm.utils.visual import ClearScreen
 
 
 class EggGroup(AbstractData):
@@ -14,7 +14,7 @@ class EggGroup(AbstractData):
         self.pokemon = data["pokemon_species"]
 
     def PrintData(self):
-        utils.ClearScreen()
+        ClearScreen()
 
         console.rule(f"Egg Group: {self.PrintName}", style="")
         print()
