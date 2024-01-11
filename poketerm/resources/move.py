@@ -24,7 +24,11 @@ class Move(AbstractData):
         self.power: int = data.get("power")
         self.moveClass: str = data.get("damage_class").get("name")
         self.type: str = data.get("type").get("name")
-        self.effectEntry: str = data.get("effect_entries")[0].get("effect")
+
+        effectEntries = data.get("effect_entries")
+        self.effectEntry: str = (
+            effectEntries[0].get("effect") if effectEntries else None
+        )
 
     def PrintData(self):
         console.clear()
@@ -56,6 +60,8 @@ class Move(AbstractData):
 
     @property
     def FormattedEffectEntry(self) -> str:
+        if not self.effectEntry:
+            return "N/A"
         return re.sub(
             "\$effect_chance%", str(self.effectChance) + "%", self.effectEntry
         )

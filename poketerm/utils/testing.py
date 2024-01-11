@@ -5,6 +5,8 @@ from poketerm.resources import pokemon, generation, move, ability, type, nature
 
 from rich.progress import Progress, BarColumn, MofNCompleteColumn, TimeElapsedColumn
 
+from readchar import readchar
+
 GEN_ONE_POKES = 151
 GEN_TWO_POKES = 251
 GEN_THREE_POKES = 386
@@ -88,3 +90,4 @@ def HandleCacheTest():
 
             for i in range(MOVE_COUNT + 1, GEN_NINE_POKES + 1):
                 executor.submit(HandleSingleTest, pokemon.Pokemon, pokeID, i)
+    _ = readchar()
