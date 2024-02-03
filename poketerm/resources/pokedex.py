@@ -5,8 +5,7 @@ from poketerm.console import console
 
 
 class Pokedex(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+    MAX_COUNT = 33
     ENDPOINT = "pokedex"
 
     def __init__(self, data):

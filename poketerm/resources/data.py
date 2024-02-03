@@ -1,4 +1,7 @@
 import re
+import readchar
+from thefuzz import process
+from poketerm.console import console
 from abc import ABC, abstractmethod
 from poketerm.utils.caching import SaveCache, LoadCache
 from poketerm.utils.api import ProperQueryFromID, GetFromAPI
@@ -6,6 +9,8 @@ from poketerm.utils.api import ProperQueryFromID, GetFromAPI
 
 class AbstractData(ABC):
     ENDPOINT = None
+    MAX_COUNT = -1
+    VALID_NAMES = []
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
 
@@ -32,7 +37,10 @@ class AbstractData(ABC):
     def LoadCache(cls):
         data = LoadCache(cls.ENDPOINT)
         try:
-            cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE = data
+            if len(data) == 3:
+                cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE, cls.VALID_NAMES = data
+            else:
+                cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE = data
         except TypeError:
             print(f"Failed to load {cls.ENDPOINT.upper()} cache")
             pass
@@ -41,7 +49,7 @@ class AbstractData(ABC):
     def SaveCache(cls):
         if len(cls.NAME_TO_DATA_CACHE) == 0:
             return
-        output = (cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE)
+        output = (cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE, cls.VALID_NAMES)
         SaveCache(cls.ENDPOINT, output)
 
     @classmethod
@@ -61,6 +69,18 @@ class AbstractData(ABC):
             newObject = cls(data)
             cls.NAME_TO_DATA_CACHE[newObject.name] = newObject
             return newObject
+        elif isinstance(query, str):
+            results = process.extract(query, cls.VALID_NAMES)
+            console.print(
+                "Unable to find that search term. Here are the 5 closest matches: "
+            )
+            console.print(results)
+            # console.print(f"[1] {results[0]}")
+            # console.print(f"[2] {results[1]}")
+            # console.print(f"[3] {results[2]}")
+            # console.print(f"[4] {results[3]}")
+            # console.print(f"[5] {results[4]}")
+            _ = readchar.readkey()
 
     @property
     def PrintName(self) -> str:

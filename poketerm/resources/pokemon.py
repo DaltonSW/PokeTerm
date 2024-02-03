@@ -17,8 +17,7 @@ from poketerm.console import console
 
 
 class Pokemon(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+    MAX_COUNT = 1025
     ENDPOINT = "pokemon"
 
     def __init__(self, data):
