@@ -16,7 +16,9 @@ class Region(AbstractData):
         for location in data.get("locations"):
             self.locations.append(location.get("name"))
 
-        self.main_generation = data.get("main_generation").get("name")
+        main_gen = data.get("main_generation")
+        if main_gen:
+            self.main_generation = main_gen.get("name")
 
         self.pokedexes = []
         for pokedex in data.get("pokedexes"):
