@@ -3,8 +3,7 @@ from poketerm.resources.data import AbstractData
 
 
 class Nature(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+    MAX_COUNT = 24
     ENDPOINT = "nature"
 
     def __init__(self, data):
