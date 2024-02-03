@@ -5,6 +5,9 @@ from poketerm.console import console
 class Region(AbstractData):
     MAX_COUNT = 10
     ENDPOINT = "region"
+    VALID_NAMES = set()
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)

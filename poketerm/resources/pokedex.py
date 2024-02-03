@@ -7,6 +7,9 @@ from poketerm.console import console
 class Pokedex(AbstractData):
     MAX_COUNT = 33
     ENDPOINT = "pokedex"
+    VALID_NAMES = set()
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)

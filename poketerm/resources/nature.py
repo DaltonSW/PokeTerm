@@ -5,6 +5,9 @@ from poketerm.resources.data import AbstractData
 class Nature(AbstractData):
     MAX_COUNT = 24
     ENDPOINT = "nature"
+    VALID_NAMES = set()
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)

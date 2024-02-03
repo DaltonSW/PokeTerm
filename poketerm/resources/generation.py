@@ -9,6 +9,9 @@ from poketerm.resources.data import AbstractData
 class Generation(AbstractData):
     MAX_COUNT = 9
     ENDPOINT = "generation"
+    VALID_NAMES = set()
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
