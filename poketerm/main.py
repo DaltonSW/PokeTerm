@@ -135,9 +135,6 @@ ADMIN_DISPATCH = {"2": ClearCaches, "3": lambda: ClearCaches(True), "0": QuitGra
 def main():
     LoadCaches()
 
-    HandleCacheTest()
-    type.Type.HandleSearch("fir")
-
     if updater.CheckForUpdate():
         SaveCaches()
         exit(0)
