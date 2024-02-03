@@ -3,8 +3,7 @@ from poketerm.console import console
 
 
 class Item(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+    MAX_COUNT = 2159
     ENDPOINT = "item"
 
     def __init__(self, data):

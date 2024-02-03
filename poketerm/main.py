@@ -15,21 +15,29 @@ from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
 from poketerm.utils.visual import PrintData, ClearScreen
 
-from poketerm.utils.caching import VerifyCacheDir, RemoveCacheDir
+from poketerm.utils.caching import VerifyCacheDir, RemoveCacheDir, SaveCache, LoadCache
 
 
 # region Main Util Functions
 def SaveCaches():
     VerifyCacheDir()
-    for resource in RESOURCES.values():
+    valid_names = {}
+    for resource_name in RESOURCES.keys():
+        resource = RESOURCES[resource_name]
+        valid_names[resource_name] = resource.VALID_NAMES
         resource.SaveCache()
 
+    SaveCache("valid_names", valid_names)
     Config.SaveCache()
 
 
 def LoadCaches():
-    for resource in RESOURCES.values():
+    valid_names = LoadCache("valid_names")
+    for resource_name in RESOURCES.keys():
+        resource = RESOURCES[resource_name]
         resource.LoadCache()
+        if valid_names is not None:
+            resource.VALID_NAMES = valid_names[resource_name]
 
     Config.LoadCache()
     console.clear()
@@ -74,7 +82,7 @@ def HandleCacheTest():
 
 BASE_URL = "https://pokeapi.co/api/v2/"
 RESOURCES = {
-    "ability": ability.Ability,
+    "Ability": ability.Ability,
     # 'Berry': Berry.Berry,
     "EggGroup": egg_group.EggGroup,
     "Generation": generation.Generation,
@@ -90,9 +98,9 @@ RESOURCES = {
 }
 
 SEARCH_OPTIONS = [
-    # "[A]bility",
+    "[A]bility",
     # "[B]erry",
-    # "[C]alculators",
+    "[C]alculators",
     "[E]gg Groups",
     "[G]eneration",
     # "[I]tem",
@@ -108,16 +116,16 @@ ADMIN_OPTIONS = [
     "[2] Clear Cache",
     "[3] Clear Cache & Quit",
     "[0] Quit Without Saving",
-    # "[Enter] Save & Quit"
 ]
 
 SEARCH_DISPATCH = {
+    "a": lambda: HandleSearch(ability.Ability),
     "e": lambda: HandleSearch(egg_group.EggGroup),
     "g": lambda: HandleSearch(generation.Generation),
     "m": lambda: HandleSearch(move.Move),
     "n": lambda: HandleSearch(nature.Nature),
     "p": lambda: HandleSearch(pokemon.Pokemon),
-    "q": lambda: testing.HandleCacheTest(),
+    "q": lambda: HandleCacheTest(),
     "t": lambda: HandleSearch(type.Type),
 }
 

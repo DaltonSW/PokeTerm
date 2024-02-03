@@ -8,15 +8,17 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 requests = "2.31.0"
-beautifulsoup4 = "4.12.2"
+beautifulsoup4 = "4.12.3"
 rich = "13.7.0"
 readchar = "4.0.5"
+thefuzz = "0.22.1"
 
 [tool.poetry.group.dev.dependencies]
 requests = "2.31.0"
-beautifulsoup4 = "4.12.2"
+beautifulsoup4 = "4.12.3"
 rich = "13.7.0"
 readchar = "4.0.5"
+thefuzz = "0.22.1"
 
 [build-system]
 requires = ["poetry-core"]

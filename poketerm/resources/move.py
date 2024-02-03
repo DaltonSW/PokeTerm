@@ -10,8 +10,7 @@ from poketerm.console import console
 
 
 class Move(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+    MAX_COUNT = 919
     ENDPOINT = "move"
 
     def __init__(self, data):
