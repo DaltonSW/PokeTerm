@@ -9,14 +9,17 @@ from rich.progress import Progress, BarColumn, MofNCompleteColumn, TimeElapsedCo
 from readchar import readchar
 
 TESTABLE_RESOURCES = {
-    # "Ability": ability.Ability,
-    "Generation": generation.Generation,
-    # "Item": item.Item,
-    # "Location": location.Location,
-    # "Move": move.Move,
-    "Nature": nature.Nature,
-    # "Pokemon": pokemon.Pokemon,
-    "Type": type.Type,
+    "Generation": generation.Generation,  # 9
+    "Region": region.Region,  # 10
+    "Type": type.Type,  # 18
+    "Nature": nature.Nature,  # 24
+    "Pokedex": pokedex.Pokedex,  # 33
+    "Ability": ability.Ability,  # 307
+    # "Location": location.Location,  # 867
+    # "Move": move.Move,  # 919
+    # "Pokemon": pokemon.Pokemon,  # 1025
+    # "Machine": machine.Machine,  # 1688
+    # "Item": item.Item,  # 2159
 }
 
 progress = Progress(
