@@ -68,7 +68,7 @@ class AbstractData(ABC):
             # print(f"Loaded {data.get('name')} from {cls.ENDPOINT} API")
             newObject = cls(data)
             cls.NAME_TO_DATA_CACHE[newObject.name] = newObject
-            cls.VALID_NAMES
+            cls.VALID_NAMES.add(newObject.name)
             return newObject
         elif isinstance(query, str):
             results = process.extract(query, cls.VALID_NAMES)
