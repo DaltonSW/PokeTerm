@@ -38,6 +38,9 @@ TYPE_ARRAY = [
 class Type(AbstractData):
     MAX_COUNT = 18
     ENDPOINT = "type"
+    VALID_NAMES = set()
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)

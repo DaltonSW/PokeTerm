@@ -6,6 +6,9 @@ from poketerm.utils.api import GetIDFromURL
 class Machine(AbstractData):
     MAX_COUNT = 1688
     ENDPOINT = "machine"
+    VALID_NAMES = set()
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)

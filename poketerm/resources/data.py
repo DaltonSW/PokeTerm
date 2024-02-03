@@ -10,7 +10,7 @@ from poketerm.utils.api import ProperQueryFromID, GetFromAPI
 class AbstractData(ABC):
     ENDPOINT = None
     MAX_COUNT = -1
-    VALID_NAMES = []
+    VALID_NAMES = set()
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
 
@@ -68,6 +68,7 @@ class AbstractData(ABC):
             # print(f"Loaded {data.get('name')} from {cls.ENDPOINT} API")
             newObject = cls(data)
             cls.NAME_TO_DATA_CACHE[newObject.name] = newObject
+            cls.VALID_NAMES
             return newObject
         elif isinstance(query, str):
             results = process.extract(query, cls.VALID_NAMES)

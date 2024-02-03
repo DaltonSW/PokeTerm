@@ -5,6 +5,9 @@ from poketerm.console import console
 class Location(AbstractData):
     MAX_COUNT = 867
     ENDPOINT = "location"
+    VALID_NAMES = set()
+    ID_TO_NAME_CACHE = {}
+    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
