@@ -36,7 +36,7 @@ def LoadCaches():
     for resource_name in RESOURCES.keys():
         resource = RESOURCES[resource_name]
         resource.LoadCache()
-        if valid_names:
+        if valid_names is not None:
             resource.VALID_NAMES = valid_names[resource_name]
 
     Config.LoadCache()
@@ -82,7 +82,7 @@ def HandleCacheTest():
 
 BASE_URL = "https://pokeapi.co/api/v2/"
 RESOURCES = {
-    "ability": ability.Ability,
+    "Ability": ability.Ability,
     # 'Berry': Berry.Berry,
     "EggGroup": egg_group.EggGroup,
     "Generation": generation.Generation,
@@ -98,7 +98,7 @@ RESOURCES = {
 }
 
 SEARCH_OPTIONS = [
-    # "[A]bility",
+    "[A]bility",
     # "[B]erry",
     "[C]alculators",
     "[E]gg Groups",
@@ -119,6 +119,7 @@ ADMIN_OPTIONS = [
 ]
 
 SEARCH_DISPATCH = {
+    "a": lambda: HandleSearch(ability.Ability),
     "e": lambda: HandleSearch(egg_group.EggGroup),
     "g": lambda: HandleSearch(generation.Generation),
     "m": lambda: HandleSearch(move.Move),
@@ -133,6 +134,9 @@ ADMIN_DISPATCH = {"2": ClearCaches, "3": lambda: ClearCaches(True), "0": QuitGra
 
 def main():
     LoadCaches()
+
+    HandleCacheTest()
+    type.Type.HandleSearch("fir")
 
     if updater.CheckForUpdate():
         SaveCaches()
