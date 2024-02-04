@@ -3,7 +3,7 @@ from readchar import readkey, key as keys
 from thefuzz import process
 from poketerm.console import console
 from abc import ABC, abstractmethod
-from poketerm.utils.caching import save_cache, load_cache
+from poketerm.utils.caching import CacheManager
 from poketerm.utils.api import ProperQueryFromID, get_from_api
 
 
@@ -18,7 +18,7 @@ class Resource(ABC):
     def __init__(self, data):
         self.ID: int = data.get("id")
         self.name: str = data.get("name")
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
+        CacheManager.add_name_to_ID_mapping(self.ENDPOINT, self.name, self.ID)
 
     @abstractmethod
     def print_data(self):

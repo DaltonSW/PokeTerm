@@ -45,36 +45,36 @@ class CacheManager:
 
     @classmethod
     def save_mappings(cls):
-        save_cache_of_type("mappings", cls.resource_mappings)
+        cls.save_cache_of_type("mappings", cls.resource_mappings)
 
     @classmethod
     def load_mappings(cls):
-        cls.resource_mappings = load_cache_of_type("mappings")
+        cls.resource_mappings = cls.load_cache_of_type("mappings")
 
     @classmethod
     def clear_mappings(cls):
         cls.resource_mappings = {}
-        clear_cache_of_type("mappings")
+        cls.clear_cache_of_type("mappings")
 
+    @staticmethod
+    def save_cache_of_type(cache_type: str, cache):
+        verify_cache_dir()
 
-def save_cache_of_type(cache_type: str, cache):
-    verify_cache_dir()
+        with open(get_cache_filepath(cache_type), "wb") as cache_file:
+            pickle.dump(cache, cache_file)
 
-    with open(get_cache_filepath(cache_type), "wb") as cache_file:
-        pickle.dump(cache, cache_file)
+    @staticmethod
+    def load_cache_of_type(cache_type: str):
+        if not does_cache_type_exist(cache_type):
+            return None
+        with open(get_cache_filepath(cache_type), "wb") as cache_file:
+            return pickle.load(cache_file)
 
-
-def load_cache_of_type(cache_type: str):
-    if not does_cache_type_exist(cache_type):
-        return None
-    with open(get_cache_filepath(cache_type), "wb") as cache_file:
-        return pickle.load(cache_file)
-
-
-def clear_cache_of_type(cache_type: str):
-    if not does_cache_type_exist(cache_type):
-        return None
-    os.remove(get_cache_filepath(cache_type))
+    @staticmethod
+    def clear_cache_of_type(cache_type: str):
+        if not does_cache_type_exist(cache_type):
+            return None
+        os.remove(get_cache_filepath(cache_type))
 
 
 def get_cache_dir():
