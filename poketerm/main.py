@@ -13,7 +13,7 @@ from poketerm.config import Config
 from poketerm.resources import move, ability, type, pokemon, species
 from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
-from poketerm.utils.visual import PrintData, ClearScreen
+from poketerm.utils.visual import print_resource_data, ClearScreen, print_welcome
 
 from poketerm.utils.searching import SearchManager
 from poketerm.utils.caching import CacheManager
@@ -27,16 +27,19 @@ from poketerm.utils.caching import CacheManager
 
 
 # region Main Util Functions
-def quit_gracefully():
-    CacheManager.save_caches()
-    console.clear()
+def startup():
+    CacheManager.load_mappings()
+
+
+def shutdown():
+    CacheManager.save_mappings()
     exit(0)
 
 
 def handle_cache_test():
-    CacheManager.clear_caches()
+    CacheManager.clear_mappings()
     testing.HandleCacheTest()
-    CacheManager.save_caches()
+    CacheManager.save_mappings()
     exit(0)
 
 
@@ -79,33 +82,32 @@ ADMIN_OPTIONS = [
 ]
 
 SEARCH_DISPATCH = {
-    "a": ability.Ability.ENDPOINT,
-    "e": egg_group.EggGroup.ENDPOINT,
-    "g": generation.Generation.ENDPOINT,
-    "m": move.Move.ENDPOINT,
-    "n": nature.Nature.ENDPOINT,
-    "p": pokemon.Pokemon.ENDPOINT,
-    "t": type.Type.ENDPOINT,
+    "a": ability.Ability,
+    "e": egg_group.EggGroup,
+    "g": generation.Generation,
+    "m": move.Move,
+    "n": nature.Nature,
+    "p": pokemon.Pokemon,
+    "t": type.Type,
 }
 
 ADMIN_DISPATCH = {
     "q": handle_cache_test,
-    "2": CacheManager.clear_caches,
-    "0": quit_gracefully,
+    "2": CacheManager.clear_mappings,
+    "0": shutdown,
 }
 
 
 def main():
-    CacheManager.load_caches()
+    startup()
 
     if updater.CheckForUpdate():
-        CacheManager.save_caches()
-        exit(0)
+        shutdown()
 
     while True:
         try:
             ClearScreen(True)
-            PrintWelcome()
+            print_welcome()
             PrintChoices()
             key = readkey()
             if key == keys.ENTER:
@@ -125,9 +127,14 @@ def handle_dispatch(key):
         console.print("Not a valid key!")
         return
 
+    search_resource = SEARCH_DISPATCH[key]
+
     # Now we know we're trying to search on something
-    data = SearchManager.handle_search(SEARCH_DISPATCH[key])
-    print(data)
+    data = SearchManager.handle_search(search_resource.ENDPOINT)
+
+    resource = search_resource(data)
+
+    print_resource_data(resource)
 
     return
 
@@ -155,22 +162,6 @@ def PrintChoices():
 
     console.print(overallTable, justify="center")
     console.rule("[bold white]\[Enter] Save & Quit[/]", characters=" ")
-
-
-def PrintWelcome():
-    console.rule("[red]     #########    [/]", characters=" ")
-    console.rule("[red]   #############  [/]", characters=" ")
-    console.rule("[red]  ############### [/]", characters=" ")
-    console.rule("[red] #####       #####[/]", characters=" ")
-    console.rule("[white]        ###       [/]", characters=" ")
-    console.rule("[white]        ###       [/]", characters=" ")
-    console.rule("[white] #####       #####[/]", characters=" ")
-    console.rule("[white]  ############### [/]", characters=" ")
-    console.rule("[white]   #############  [/]", characters=" ")
-    console.rule("[white]     #########    [/]", characters=" ")
-    print()
-    console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style="white")
-    console.rule(f"Cache is stored at ~{os.sep}.poketerm", characters=" ")
 
 
 if __name__ == "__main__":
