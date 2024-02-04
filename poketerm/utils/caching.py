@@ -4,8 +4,9 @@ import pickle
 
 
 class MappingCache:
-    NAME_TO_ID = {}
-    ID_TO_DATA = {}
+    def __init__(self):
+        self.NAME_TO_ID = {}
+        self.ID_TO_DATA = {}
 
 
 class CacheManager:
@@ -65,7 +66,7 @@ class CacheManager:
         verify_cache_dir()
 
         with open(get_cache_filepath(cache_type), "wb") as cache_file:
-            pickle.dump(cache, cache_file)
+            cache_file.write(pickle.dumps(cache))
 
     @staticmethod
     def load_cache_of_type(cache_type: str):
