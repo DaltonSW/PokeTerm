@@ -4,8 +4,7 @@ from poketerm.resources.data import Resource
 
 
 class VersionGroup(Resource):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+
     ENDPOINT = "version-group"
 
     def __init__(self, data):
@@ -21,6 +20,3 @@ class VersionGroup(Resource):
 
     def __str__(self):
         return ""
-
-    def AddToCache(self):
-        super().AddToCache()

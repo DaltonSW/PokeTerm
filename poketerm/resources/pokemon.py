@@ -20,8 +20,6 @@ class Pokemon(Resource):
     MAX_COUNT = 1025
     ENDPOINT = "pokemon"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -329,9 +327,6 @@ class Pokemon(Resource):
         typeTwoObj = type.Type.HandleSearch(self.typeArray[1])
         if typeTwoObj is not None:
             return " [white]/[/] " + typeTwoObj.PrintName
-
-    def AddToCache(self):
-        super().AddToCache()
 
     @classmethod
     def ToggleFlag(cls, flag: str):

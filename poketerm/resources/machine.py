@@ -7,8 +7,6 @@ class Machine(Resource):
     MAX_COUNT = 1688
     ENDPOINT = "machine"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -28,6 +26,3 @@ class Machine(Resource):
     def print_data(self):
         console.clear()
         return
-
-    def AddToCache(self):
-        super().AddToCache()

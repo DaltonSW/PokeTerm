@@ -9,6 +9,10 @@ class SearchManager:
     VALID_NAMES: dict[str, list[str]] = []
 
     @classmethod
+    def load_valid_names(cls):
+        pass
+
+    @classmethod
     def handle_search(cls, endpoint: str, query: Optional[str] = None):
         if query is None or query == "":
             q = prompt_for_query(endpoint)

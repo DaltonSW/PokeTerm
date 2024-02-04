@@ -1,5 +1,3 @@
-import os
-
 from sys import exit
 from readchar import readkey, key as keys
 from rich import box
@@ -9,7 +7,6 @@ from poketerm.utils import testing
 import poketerm.utils.updater as updater
 
 from poketerm.console import console
-from poketerm.config import Config
 from poketerm.resources import move, ability, type, pokemon, species
 from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group

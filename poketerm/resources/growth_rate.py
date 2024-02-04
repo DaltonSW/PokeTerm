@@ -3,8 +3,7 @@ from poketerm.console import console
 
 
 class GrowthRate(Resource):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+
     ENDPOINT = "growth-rate"
 
     def __init__(self, data):
@@ -22,6 +21,3 @@ class GrowthRate(Resource):
     def print_data(self):
         console.clear()
         return
-
-    def AddToCache(self):
-        super().AddToCache()

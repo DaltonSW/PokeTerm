@@ -4,8 +4,6 @@ from poketerm.utils.visual import ClearScreen
 
 
 class EggGroup(Resource):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
     ENDPOINT = "egg-group"
 
     def __init__(self, data):
@@ -24,6 +22,3 @@ class EggGroup(Resource):
             console.print(pokemon.get("name").title())
 
         return
-
-    def AddToCache(self):
-        super().AddToCache()

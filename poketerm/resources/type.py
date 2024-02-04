@@ -39,8 +39,6 @@ class Type(Resource):
     MAX_COUNT = 18
     ENDPOINT = "type"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -279,9 +277,6 @@ class Type(Resource):
                 progress.update(moveQuery, advance=1)
 
         return newTable
-
-    def AddToCache(self):
-        super().AddToCache()
 
     @classmethod
     def ToggleFlag(cls, flag: str):

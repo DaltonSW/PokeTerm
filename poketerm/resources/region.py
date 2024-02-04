@@ -6,8 +6,6 @@ class Region(Resource):
     MAX_COUNT = 10
     ENDPOINT = "region"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -31,6 +29,3 @@ class Region(Resource):
     def print_data(self):
         console.clear()
         return
-
-    def AddToCache(self):
-        super().AddToCache()

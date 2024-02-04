@@ -7,8 +7,7 @@ from rich import box
 
 
 class Species(Resource):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+
     ENDPOINT = "pokemon-species"
 
     def __init__(self, data):
@@ -53,9 +52,6 @@ class Species(Resource):
     def print_data(self):
         self.evolutionChain.PrintData()
         return
-
-    def AddToCache(self):
-        super().AddToCache()
 
     @property
     def GenderRatio(self) -> str:

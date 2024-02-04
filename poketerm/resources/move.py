@@ -13,8 +13,6 @@ class Move(Resource):
     MAX_COUNT = 919
     ENDPOINT = "move"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -47,9 +45,6 @@ class Move(Resource):
         statTable.add_row(str(self.PP), str(self.power), f"{self.accuracy}%")
         console.print(statTable)
         return
-
-    def AddToCache(self):
-        super().AddToCache()
 
     # region Formatted Getters
     @property

@@ -10,8 +10,6 @@ class Generation(Resource):
     MAX_COUNT = 9
     ENDPOINT = "generation"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -28,8 +26,6 @@ class Generation(Resource):
             thing["name"] for thing in data["version_groups"]
         ]
 
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
-
     def print_data(self):
         print(f"Generation {self.ID}")
         print(f"Abilities Introduced: {len(self.abilitiesIntroduced)}")
@@ -38,6 +34,3 @@ class Generation(Resource):
 
     def __str__(self):
         return ""
-
-    def AddToCache(self):
-        super().AddToCache()

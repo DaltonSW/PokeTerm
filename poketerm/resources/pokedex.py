@@ -8,8 +8,6 @@ class Pokedex(Resource):
     MAX_COUNT = 33
     ENDPOINT = "pokedex"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -33,6 +31,3 @@ class Pokedex(Resource):
     def print_data(self):
         console.clear()
         return
-
-    def AddToCache(self):
-        super().AddToCache()

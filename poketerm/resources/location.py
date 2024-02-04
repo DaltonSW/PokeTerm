@@ -6,8 +6,6 @@ class Location(Resource):
     MAX_COUNT = 867
     ENDPOINT = "location"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -21,6 +19,3 @@ class Location(Resource):
     def print_data(self):
         console.clear()
         return
-
-    def AddToCache(self):
-        super().AddToCache()
