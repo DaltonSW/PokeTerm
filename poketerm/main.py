@@ -15,36 +15,32 @@ from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
 from poketerm.utils.visual import PrintData, ClearScreen
 
-from poketerm.utils.caching import VerifyCacheDir, RemoveCacheDir, SaveCache, LoadCache
+from poketerm.utils.searching import SearchManager
+from poketerm.utils.caching import CacheManager
+
+from poketerm.utils.caching import (
+    verify_cache_dir,
+    remove_cache_dir,
+    save_cache,
+    load_cache,
+)
 
 
 # region Main Util Functions
 def SaveCaches():
-    VerifyCacheDir()
+    verify_cache_dir()
     valid_names = {}
     for resource_name in RESOURCES.keys():
         resource = RESOURCES[resource_name]
         valid_names[resource_name] = resource.VALID_NAMES
-        resource.SaveCache()
+        resource.save_cache()
 
-    SaveCache("valid_names", valid_names)
+    save_cache("valid_names", valid_names)
     Config.SaveCache()
 
 
-def LoadCaches():
-    valid_names = LoadCache("valid_names")
-    for resource_name in RESOURCES.keys():
-        resource = RESOURCES[resource_name]
-        resource.LoadCache()
-        if valid_names is not None:
-            resource.VALID_NAMES = valid_names[resource_name]
-
-    Config.LoadCache()
-    console.clear()
-
-
 def ClearCaches(doQuit=False):
-    RemoveCacheDir()
+    remove_cache_dir()
     for resource in RESOURCES.values():
         resource.NAME_TO_DATA_CACHE.clear()
         resource.ID_TO_NAME_CACHE.clear()
@@ -119,25 +115,25 @@ ADMIN_OPTIONS = [
 ]
 
 SEARCH_DISPATCH = {
-    "a": lambda: HandleSearch(ability.Ability),
-    "e": lambda: HandleSearch(egg_group.EggGroup),
-    "g": lambda: HandleSearch(generation.Generation),
-    "m": lambda: HandleSearch(move.Move),
-    "n": lambda: HandleSearch(nature.Nature),
-    "p": lambda: HandleSearch(pokemon.Pokemon),
+    "a": lambda: SearchManager.handle_search(ability.Ability.ENDPOINT),
+    "e": lambda: SearchManager.handle_search(egg_group.EggGroup.ENDPOINT),
+    "g": lambda: SearchManager.handle_search(generation.Generation.ENDPOINT),
+    "m": lambda: SearchManager.handle_search(move.Move.ENDPOINT),
+    "n": lambda: SearchManager.handle_search(nature.Nature.ENDPOINT),
+    "p": lambda: SearchManager.handle_search(pokemon.Pokemon.ENDPOINT),
     "q": lambda: HandleCacheTest(),
-    "t": lambda: HandleSearch(type.Type),
+    "t": lambda: SearchManager.handle_search(type.Type.ENDPOINT),
 }
 
 ADMIN_DISPATCH = {"2": ClearCaches, "3": lambda: ClearCaches(True), "0": QuitGracefully}
 
 
 def main():
-    LoadCaches()
+    CacheManager.load_caches()
 
-    if updater.CheckForUpdate():
-        SaveCaches()
-        exit(0)
+    # if updater.CheckForUpdate():
+    #     SaveCaches()
+    #     exit(0)
 
     while True:
         try:
@@ -166,6 +162,10 @@ def main():
     #   Game/Version
     #   PokeBalls
     #   Catch Rate Calculator
+
+
+def handle_dispatch(key):
+    return
 
 
 def PrintChoices():

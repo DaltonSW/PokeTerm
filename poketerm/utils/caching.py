@@ -31,7 +31,7 @@ class CacheManager:
         subcache = cls.cache_mappings.get(key, None)
         if not subcache:
             return None
-        return subcache.ID_TO_DATA.get(ID)
+        return subcache.ID_TO_DATA.get(int(ID))
 
     @classmethod
     def get_data_from_name(cls, key, name):
