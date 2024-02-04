@@ -1,7 +1,7 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 
 
-class Ability(AbstractData):
+class Ability(Resource):
     ENDPOINT = "ability"
     MAX_COUNT = 307
     VALID_NAMES = set()
@@ -39,7 +39,7 @@ class Ability(AbstractData):
             return self.flavorText
         return "No description available"
 
-    def PrintData(self):
+    def print_data(self):
         return
 
     def AddToCache(self):

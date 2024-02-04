@@ -1,9 +1,9 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 from poketerm.utils.api import GetIDFromURL
 
 
-class Machine(AbstractData):
+class Machine(Resource):
     MAX_COUNT = 1688
     ENDPOINT = "machine"
     VALID_NAMES = set()
@@ -25,7 +25,7 @@ class Machine(AbstractData):
         if version_group_data:
             self.version_group_ID = GetIDFromURL(version_group_data.get("url"))
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
         return
 

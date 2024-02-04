@@ -54,7 +54,6 @@ def HandleCacheTest():
 
 # endregion
 
-BASE_URL = "https://pokeapi.co/api/v2/"
 RESOURCES = {
     "Ability": ability.Ability,
     # 'Berry': Berry.Berry,
@@ -111,9 +110,9 @@ ADMIN_DISPATCH = {
 def main():
     CacheManager.load_caches()
 
-    # if updater.CheckForUpdate():
-    #     SaveCaches()
-    #     exit(0)
+    if updater.CheckForUpdate():
+        CacheManager.save_caches()
+        exit(0)
 
     while True:
         try:

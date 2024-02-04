@@ -1,8 +1,8 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 
 
-class Location(AbstractData):
+class Location(Resource):
     MAX_COUNT = 867
     ENDPOINT = "location"
     VALID_NAMES = set()
@@ -18,7 +18,7 @@ class Location(AbstractData):
 
         self.region = data.get("region").get("name")
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
         return
 

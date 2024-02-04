@@ -8,7 +8,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 from poketerm.console import console
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.resources import move
 
 from poketerm.config import Config
@@ -35,7 +35,7 @@ TYPE_ARRAY = [
 ]
 
 
-class Type(AbstractData):
+class Type(Resource):
     MAX_COUNT = 18
     ENDPOINT = "type"
     VALID_NAMES = set()
@@ -137,7 +137,7 @@ class Type(AbstractData):
     def PrintName(self) -> str:
         return f"[{self.name}]{self.name.title()}[/]"
 
-    def PrintData(self):
+    def print_data(self):
         console.print(f"[bold]Type: {self.PrintName}[/]")
         print()
 

@@ -1,13 +1,13 @@
 import re
-import readchar
+from readchar import readkey, key as keys
 from thefuzz import process
 from poketerm.console import console
 from abc import ABC, abstractmethod
-from poketerm.utils.caching import SaveCache, LoadCache
-from poketerm.utils.api import ProperQueryFromID, GetFromAPI
+from poketerm.utils.caching import save_cache, load_cache
+from poketerm.utils.api import ProperQueryFromID, get_from_api
 
 
-class AbstractData(ABC):
+class Resource(ABC):
     ENDPOINT = None
     MAX_COUNT = -1
     VALID_NAMES = set()
@@ -21,7 +21,7 @@ class AbstractData(ABC):
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     @abstractmethod
-    def PrintData(self):
+    def print_data(self):
         pass
 
     @abstractmethod
@@ -35,7 +35,7 @@ class AbstractData(ABC):
 
     @classmethod
     def LoadCache(cls):
-        data = LoadCache(cls.ENDPOINT)
+        data = load_cache(cls.ENDPOINT)
         try:
             if len(data) == 3:
                 cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE, cls.VALID_NAMES = data
@@ -50,12 +50,13 @@ class AbstractData(ABC):
         if len(cls.NAME_TO_DATA_CACHE) == 0:
             return
         output = (cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE, cls.VALID_NAMES)
-        SaveCache(cls.ENDPOINT, output)
+        save_cache(cls.ENDPOINT, output)
 
     @classmethod
     def HandleSearch(cls, query=None):
         if query is None or query == "":
             query = input(f"{cls.ENDPOINT.title()} Name or ID: ").lower()
+
         if query == "":
             return None
         query = str(query)
@@ -63,7 +64,8 @@ class AbstractData(ABC):
             query = ProperQueryFromID(int(query), cls.ID_TO_NAME_CACHE)
         if query in cls.NAME_TO_DATA_CACHE:
             return cls.NAME_TO_DATA_CACHE[query]
-        data = GetFromAPI(cls.ENDPOINT, query)
+        data = get_from_api(cls.ENDPOINT, query)
+
         if data is not None:
             # print(f"Loaded {data.get('name')} from {cls.ENDPOINT} API")
             newObject = cls(data)
@@ -75,13 +77,16 @@ class AbstractData(ABC):
             console.print(
                 "Unable to find that search term. Here are the 5 closest matches: "
             )
-            console.print(results)
-            # console.print(f"[1] {results[0]}")
-            # console.print(f"[2] {results[1]}")
-            # console.print(f"[3] {results[2]}")
-            # console.print(f"[4] {results[3]}")
-            # console.print(f"[5] {results[4]}")
-            _ = readchar.readkey()
+            console.print(f"[1] {results[0][0]}")
+            console.print(f"[2] {results[1][0]}")
+            console.print(f"[3] {results[2][0]}")
+            console.print(f"[4] {results[3][0]}")
+            console.print(f"[5] {results[4][0]}")
+            console.rule("Press [Enter] to return to the menu.", characters=" ")
+            key = readkey()
+            if key == keys.ENTER:
+                return
+            # TODO: Check the input key and print that data
 
     @property
     def PrintName(self) -> str:

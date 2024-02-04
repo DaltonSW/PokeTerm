@@ -1,8 +1,8 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 
 
-class Encounter(AbstractData):
+class Encounter(Resource):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
     ENDPOINT = "encounter"
@@ -10,7 +10,7 @@ class Encounter(AbstractData):
     def __init__(self, data):
         super().__init__(data)
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
         return
 

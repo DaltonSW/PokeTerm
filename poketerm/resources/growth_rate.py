@@ -1,8 +1,8 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 
 
-class GrowthRate(AbstractData):
+class GrowthRate(Resource):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
     ENDPOINT = "growth-rate"
@@ -19,7 +19,7 @@ class GrowthRate(AbstractData):
         for thing in data.get("pokemon_species"):
             self.species.append(thing.get("name"))
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
         return
 

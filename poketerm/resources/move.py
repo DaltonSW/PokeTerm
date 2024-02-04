@@ -1,7 +1,7 @@
 from rich.table import Table
 import re
 
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 
 # TODO:
@@ -9,7 +9,7 @@ from poketerm.console import console
 #   List TM number in each gen, if applicable
 
 
-class Move(AbstractData):
+class Move(Resource):
     MAX_COUNT = 919
     ENDPOINT = "move"
     VALID_NAMES = set()
@@ -32,7 +32,7 @@ class Move(AbstractData):
             effectEntries[0].get("effect") if effectEntries else None
         )
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
 
         console.print(f"[bold]Move:[/] {self.PrintName} [[bold]{self.ID}[/]]")

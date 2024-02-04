@@ -1,4 +1,3 @@
-from poketerm.main import ClearCaches, SaveCaches
 from concurrent.futures import ThreadPoolExecutor
 from poketerm.console import console
 
@@ -47,7 +46,6 @@ def HandleSingleTest(resource, taskID, query):
 
 
 def HandleCacheTest():
-    ClearCaches()
     console.clear()
     console.rule("Cache Test", style="white")
 
@@ -77,5 +75,4 @@ def HandleCacheTest():
 
             for i in range(1, ABILITY_COUNT + 1):
                 executor.submit(HandleSingleTest, ability.Ability, abilityID, i)
-    SaveCaches()
     exit(0)

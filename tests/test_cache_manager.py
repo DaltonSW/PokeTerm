@@ -1,5 +1,5 @@
 import pytest
-from poketerm.utils.caching import CacheManager, SubCache
+from poketerm.utils.caching import CacheManager
 
 
 class TestCacheManager:

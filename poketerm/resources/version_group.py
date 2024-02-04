@@ -1,9 +1,9 @@
 from poketerm.utils.api import GetIDFromURL
 
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 
 
-class VersionGroup(AbstractData):
+class VersionGroup(Resource):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
     ENDPOINT = "version-group"
@@ -16,7 +16,7 @@ class VersionGroup(AbstractData):
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
-    def PrintData(self):
+    def print_data(self):
         pass
 
     def __str__(self):

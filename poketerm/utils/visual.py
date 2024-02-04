@@ -7,7 +7,7 @@ from poketerm.utils.general import IsWindowsOS
 def PrintData(data) -> None:
     while True:
         ClearScreen()
-        data.PrintData()
+        data.print_data()
         print()
         console.rule("Press [Enter] to return to the menu.", characters=" ")
         key = readkey()

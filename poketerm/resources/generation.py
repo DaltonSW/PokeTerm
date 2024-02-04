@@ -1,4 +1,4 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 
 # TODO:
 #   List out each ability
@@ -6,7 +6,7 @@ from poketerm.resources.data import AbstractData
 #   List out each Species added
 
 
-class Generation(AbstractData):
+class Generation(Resource):
     MAX_COUNT = 9
     ENDPOINT = "generation"
     VALID_NAMES = set()
@@ -30,7 +30,7 @@ class Generation(AbstractData):
 
         self.ID_TO_NAME_CACHE[self.ID] = self.name
 
-    def PrintData(self):
+    def print_data(self):
         print(f"Generation {self.ID}")
         print(f"Abilities Introduced: {len(self.abilitiesIntroduced)}")
         print(f"Moves Introduced: {len(self.movesIntroduced)}")

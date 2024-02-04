@@ -1,8 +1,8 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 
 
-class Item(AbstractData):
+class Item(Resource):
     MAX_COUNT = 2159
     ENDPOINT = "item"
     VALID_NAMES = set()
@@ -12,7 +12,7 @@ class Item(AbstractData):
     def __init__(self, data):
         super().__init__(data)
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
         return
 

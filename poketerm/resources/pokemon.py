@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 from poketerm.utils.constants import VERSION_MAPPING_DICT, REVERSED_MAPPING_DICT
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.resources import species, ability, version_group, type
 from poketerm.resources import generation
 
@@ -16,7 +16,7 @@ from poketerm.console import console
 #   Dex information
 
 
-class Pokemon(AbstractData):
+class Pokemon(Resource):
     MAX_COUNT = 1025
     ENDPOINT = "pokemon"
     VALID_NAMES = set()
@@ -75,7 +75,7 @@ class Pokemon(AbstractData):
         if len(typeData) > 1:
             self.typeArray.append(typeData[1].get("type").get("name"))
 
-    def PrintData(self):
+    def print_data(self):
         console.rule(f"[bold]{self.name.upper()}[/]", style="none")
         console.print(f"[link={self.shinyLink}]Shiny Link (ctrl + click)[/]")
 
@@ -99,7 +99,7 @@ class Pokemon(AbstractData):
         spec = species.Species.HandleSearch(self.speciesID)
         if spec is not None:
             spec.PrintDataForPokemonPage()
-            spec.PrintData()
+            spec.print_data()
         return
 
     def PrintTypeInfo(self) -> None:

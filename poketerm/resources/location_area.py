@@ -1,8 +1,8 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 
 
-class LocationArea(AbstractData):
+class LocationArea(Resource):
     ID_TO_NAME_CACHE = {}
     NAME_TO_DATA_CACHE = {}
     ENDPOINT = "location-area"
@@ -33,7 +33,7 @@ class LocationArea(AbstractData):
         for method in data.get("encounter_method_rates"):
             self.encounter_methods.append(method)
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
         return
 
