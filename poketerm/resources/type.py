@@ -10,6 +10,7 @@ from rich.progress import (
 from poketerm.console import console
 from poketerm.resources.data import Resource
 from poketerm.resources import move
+from poketerm.utils.searching import SearchManager
 
 from poketerm.config import Config
 
@@ -59,8 +60,6 @@ class Type(Resource):
         )
 
         self.moves = [thing.get("name") for thing in data.get("moves")]
-
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     @staticmethod
     def ExtractDamageRelations(damageRelationData):
@@ -266,7 +265,7 @@ class Type(Resource):
         ) as progress:
             moveQuery = progress.add_task("Querying moves...", total=len(self.moves))
             for moveName in self.moves:
-                moveObj = move.Move.HandleSearch(moveName)
+                moveObj = SearchManager.handle_search_and_cast(move.Move, moveName)
                 if moveObj:
                     newTable.add_row(
                         moveObj.PrintName,

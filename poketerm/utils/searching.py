@@ -3,6 +3,7 @@ from typing import Optional
 
 from poketerm.utils.api import get_from_api
 from poketerm.utils.caching import CacheManager
+from poketerm.resources.data import Resource
 
 
 class SearchManager:
@@ -13,13 +14,24 @@ class SearchManager:
         pass
 
     @classmethod
-    def handle_search(cls, endpoint: str, query: Optional[str] = None):
+    def handle_search_and_cast(cls, resource, query: Optional[str | int] = None):
+        data = SearchManager.handle_search(resource.ENDPOINT, query)
+
+        if isinstance(data, Resource):
+            resource = data
+        else:  # This creates an instance of search_resource based on the queried data
+            resource = resource(data)
+            CacheManager.cache_resource(resource)
+        return resource
+
+    @classmethod
+    def handle_search(cls, endpoint: str, query: Optional[str | int] = None):
         if query is None or query == "":
             q = prompt_for_query(endpoint)
             if q == "":
                 return
         else:
-            q = query
+            q = str(query)
 
         q = normalize_search_term(q)
         data = obtain_data(endpoint, q)

@@ -29,8 +29,6 @@ class Nature(Resource):
 
         # also has move_battle_style_preferences and pokeathlon_stat_changes
 
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
-
     def print_data(self):
         console.rule(f"[bold]{self.PrintName}", align="left", style="none")
         console.print(f"[attack]Increased Stat: [/]{self.increasedStat.title()}")

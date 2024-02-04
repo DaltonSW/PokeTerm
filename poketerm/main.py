@@ -10,7 +10,6 @@ from poketerm.console import console
 from poketerm.resources import move, ability, type, pokemon, species
 from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
-from poketerm.resources.data import Resource
 from poketerm.utils.visual import print_resource_data, ClearScreen, print_welcome
 
 from poketerm.utils.searching import SearchManager
@@ -128,12 +127,7 @@ def handle_dispatch(key):
     search_resource = SEARCH_DISPATCH[key]
 
     # Now we know we're trying to search on something
-    data = SearchManager.handle_search(search_resource.ENDPOINT)
-
-    if isinstance(data, Resource):
-        resource = data
-    else:  # This creates an instance of search_resource based on the queried data
-        resource = search_resource(data)
+    resource = SearchManager.handle_search_and_cast(search_resource)
 
     CacheManager.cache_resource(resource)
 

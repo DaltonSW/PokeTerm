@@ -47,8 +47,6 @@ class Species(Resource):
             GetFromURL(data.get("evolution_chain").get("url"))
         )
 
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
-
     def print_data(self):
         self.evolutionChain.PrintData()
         return

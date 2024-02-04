@@ -4,7 +4,7 @@ from poketerm.utils.constants import VERSION_MAPPING_DICT, REVERSED_MAPPING_DICT
 from poketerm.resources.data import Resource
 from poketerm.resources import species, ability, version_group, type
 from poketerm.resources import generation
-
+from poketerm.utils.searching import SearchManager
 from poketerm.config import Config
 
 from rich.table import Table
@@ -28,17 +28,21 @@ class Pokemon(Resource):
         self.possibleAbilities = []
         self.hiddenAbility = None
         abilityList: list = data.get("abilities")
-        for a in abilityList:
-            newAbility = ability.Ability.HandleSearch(a.get("ability").get("name"))
+        for abil in abilityList:
+            newAbility = SearchManager.handle_search_and_cast(
+                ability.Ability, abil.get("ability").get("name")
+            )
             if newAbility is not None:
-                if a.get("is_hidden") is True:
+                if abil.get("is_hidden") is True:
                     self.hiddenAbility = newAbility
                 else:
                     self.possibleAbilities.append(newAbility)
         # endregion
 
         # Species
-        spec = species.Species.HandleSearch((data.get("species").get("name")))
+        spec = SearchManager.handle_search_and_cast(
+            species.Species, data.get("species").get("name")
+        )
         if spec is not None:
             self.speciesID = spec.ID
 
@@ -94,7 +98,7 @@ class Pokemon(Resource):
             return
 
         console.rule("Spe\[c]ies Information ▼", align="left", characters=" ")
-        spec = species.Species.HandleSearch(self.speciesID)
+        spec = SearchManager.handle_search_and_cast(species.Species, self.speciesID)
         if spec is not None:
             spec.PrintDataForPokemonPage()
             spec.print_data()
@@ -115,10 +119,14 @@ class Pokemon(Resource):
         typeEffs = [1 for _ in range(18)]
 
         for index, otherType in enumerate(type.TYPE_ARRAY):
-            typeOneObj = type.Type.HandleSearch(self.typeArray[0])
+            typeOneObj = SearchManager.handle_search_and_cast(
+                type.Type, self.typeArray[0]
+            )
             typeEffs[index] *= typeOneObj.GetDefensiveEffectiveness(otherType)
             if len(self.typeArray) > 1:
-                typeTwoObj = type.Type.HandleSearch(self.typeArray[1])
+                typeTwoObj = SearchManager.handle_search_and_cast(
+                    type.Type, self.typeArray[1]
+                )
                 typeEffs[index] *= typeTwoObj.GetDefensiveEffectiveness(otherType)
 
         strEffs = []
@@ -262,9 +270,11 @@ class Pokemon(Resource):
         genTable = Table(title=f"Generation {gen}")
         genTable.add_column("Game")
         genTable.add_column("Location")
-        genInfo = generation.Generation.HandleSearch(gen)
+        genInfo = SearchManager.handle_search_and_cast(generation.Generation, gen)
         for versionGroup in genInfo.versionGroups:
-            groupInfo = version_group.VersionGroup.HandleSearch(versionGroup)
+            groupInfo = SearchManager.handle_search_and_cast(
+                version_group.VersionGroup, versionGroup
+            )
             for version in groupInfo.versions:
                 versionLocations = self.locationInformation.get(version)
                 if versionLocations is None or len(versionLocations) == 0:
@@ -316,7 +326,7 @@ class Pokemon(Resource):
 
     @property
     def FormattedTypeOne(self) -> str:
-        typeOneObj = type.Type.HandleSearch(self.typeArray[0])
+        typeOneObj = SearchManager.handle_search_and_cast(type.Type, self.typeArray[0])
         if typeOneObj is not None:
             return typeOneObj.PrintName
 
@@ -324,7 +334,7 @@ class Pokemon(Resource):
     def FormattedTypeTwo(self) -> str:
         if len(self.typeArray) == 1:
             return ""
-        typeTwoObj = type.Type.HandleSearch(self.typeArray[1])
+        typeTwoObj = SearchManager.handle_search_and_cast(type.Type, self.typeArray[1])
         if typeTwoObj is not None:
             return " [white]/[/] " + typeTwoObj.PrintName
 
