@@ -13,6 +13,7 @@ from poketerm.config import Config
 from poketerm.resources import move, ability, type, pokemon, species
 from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
+from poketerm.resources.data import Resource
 from poketerm.utils.visual import print_resource_data, ClearScreen, print_welcome
 
 from poketerm.utils.searching import SearchManager
@@ -111,13 +112,13 @@ def main():
             PrintChoices()
             key = readkey()
             if key == keys.ENTER:
-                quit_gracefully()
+                shutdown()
 
             console.clear()
             handle_dispatch(key)
 
         except KeyboardInterrupt:  # This handles Ctrl+C'ing out of the menu
-            quit_gracefully()
+            shutdown()
 
 
 def handle_dispatch(key):
@@ -132,7 +133,12 @@ def handle_dispatch(key):
     # Now we know we're trying to search on something
     data = SearchManager.handle_search(search_resource.ENDPOINT)
 
-    resource = search_resource(data)
+    if isinstance(data, Resource):
+        resource = data
+    else:  # This creates an instance of search_resource based on the queried data
+        resource = search_resource(data)
+
+    CacheManager.cache_resource(resource)
 
     print_resource_data(resource)
 

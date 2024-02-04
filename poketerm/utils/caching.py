@@ -45,11 +45,15 @@ class CacheManager:
 
     @classmethod
     def save_mappings(cls):
+        if cls.resource_mappings == {}:
+            return
         cls.save_cache_of_type("mappings", cls.resource_mappings)
 
     @classmethod
     def load_mappings(cls):
         cls.resource_mappings = cls.load_cache_of_type("mappings")
+        if cls.resource_mappings is None:
+            cls.resource_mappings = {}
 
     @classmethod
     def clear_mappings(cls):
@@ -66,9 +70,12 @@ class CacheManager:
     @staticmethod
     def load_cache_of_type(cache_type: str):
         if not does_cache_type_exist(cache_type):
-            return None
-        with open(get_cache_filepath(cache_type), "wb") as cache_file:
-            return pickle.load(cache_file)
+            return
+        if not os.path.getsize(get_cache_filepath(cache_type)) > 0:
+            return
+        with open(get_cache_filepath(cache_type), "rb") as cache_file:
+            data = pickle.load(cache_file)
+        return data
 
     @staticmethod
     def clear_cache_of_type(cache_type: str):
@@ -76,9 +83,16 @@ class CacheManager:
             return None
         os.remove(get_cache_filepath(cache_type))
 
+    @classmethod
+    def cache_resource(cls, resource):
+        if resource is None:
+            return
+        cls.add_name_to_ID_mapping(resource.ENDPOINT, resource.name, resource.ID)
+        cls.add_ID_to_data_mapping(resource.ENDPOINT, resource.ID, resource)
+
 
 def get_cache_dir():
-    return os.path.join(os.path.expanduser("~"), os.sep, ".poketerm")
+    return os.path.join(os.path.expanduser("~"), ".poketerm")
 
 
 def get_cache_filepath(cacheType) -> str:

@@ -37,4 +37,4 @@ def print_welcome():
     console.rule("[white]     #########    [/]", characters=" ")
     print()
     console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style="white")
-    console.rule(f"Cache is stored at ~{os.sep}.poketerm", characters=" ")
+    console.rule(f"Cache is stored in ~{os.sep}.poketerm", characters=" ")
