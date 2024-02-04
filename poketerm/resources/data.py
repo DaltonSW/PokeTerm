@@ -13,6 +13,7 @@ class Resource(ABC):
         self.ID: int = data.get("id")
         self.name: str = data.get("name")
         CacheManager.add_name_to_ID_mapping(self.ENDPOINT, self.name, self.ID)
+        CacheManager.add_ID_to_data_mapping(self.ENDPOINT, self.ID, self)
 
     @abstractmethod
     def print_data(self):

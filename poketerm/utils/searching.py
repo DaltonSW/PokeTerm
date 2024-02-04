@@ -21,7 +21,6 @@ class SearchManager:
             resource = data
         else:  # This creates an instance of search_resource based on the queried data
             resource = resource(data)
-            CacheManager.cache_resource(resource)
         return resource
 
     @classmethod
