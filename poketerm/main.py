@@ -27,25 +27,13 @@ from poketerm.utils.caching import CacheManager
 
 
 # region Main Util Functions
-def HandleSearch(resource):
-    query = input(f"{resource.ENDPOINT.title()} Name or ID: ").lower()
-    if query == "":
-        return
-
-    with console.status(f"Querying for {resource.ENDPOINT.title()}..."):
-        result = resource.HandleSearch(query)
-    if result is not None:
-        PrintData(result)
-    return
-
-
-def QuitGracefully():
+def quit_gracefully():
     CacheManager.save_caches()
     console.clear()
     exit(0)
 
 
-def HandleCacheTest():
+def handle_cache_test():
     CacheManager.clear_caches()
     testing.HandleCacheTest()
     CacheManager.save_caches()
@@ -101,9 +89,9 @@ SEARCH_DISPATCH = {
 }
 
 ADMIN_DISPATCH = {
-    "q": HandleCacheTest,
+    "q": handle_cache_test,
     "2": CacheManager.clear_caches,
-    "0": QuitGracefully,
+    "0": quit_gracefully,
 }
 
 
@@ -121,13 +109,13 @@ def main():
             PrintChoices()
             key = readkey()
             if key == keys.ENTER:
-                QuitGracefully()
+                quit_gracefully()
 
             console.clear()
             handle_dispatch(key)
 
         except KeyboardInterrupt:  # This handles Ctrl+C'ing out of the menu
-            QuitGracefully()
+            quit_gracefully()
 
 
 def handle_dispatch(key):

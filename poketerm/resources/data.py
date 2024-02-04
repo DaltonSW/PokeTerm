@@ -24,33 +24,9 @@ class Resource(ABC):
     def print_data(self):
         pass
 
-    @abstractmethod
-    def AddToCache(self):
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
-        self.NAME_TO_DATA_CACHE[self.name] = self
-
     @classmethod
     def ToggleFlag(cls, flag: str):
         pass
-
-    @classmethod
-    def LoadCache(cls):
-        data = load_cache(cls.ENDPOINT)
-        try:
-            if len(data) == 3:
-                cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE, cls.VALID_NAMES = data
-            else:
-                cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE = data
-        except TypeError:
-            print(f"Failed to load {cls.ENDPOINT.upper()} cache")
-            pass
-
-    @classmethod
-    def SaveCache(cls):
-        if len(cls.NAME_TO_DATA_CACHE) == 0:
-            return
-        output = (cls.ID_TO_NAME_CACHE, cls.NAME_TO_DATA_CACHE, cls.VALID_NAMES)
-        save_cache(cls.ENDPOINT, output)
 
     @classmethod
     def HandleSearch(cls, query=None):
