@@ -43,6 +43,19 @@ class CacheManager:
             return None
         return subcache.ID_TO_DATA.get(ID, None)
 
+    @classmethod
+    def save_caches(cls):
+        verify_cache_dir()
+        with open(get_cache_filepath("mappings"), "wb") as cache_file:
+            pickle.dump(cls.cache_mappings, cache_file)
+
+    @classmethod
+    def load_caches(cls):
+        if not does_cache_type_exist("mappings"):
+            return None
+        with open(get_cache_filepath("mappings"), "wb") as cache_file:
+            cls.cache_mappings = pickle.load(cache_file)
+
 
 def get_cache_dir():
     return os.path.join(os.path.expanduser("~"), os.sep, ".poketerm")
