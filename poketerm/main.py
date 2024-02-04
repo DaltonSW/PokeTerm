@@ -18,37 +18,15 @@ from poketerm.utils.visual import PrintData, ClearScreen
 from poketerm.utils.searching import SearchManager
 from poketerm.utils.caching import CacheManager
 
-from poketerm.utils.caching import (
-    verify_cache_dir,
-    remove_cache_dir,
-    save_cache,
-    load_cache,
-)
+# TODO:
+#   Location
+#   Item
+#   Game/Version
+#   PokeBalls
+#   Catch Rate Calculator
 
 
 # region Main Util Functions
-def SaveCaches():
-    verify_cache_dir()
-    valid_names = {}
-    for resource_name in RESOURCES.keys():
-        resource = RESOURCES[resource_name]
-        valid_names[resource_name] = resource.VALID_NAMES
-        resource.save_cache()
-
-    save_cache("valid_names", valid_names)
-    Config.SaveCache()
-
-
-def ClearCaches(doQuit=False):
-    remove_cache_dir()
-    for resource in RESOURCES.values():
-        resource.NAME_TO_DATA_CACHE.clear()
-        resource.ID_TO_NAME_CACHE.clear()
-
-    if doQuit:
-        exit(0)
-
-
 def HandleSearch(resource):
     query = input(f"{resource.ENDPOINT.title()} Name or ID: ").lower()
     if query == "":
@@ -62,15 +40,15 @@ def HandleSearch(resource):
 
 
 def QuitGracefully():
-    SaveCaches()
+    CacheManager.save_caches()
     console.clear()
     exit(0)
 
 
 def HandleCacheTest():
-    ClearCaches()
+    CacheManager.clear_caches()
     testing.HandleCacheTest()
-    SaveCaches()
+    CacheManager.save_caches()
     exit(0)
 
 
@@ -110,22 +88,24 @@ SEARCH_OPTIONS = [
 ADMIN_OPTIONS = [
     # "[1] Options",
     "[2] Clear Cache",
-    "[3] Clear Cache & Quit",
     "[0] Quit Without Saving",
 ]
 
 SEARCH_DISPATCH = {
-    "a": lambda: SearchManager.handle_search(ability.Ability.ENDPOINT),
-    "e": lambda: SearchManager.handle_search(egg_group.EggGroup.ENDPOINT),
-    "g": lambda: SearchManager.handle_search(generation.Generation.ENDPOINT),
-    "m": lambda: SearchManager.handle_search(move.Move.ENDPOINT),
-    "n": lambda: SearchManager.handle_search(nature.Nature.ENDPOINT),
-    "p": lambda: SearchManager.handle_search(pokemon.Pokemon.ENDPOINT),
-    "q": lambda: HandleCacheTest(),
-    "t": lambda: SearchManager.handle_search(type.Type.ENDPOINT),
+    "a": ability.Ability.ENDPOINT,
+    "e": egg_group.EggGroup.ENDPOINT,
+    "g": generation.Generation.ENDPOINT,
+    "m": move.Move.ENDPOINT,
+    "n": nature.Nature.ENDPOINT,
+    "p": pokemon.Pokemon.ENDPOINT,
+    "t": type.Type.ENDPOINT,
 }
 
-ADMIN_DISPATCH = {"2": ClearCaches, "3": lambda: ClearCaches(True), "0": QuitGracefully}
+ADMIN_DISPATCH = {
+    "q": HandleCacheTest,
+    "2": CacheManager.clear_caches,
+    "0": QuitGracefully,
+}
 
 
 def main():
@@ -145,26 +125,23 @@ def main():
                 QuitGracefully()
 
             console.clear()
-
-            if key in SEARCH_DISPATCH:
-                SEARCH_DISPATCH[key]()
-            elif key in ADMIN_DISPATCH:
-                ADMIN_DISPATCH[key]()
-            else:
-                console.print("Not a valid key!")
+            handle_dispatch(key)
 
         except KeyboardInterrupt:  # This handles Ctrl+C'ing out of the menu
             QuitGracefully()
 
-    # TODO:
-    #   Location
-    #   Item
-    #   Game/Version
-    #   PokeBalls
-    #   Catch Rate Calculator
-
 
 def handle_dispatch(key):
+    if key in ADMIN_DISPATCH:
+        ADMIN_DISPATCH[key]()
+    if key not in SEARCH_DISPATCH:
+        console.print("Not a valid key!")
+        return
+
+    # Now we know we're trying to search on something
+    data = SearchManager.handle_search(SEARCH_DISPATCH[key])
+    print(data)
+
     return
 
 

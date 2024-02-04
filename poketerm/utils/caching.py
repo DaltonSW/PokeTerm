@@ -56,6 +56,10 @@ class CacheManager:
         with open(get_cache_filepath("mappings"), "wb") as cache_file:
             cls.cache_mappings = pickle.load(cache_file)
 
+    @classmethod
+    def clear_caches(cls):
+        cls.cache_mappings = {}
+
 
 def get_cache_dir():
     return os.path.join(os.path.expanduser("~"), os.sep, ".poketerm")

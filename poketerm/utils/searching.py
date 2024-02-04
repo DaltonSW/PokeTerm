@@ -24,7 +24,7 @@ class SearchManager:
             print("oops no data!")
             # TODO: Implement fuzzy-finding
             return
-        input()
+        return data
 
 
 def obtain_data(endpoint: str, query: str):
