@@ -9,23 +9,29 @@ class SubCache:
 
 
 class CacheManager:
-    # Will map some arbitrary string as a key
-    # CacheMappings["unique-key"] = SubCache
     cache_mappings: dict[str, SubCache] = {}
 
     @classmethod
-    def add_to_name_cache(cls, key, name, ID):
+    def add_name_to_ID_mapping(cls, key, name, ID):
         cls.cache_mappings.setdefault(key, SubCache()).NAME_TO_ID[name] = ID
 
     @classmethod
-    def add_to_ID_cache(cls, key, ID, data):
+    def add_ID_to_data_mapping(cls, key, ID, data):
         cls.cache_mappings.setdefault(key, SubCache()).ID_TO_DATA[ID] = data
 
     @classmethod
     def get_ID_from_name(cls, key, name):
         subcache = cls.cache_mappings.get(key, None)
-        if subcache:
-            return subcache.NAME_TO_ID.get(name)
+        if not subcache:
+            return None
+        return subcache.NAME_TO_ID.get(name)
+
+    @classmethod
+    def get_data_from_ID(cls, key, ID):
+        subcache = cls.cache_mappings.get(key, None)
+        if not subcache:
+            return None
+        return subcache.ID_TO_DATA.get(ID)
 
     @classmethod
     def get_data_from_name(cls, key, name):
@@ -33,14 +39,9 @@ class CacheManager:
         if not subcache:
             return None
         ID = subcache.NAME_TO_ID.get(name, None)
-        if ID:
-            return subcache.ID_TO_DATA.get(ID, None)
-
-    @classmethod
-    def get_data_from_ID(cls, key, ID):
-        subcache = cls.cache_mappings.get(key, None)
-        if subcache:
-            return subcache.ID_TO_DATA.get(ID)
+        if not ID:
+            return None
+        return subcache.ID_TO_DATA.get(ID, None)
 
 
 def CacheDirectory():
