@@ -1,11 +1,10 @@
 from poketerm.utils.api import GetIDFromURL
 
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 
 
-class VersionGroup(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+class VersionGroup(Resource):
+
     ENDPOINT = "version-group"
 
     def __init__(self, data):
@@ -14,13 +13,8 @@ class VersionGroup(AbstractData):
         self.generationID = GetIDFromURL(data["generation"]["url"])
         self.versions = [thing["name"] for thing in data["versions"]]
 
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
-
-    def PrintData(self):
+    def print_data(self):
         pass
 
     def __str__(self):
         return ""
-
-    def AddToCache(self):
-        super().AddToCache()

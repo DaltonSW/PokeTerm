@@ -1,18 +1,14 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 
 
-class PokemonForm(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+class PokemonForm(Resource):
+
     ENDPOINT = "pokemon-form"
 
     def __init__(self, data):
         super().__init__(data)
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
         return
-
-    def AddToCache(self):
-        super().AddToCache()

@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
 from poketerm.utils.constants import VERSION_MAPPING_DICT, REVERSED_MAPPING_DICT
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.resources import species, ability, version_group, type
 from poketerm.resources import generation
-
+from poketerm.utils.searching import SearchManager
 from poketerm.config import Config
 
 from rich.table import Table
@@ -16,12 +16,10 @@ from poketerm.console import console
 #   Dex information
 
 
-class Pokemon(AbstractData):
+class Pokemon(Resource):
     MAX_COUNT = 1025
     ENDPOINT = "pokemon"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -30,17 +28,21 @@ class Pokemon(AbstractData):
         self.possibleAbilities = []
         self.hiddenAbility = None
         abilityList: list = data.get("abilities")
-        for a in abilityList:
-            newAbility = ability.Ability.HandleSearch(a.get("ability").get("name"))
+        for abil in abilityList:
+            newAbility = SearchManager.handle_search_and_cast(
+                ability.Ability, abil.get("ability").get("name")
+            )
             if newAbility is not None:
-                if a.get("is_hidden") is True:
+                if abil.get("is_hidden") is True:
                     self.hiddenAbility = newAbility
                 else:
                     self.possibleAbilities.append(newAbility)
         # endregion
 
         # Species
-        spec = species.Species.HandleSearch((data.get("species").get("name")))
+        spec = SearchManager.handle_search_and_cast(
+            species.Species, data.get("species").get("name")
+        )
         if spec is not None:
             self.speciesID = spec.ID
 
@@ -75,7 +77,7 @@ class Pokemon(AbstractData):
         if len(typeData) > 1:
             self.typeArray.append(typeData[1].get("type").get("name"))
 
-    def PrintData(self):
+    def print_data(self):
         console.rule(f"[bold]{self.name.upper()}[/]", style="none")
         console.print(f"[link={self.shinyLink}]Shiny Link (ctrl + click)[/]")
 
@@ -96,10 +98,10 @@ class Pokemon(AbstractData):
             return
 
         console.rule("Spe\[c]ies Information ▼", align="left", characters=" ")
-        spec = species.Species.HandleSearch(self.speciesID)
+        spec = SearchManager.handle_search_and_cast(species.Species, self.speciesID)
         if spec is not None:
             spec.PrintDataForPokemonPage()
-            spec.PrintData()
+            spec.print_data()
         return
 
     def PrintTypeInfo(self) -> None:
@@ -117,10 +119,14 @@ class Pokemon(AbstractData):
         typeEffs = [1 for _ in range(18)]
 
         for index, otherType in enumerate(type.TYPE_ARRAY):
-            typeOneObj = type.Type.HandleSearch(self.typeArray[0])
+            typeOneObj = SearchManager.handle_search_and_cast(
+                type.Type, self.typeArray[0]
+            )
             typeEffs[index] *= typeOneObj.GetDefensiveEffectiveness(otherType)
             if len(self.typeArray) > 1:
-                typeTwoObj = type.Type.HandleSearch(self.typeArray[1])
+                typeTwoObj = SearchManager.handle_search_and_cast(
+                    type.Type, self.typeArray[1]
+                )
                 typeEffs[index] *= typeTwoObj.GetDefensiveEffectiveness(otherType)
 
         strEffs = []
@@ -264,9 +270,11 @@ class Pokemon(AbstractData):
         genTable = Table(title=f"Generation {gen}")
         genTable.add_column("Game")
         genTable.add_column("Location")
-        genInfo = generation.Generation.HandleSearch(gen)
+        genInfo = SearchManager.handle_search_and_cast(generation.Generation, gen)
         for versionGroup in genInfo.versionGroups:
-            groupInfo = version_group.VersionGroup.HandleSearch(versionGroup)
+            groupInfo = SearchManager.handle_search_and_cast(
+                version_group.VersionGroup, versionGroup
+            )
             for version in groupInfo.versions:
                 versionLocations = self.locationInformation.get(version)
                 if versionLocations is None or len(versionLocations) == 0:
@@ -318,7 +326,7 @@ class Pokemon(AbstractData):
 
     @property
     def FormattedTypeOne(self) -> str:
-        typeOneObj = type.Type.HandleSearch(self.typeArray[0])
+        typeOneObj = SearchManager.handle_search_and_cast(type.Type, self.typeArray[0])
         if typeOneObj is not None:
             return typeOneObj.PrintName
 
@@ -326,12 +334,9 @@ class Pokemon(AbstractData):
     def FormattedTypeTwo(self) -> str:
         if len(self.typeArray) == 1:
             return ""
-        typeTwoObj = type.Type.HandleSearch(self.typeArray[1])
+        typeTwoObj = SearchManager.handle_search_and_cast(type.Type, self.typeArray[1])
         if typeTwoObj is not None:
             return " [white]/[/] " + typeTwoObj.PrintName
-
-    def AddToCache(self):
-        super().AddToCache()
 
     @classmethod
     def ToggleFlag(cls, flag: str):

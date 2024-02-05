@@ -1,4 +1,3 @@
-import re
 import requests
 
 BASE_URL = "https://pokeapi.co/api/v2"
@@ -8,14 +7,7 @@ def GetIDFromURL(URL: str) -> int:
     return int(URL.split("/")[-2])
 
 
-def NormalizeSearchTerm(searchTerm: str) -> str:
-    if str == type(searchTerm):
-        searchTerm = re.sub(" ", "-", searchTerm)
-    return searchTerm
-
-
-def GetFromAPI(endpoint, searchTerm):
-    searchTerm = NormalizeSearchTerm(searchTerm)
+def get_from_api(endpoint, searchTerm):
     response = requests.get(f"{BASE_URL}/{endpoint}/{searchTerm}")
     if response.status_code == 404:
         return None

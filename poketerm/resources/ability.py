@@ -1,12 +1,10 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 
 
-class Ability(AbstractData):
+class Ability(Resource):
     ENDPOINT = "ability"
     MAX_COUNT = 307
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -29,8 +27,6 @@ class Ability(AbstractData):
             self.flavorText = text.get("flavor_text")
             break
 
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
-
     @property
     def PrintDescription(self):
         if self.shortEffect is not None:
@@ -39,15 +35,5 @@ class Ability(AbstractData):
             return self.flavorText
         return "No description available"
 
-    def PrintData(self):
+    def print_data(self):
         return
-
-    def AddToCache(self):
-        super().AddToCache()
-
-    # region Formatted Getters
-    # @property
-    # def FormattedResourceProperty(self) -> str:
-    #     return colored(self.property.title(), Colors.GetWhateverColor(self.property))
-
-    # endregion

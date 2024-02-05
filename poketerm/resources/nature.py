@@ -1,13 +1,11 @@
 from poketerm.console import console
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 
 
-class Nature(AbstractData):
+class Nature(Resource):
     MAX_COUNT = 24
     ENDPOINT = "nature"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -31,9 +29,7 @@ class Nature(AbstractData):
 
         # also has move_battle_style_preferences and pokeathlon_stat_changes
 
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
-
-    def PrintData(self):
+    def print_data(self):
         console.rule(f"[bold]{self.PrintName}", align="left", style="none")
         console.print(f"[attack]Increased Stat: [/]{self.increasedStat.title()}")
         console.print(f"[defense]Decreased Stat: [/]{self.decreasedStat.title()}")
@@ -43,6 +39,3 @@ class Nature(AbstractData):
 
     def __str__(self):
         return ""
-
-    def AddToCache(self):
-        super().AddToCache()

@@ -1,14 +1,13 @@
 from poketerm.utils.api import GetFromURL
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.resources import evolution_chain
 from poketerm.console import console
 from rich.table import Table
 from rich import box
 
 
-class Species(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+class Species(Resource):
+
     ENDPOINT = "pokemon-species"
 
     def __init__(self, data):
@@ -48,14 +47,9 @@ class Species(AbstractData):
             GetFromURL(data.get("evolution_chain").get("url"))
         )
 
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
-
-    def PrintData(self):
+    def print_data(self):
         self.evolutionChain.PrintData()
         return
-
-    def AddToCache(self):
-        super().AddToCache()
 
     @property
     def GenderRatio(self) -> str:
