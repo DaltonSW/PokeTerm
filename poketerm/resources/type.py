@@ -8,8 +8,9 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 from poketerm.console import console
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.resources import move
+from poketerm.utils.searching import SearchManager
 
 from poketerm.config import Config
 
@@ -35,12 +36,10 @@ TYPE_ARRAY = [
 ]
 
 
-class Type(AbstractData):
+class Type(Resource):
     MAX_COUNT = 18
     ENDPOINT = "type"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -61,8 +60,6 @@ class Type(AbstractData):
         )
 
         self.moves = [thing.get("name") for thing in data.get("moves")]
-
-        self.ID_TO_NAME_CACHE[self.ID] = self.name
 
     @staticmethod
     def ExtractDamageRelations(damageRelationData):
@@ -137,7 +134,7 @@ class Type(AbstractData):
     def PrintName(self) -> str:
         return f"[{self.name}]{self.name.title()}[/]"
 
-    def PrintData(self):
+    def print_data(self):
         console.print(f"[bold]Type: {self.PrintName}[/]")
         print()
 
@@ -268,7 +265,7 @@ class Type(AbstractData):
         ) as progress:
             moveQuery = progress.add_task("Querying moves...", total=len(self.moves))
             for moveName in self.moves:
-                moveObj = move.Move.HandleSearch(moveName)
+                moveObj = SearchManager.handle_search_and_cast(move.Move, moveName)
                 if moveObj:
                     newTable.add_row(
                         moveObj.PrintName,
@@ -279,9 +276,6 @@ class Type(AbstractData):
                 progress.update(moveQuery, advance=1)
 
         return newTable
-
-    def AddToCache(self):
-        super().AddToCache()
 
     @classmethod
     def ToggleFlag(cls, flag: str):

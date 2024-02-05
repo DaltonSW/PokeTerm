@@ -1,5 +1,3 @@
-import os
-
 from sys import exit
 from readchar import readkey, key as keys
 from rich import box
@@ -9,78 +7,41 @@ from poketerm.utils import testing
 import poketerm.utils.updater as updater
 
 from poketerm.console import console
-from poketerm.config import Config
 from poketerm.resources import move, ability, type, pokemon, species
 from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
-from poketerm.utils.visual import PrintData, ClearScreen
+from poketerm.utils.visual import print_resource_data, ClearScreen, print_welcome
 
-from poketerm.utils.caching import VerifyCacheDir, RemoveCacheDir, SaveCache, LoadCache
+from poketerm.utils.searching import SearchManager
+from poketerm.utils.caching import CacheManager
+
+# TODO:
+#   Location
+#   Item
+#   Game/Version
+#   PokeBalls
+#   Catch Rate Calculator
 
 
 # region Main Util Functions
-def SaveCaches():
-    VerifyCacheDir()
-    valid_names = {}
-    for resource_name in RESOURCES.keys():
-        resource = RESOURCES[resource_name]
-        valid_names[resource_name] = resource.VALID_NAMES
-        resource.SaveCache()
-
-    SaveCache("valid_names", valid_names)
-    Config.SaveCache()
+def startup():
+    CacheManager.load_mappings()
 
 
-def LoadCaches():
-    valid_names = LoadCache("valid_names")
-    for resource_name in RESOURCES.keys():
-        resource = RESOURCES[resource_name]
-        resource.LoadCache()
-        if valid_names is not None:
-            resource.VALID_NAMES = valid_names[resource_name]
-
-    Config.LoadCache()
-    console.clear()
-
-
-def ClearCaches(doQuit=False):
-    RemoveCacheDir()
-    for resource in RESOURCES.values():
-        resource.NAME_TO_DATA_CACHE.clear()
-        resource.ID_TO_NAME_CACHE.clear()
-
-    if doQuit:
-        exit(0)
-
-
-def HandleSearch(resource):
-    query = input(f"{resource.ENDPOINT.title()} Name or ID: ").lower()
-    if query == "":
-        return
-
-    with console.status(f"Querying for {resource.ENDPOINT.title()}..."):
-        result = resource.HandleSearch(query)
-    if result is not None:
-        PrintData(result)
-    return
-
-
-def QuitGracefully():
-    SaveCaches()
-    console.clear()
+def shutdown():
+    CacheManager.save_mappings()
     exit(0)
 
 
-def HandleCacheTest():
-    ClearCaches()
+def handle_cache_test():
+    CacheManager.clear_mappings()
     testing.HandleCacheTest()
-    SaveCaches()
+    CacheManager.save_mappings()
     exit(0)
 
 
 # endregion
 
-BASE_URL = "https://pokeapi.co/api/v2/"
 RESOURCES = {
     "Ability": ability.Ability,
     # 'Berry': Berry.Berry,
@@ -114,58 +75,68 @@ SEARCH_OPTIONS = [
 ADMIN_OPTIONS = [
     # "[1] Options",
     "[2] Clear Cache",
-    "[3] Clear Cache & Quit",
     "[0] Quit Without Saving",
 ]
 
 SEARCH_DISPATCH = {
-    "a": lambda: HandleSearch(ability.Ability),
-    "e": lambda: HandleSearch(egg_group.EggGroup),
-    "g": lambda: HandleSearch(generation.Generation),
-    "m": lambda: HandleSearch(move.Move),
-    "n": lambda: HandleSearch(nature.Nature),
-    "p": lambda: HandleSearch(pokemon.Pokemon),
-    "q": lambda: HandleCacheTest(),
-    "t": lambda: HandleSearch(type.Type),
+    "a": ability.Ability,
+    "e": egg_group.EggGroup,
+    "g": generation.Generation,
+    "m": move.Move,
+    "n": nature.Nature,
+    "p": pokemon.Pokemon,
+    "t": type.Type,
 }
 
-ADMIN_DISPATCH = {"2": ClearCaches, "3": lambda: ClearCaches(True), "0": QuitGracefully}
+ADMIN_DISPATCH = {
+    "q": handle_cache_test,
+    "2": CacheManager.clear_mappings,
+    "0": shutdown,
+}
 
 
 def main():
-    LoadCaches()
+    startup()
 
     if updater.CheckForUpdate():
-        SaveCaches()
-        exit(0)
+        shutdown()
 
     while True:
         try:
             ClearScreen(True)
-            PrintWelcome()
+            print_welcome()
             PrintChoices()
             key = readkey()
             if key == keys.ENTER:
-                QuitGracefully()
+                shutdown()
 
             console.clear()
-
-            if key in SEARCH_DISPATCH:
-                SEARCH_DISPATCH[key]()
-            elif key in ADMIN_DISPATCH:
-                ADMIN_DISPATCH[key]()
-            else:
-                console.print("Not a valid key!")
+            handle_dispatch(key)
 
         except KeyboardInterrupt:  # This handles Ctrl+C'ing out of the menu
-            QuitGracefully()
+            shutdown()
 
-    # TODO:
-    #   Location
-    #   Item
-    #   Game/Version
-    #   PokeBalls
-    #   Catch Rate Calculator
+
+def handle_dispatch(key):
+    if key in ADMIN_DISPATCH:
+        ADMIN_DISPATCH[key]()
+    if key not in SEARCH_DISPATCH:
+        console.print("Not a valid key!")
+        return
+
+    search_resource = SEARCH_DISPATCH[key]
+
+    # Now we know we're trying to search on something
+    resource = SearchManager.handle_search_and_cast(search_resource)
+
+    if resource is None:
+        return
+
+    CacheManager.cache_resource(resource)
+
+    print_resource_data(resource)
+
+    return
 
 
 def PrintChoices():
@@ -191,22 +162,6 @@ def PrintChoices():
 
     console.print(overallTable, justify="center")
     console.rule("[bold white]\[Enter] Save & Quit[/]", characters=" ")
-
-
-def PrintWelcome():
-    console.rule("[red]     #########    [/]", characters=" ")
-    console.rule("[red]   #############  [/]", characters=" ")
-    console.rule("[red]  ############### [/]", characters=" ")
-    console.rule("[red] #####       #####[/]", characters=" ")
-    console.rule("[white]        ###       [/]", characters=" ")
-    console.rule("[white]        ###       [/]", characters=" ")
-    console.rule("[white] #####       #####[/]", characters=" ")
-    console.rule("[white]  ############### [/]", characters=" ")
-    console.rule("[white]   #############  [/]", characters=" ")
-    console.rule("[white]     #########    [/]", characters=" ")
-    print()
-    console.rule(f"[bold white]Welcome to [red]Poké[/]Term!", style="white")
-    console.rule(f"Cache is stored at ~{os.sep}.poketerm", characters=" ")
 
 
 if __name__ == "__main__":

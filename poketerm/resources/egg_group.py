@@ -1,11 +1,9 @@
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 from poketerm.utils.visual import ClearScreen
 
 
-class EggGroup(AbstractData):
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
+class EggGroup(Resource):
     ENDPOINT = "egg-group"
 
     def __init__(self, data):
@@ -13,7 +11,7 @@ class EggGroup(AbstractData):
 
         self.pokemon = data["pokemon_species"]
 
-    def PrintData(self):
+    def print_data(self):
         ClearScreen()
 
         console.rule(f"Egg Group: {self.PrintName}", style="")
@@ -24,6 +22,3 @@ class EggGroup(AbstractData):
             console.print(pokemon.get("name").title())
 
         return
-
-    def AddToCache(self):
-        super().AddToCache()

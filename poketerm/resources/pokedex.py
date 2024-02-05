@@ -1,15 +1,13 @@
 from typing import Optional
 
-from poketerm.resources.data import AbstractData
+from poketerm.resources.data import Resource
 from poketerm.console import console
 
 
-class Pokedex(AbstractData):
+class Pokedex(Resource):
     MAX_COUNT = 33
     ENDPOINT = "pokedex"
     VALID_NAMES = set()
-    ID_TO_NAME_CACHE = {}
-    NAME_TO_DATA_CACHE = {}
 
     def __init__(self, data):
         super().__init__(data)
@@ -30,9 +28,6 @@ class Pokedex(AbstractData):
         for group in data.get("version_groups"):
             self.version_groups.append(group.get("name"))
 
-    def PrintData(self):
+    def print_data(self):
         console.clear()
         return
-
-    def AddToCache(self):
-        super().AddToCache()
