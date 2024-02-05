@@ -129,6 +129,9 @@ def handle_dispatch(key):
     # Now we know we're trying to search on something
     resource = SearchManager.handle_search_and_cast(search_resource)
 
+    if resource is None:
+        return
+
     CacheManager.cache_resource(resource)
 
     print_resource_data(resource)

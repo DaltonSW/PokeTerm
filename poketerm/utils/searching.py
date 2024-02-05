@@ -17,6 +17,9 @@ class SearchManager:
     def handle_search_and_cast(cls, resource, query: Optional[str | int] = None):
         data = SearchManager.handle_search(resource.ENDPOINT, query)
 
+        if data is None:
+            return
+
         if isinstance(data, Resource):
             resource = data
         else:  # This creates an instance of search_resource based on the queried data
@@ -36,7 +39,7 @@ class SearchManager:
         data = obtain_data(endpoint, q)
 
         if data is None:
-            print("oops no data!")
+            # print("oops no data!")
             # TODO: Implement fuzzy-finding
             return
         return data
