@@ -30,6 +30,8 @@ jobs:
         python -m pip install --upgrade pip
         poetry install
     - name: Run Black
-      run: poetry run black .
+      run: |
+        python -m pip install black
+        black .
     - name: Run PyTest
       run: poetry run pytest
