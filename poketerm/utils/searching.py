@@ -10,8 +10,21 @@ class SearchManager:
     VALID_NAMES: dict[str, list[str]] = []
 
     @classmethod
-    def load_valid_names(cls):
-        pass
+    def load_valid_names(cls, searchable_resources: list[Resource]) -> None:
+        cache = CacheManager.load_cache_of_type("valid-names")
+        if cache:
+            cls.VALID_NAMES = cache
+            return
+        for resource in searchable_resources:
+            names = []
+            for i in range(1, resource.MAX_COUNT + 1):
+                res = cls.handle_search_and_cast(resource, i)
+                names.append(res.name)
+
+            cls.VALID_NAMES[resource.ENDPOINT] = names
+
+        CacheManager.save_cache_of_type("valid-names", cls.VALID_NAMES)
+        return
 
     @classmethod
     def handle_search_and_cast(cls, resource, query: Optional[str | int] = None):

@@ -52,9 +52,9 @@ RESOURCES = {
     "Nature": nature.Nature,
     "Pokemon": pokemon.Pokemon,
     "Type": type.Type,
-    "Version": version.Version,
-    "Species": species.Species,
-    "VersionGroup": version_group.VersionGroup,
+    # "Version": version.Version,
+    # "Species": species.Species,
+    # "VersionGroup": version_group.VersionGroup,
 }
 
 SEARCH_OPTIONS = [
@@ -96,6 +96,8 @@ ADMIN_DISPATCH = {
 
 def main():
     startup()
+
+    SearchManager.load_valid_names([RESOURCES[name] for name in RESOURCES.keys()])
 
     if updater.check_for_update():
         shutdown()
