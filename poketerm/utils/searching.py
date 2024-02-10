@@ -1,11 +1,13 @@
 import re
-import asyncio
-import aiohttp
+
+from readchar import readkey
+from thefuzz import process
 from typing import Optional
 
 from poketerm.utils.api import get_from_API, get_from_API_async
 from poketerm.utils.caching import CacheManager
 from poketerm.resources.data import Resource
+from poketerm.console import console
 
 
 class SearchManager:
@@ -57,7 +59,7 @@ class SearchManager:
         if query is None or query == "":
             q = prompt_for_query(endpoint)
             if q == "":
-                return
+                return None
         else:
             q = str(query)
 
@@ -65,9 +67,16 @@ class SearchManager:
         data = obtain_data(endpoint, q)
 
         if data is None:
-            # print("oops no data!")
-            # TODO: Implement fuzzy-finding
-            return
+            choices = process.extract(q, cls.VALID_NAMES[endpoint])
+            for i, choice in enumerate(choices):
+                console.print(f"[{i + 1}] {choice[0]}")
+            console.print(
+                "Query not found! [1-5] for closest matches, or anything else to return."
+            )
+            key = readkey()
+            if key.isdigit() and 5 >= int(key) > 0:
+                return obtain_data(endpoint, choices[int(key) - 1][0])
+            return None
         return data
 
 
@@ -93,6 +102,7 @@ async def obtain_data_async(endpoint: str, query: str, session):
         return data
 
     data = await get_from_API_async(endpoint, query, session)
+    return data
 
 
 def prompt_for_query(endpoint: str):
