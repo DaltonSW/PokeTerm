@@ -3,7 +3,7 @@ import os
 
 from poketerm.utils.general import is_windows
 from poketerm.utils.visual import clear_screen
-from poketerm.config import APP_VERSION
+import poketerm.config
 import requests
 
 from readchar import readkey, key as keys
@@ -53,18 +53,19 @@ def get_latest_version_from_github():
 
 
 def is_newer_version(version: str) -> bool:
-    appMajor, appMinor, appPatch = APP_VERSION.split(".")
+    appMajor, appMinor, appPatch = poketerm.config.APP_VERSION.split(".")
     latestMajor, latestMinor, latestPatch = version.split(".")
 
-    return (
-        int(appMajor) < int(latestMajor)
-        or (int(appMajor) == int(latestMajor) and int(appMinor) < int(latestMinor))
-        or (
-            int(appMajor) == int(latestMajor)
-            and int(appMinor) == int(latestMinor)
-            and int(appPatch) < int(latestPatch)
-        )
-    )
+    if latestMajor > appMajor:
+        return True
+
+    if latestMajor == appMajor and latestMinor > appMinor:
+        return True
+
+    if latestMajor == appMajor and latestMinor == appMinor and latestPatch > appPatch:
+        return True
+
+    return False
 
 
 def check_for_update() -> bool:
