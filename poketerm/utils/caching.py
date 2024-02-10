@@ -71,9 +71,9 @@ class CacheManager:
     @staticmethod
     def load_cache_of_type(cache_type: str):
         if not does_cache_type_exist(cache_type):
-            return
+            return None
         if not os.path.getsize(get_cache_filepath(cache_type)) > 0:
-            return
+            return None
         with open(get_cache_filepath(cache_type), "rb") as cache_file:
             data = pickle.load(cache_file)
         return data
@@ -113,18 +113,3 @@ def remove_cache_dir():
 
 def does_cache_type_exist(cacheType) -> bool:
     return os.path.exists(get_cache_filepath(cacheType))
-
-
-def save_cache(cacheType, cache) -> None:
-    with open(get_cache_filepath(cacheType), "wb") as f:
-        pickle.dump(cache, f)
-        print(f"Successfully saved {cacheType.upper()} cache")
-
-
-def load_cache(cacheType) -> dict | None:
-    if not does_cache_type_exist(cacheType):
-        return None
-    with open(get_cache_filepath(cacheType), "rb") as f:
-        cache = pickle.load(f)
-        print(f"Successfully loaded {cacheType.upper()} cache")
-    return cache

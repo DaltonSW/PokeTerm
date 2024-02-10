@@ -1,4 +1,4 @@
-from poketerm.utils.caching import load_cache, save_cache
+from poketerm.utils.caching import CacheManager
 
 APP_VERSION = "0.3.0"
 
@@ -26,7 +26,7 @@ class Config:
 
     @classmethod
     def LoadCache(cls):
-        cache = load_cache("config")
+        cache = CacheManager.load_cache_of_type("config")
         if cache is None:
             return
 
@@ -45,4 +45,4 @@ class Config:
             "type": cls.TYPE_FLAGS,
             # "move": cls.MOVE_FLAGS
         }
-        save_cache("config", flagList)
+        CacheManager.save_cache_of_type("config", flagList)
