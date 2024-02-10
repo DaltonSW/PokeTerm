@@ -1,7 +1,7 @@
 from poketerm.console import console
 
 
-def PrintEvoChain(chain, charsPrinted=0):
+def print_evo_chain(chain, charsPrinted=0):
     species = chain["species"]["name"]
     console.print(species.title(), style="bold")
     charsPrinted += len(species.title())
@@ -41,7 +41,7 @@ def PrintEvoChain(chain, charsPrinted=0):
                 end="" if len(evolution["evolution_details"]) == 1 else "\n",
             )
 
-        PrintEvoChain(evolution, charsPrinted * 2 + methodStrLen - 1)
+        print_evo_chain(evolution, charsPrinted * 2 + methodStrLen - 1)
 
 
 class EvolutionChain:
@@ -51,6 +51,6 @@ class EvolutionChain:
         self.evoChain = data.get("chain")
         self.babyTriggerItem = data.get("baby_trigger_item")
 
-    def PrintData(self):
-        PrintEvoChain(self.evoChain)
+    def print_data(self):
+        print_evo_chain(self.evoChain)
         pass

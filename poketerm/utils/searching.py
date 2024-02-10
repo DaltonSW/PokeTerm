@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 
-from poketerm.utils.api import get_from_api
+from poketerm.utils.api import get_from_API
 from poketerm.utils.caching import CacheManager
 from poketerm.resources.data import Resource
 
@@ -54,7 +54,7 @@ def obtain_data(endpoint: str, query: str):
     if data:
         return data
 
-    return get_from_api(endpoint, query)
+    return get_from_API(endpoint, query)
 
 
 def prompt_for_query(endpoint: str):

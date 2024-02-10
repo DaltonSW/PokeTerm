@@ -4,6 +4,8 @@ from poketerm.console import console
 from poketerm.resources import pokemon, generation, move, ability, type, nature
 from poketerm.resources import item, location, machine, pokedex, region
 
+from poketerm.utils.searching import SearchManager
+
 from rich.progress import Progress, BarColumn, MofNCompleteColumn, TimeElapsedColumn
 
 from readchar import readchar
@@ -16,10 +18,10 @@ TESTABLE_RESOURCES = {
     "Pokedex": pokedex.Pokedex,  # 33
     "Ability": ability.Ability,  # 307
     # "Location": location.Location,  # 867
-    # "Move": move.Move,  # 919
-    # "Pokemon": pokemon.Pokemon,  # 1025
+    "Move": move.Move,  # 919
+    "Pokemon": pokemon.Pokemon,  # 1025
     # "Machine": machine.Machine,  # 1688
-    # "Item": item.Item,  # 2159
+    "Item": item.Item,  # 2159
 }
 
 progress = Progress(
@@ -27,17 +29,17 @@ progress = Progress(
 )
 
 
-def HandleResourceTest(resource, taskID):
+def handle_resource_test(resource, taskID):
     for i in range(1, resource.MAX_COUNT + 1):
-        HandleSingleQuery(resource, taskID, i)
+        handle_single_query(resource, taskID, i)
 
 
-def HandleSingleQuery(resource, taskID, query):
-    resource.HandleSearch(query)
+def handle_single_query(resource, taskID, query):
+    SearchManager.handle_search_and_cast(resource, query)
     progress.update(taskID, advance=1)
 
 
-def HandleCacheTest():
+def handle_cache_test():
     console.clear()
     console.rule("Cache Test", style="white")
 
@@ -47,9 +49,9 @@ def HandleCacheTest():
                 taskID = progress.add_task(
                     f"Loading {resource.ENDPOINT} info...", total=resource.MAX_COUNT
                 )
-                executor.submit(HandleResourceTest, resource, taskID)
+                executor.submit(handle_resource_test, resource, taskID)
     _ = readchar()
 
 
 if __name__ == "__main__":
-    HandleCacheTest()
+    handle_cache_test()

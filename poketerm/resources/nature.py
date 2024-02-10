@@ -30,7 +30,7 @@ class Nature(Resource):
         # also has move_battle_style_preferences and pokeathlon_stat_changes
 
     def print_data(self):
-        console.rule(f"[bold]{self.PrintName}", align="left", style="none")
+        console.rule(f"[bold]{self.print_name}", align="left", style="none")
         console.print(f"[attack]Increased Stat: [/]{self.increasedStat.title()}")
         console.print(f"[defense]Decreased Stat: [/]{self.decreasedStat.title()}")
         print()

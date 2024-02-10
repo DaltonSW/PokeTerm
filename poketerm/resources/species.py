@@ -1,4 +1,4 @@
-from poketerm.utils.api import GetFromURL
+from poketerm.utils.api import get_from_URL
 from poketerm.resources.data import Resource
 from poketerm.resources import evolution_chain
 from poketerm.console import console
@@ -44,11 +44,11 @@ class Species(Resource):
 
         # Evolution Chain
         self.evolutionChain = evolution_chain.EvolutionChain(
-            GetFromURL(data.get("evolution_chain").get("url"))
+            get_from_URL(data.get("evolution_chain").get("url"))
         )
 
     def print_data(self):
-        self.evolutionChain.PrintData()
+        self.evolutionChain.print_data()
         return
 
     @property

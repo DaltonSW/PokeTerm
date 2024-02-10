@@ -33,7 +33,7 @@ class Move(Resource):
     def print_data(self):
         console.clear()
 
-        console.print(f"[bold]Move:[/] {self.PrintName} [[bold]{self.ID}[/]]")
+        console.print(f"[bold]Move:[/] {self.print_name} [[bold]{self.ID}[/]]")
         console.print(f"[bold]Type:[/] {self.FormattedMoveType}")
         console.print(f"[bold]Class:[/] {self.FormattedMoveClass}")
         console.print(f"[bold]Description:[/] {self.FormattedEffectEntry}")

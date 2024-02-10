@@ -2,7 +2,7 @@ import platform
 
 
 # region Version Checks
-def IsWindowsOS():
+def is_windows():
     return platform.system() == "Windows"
 
 

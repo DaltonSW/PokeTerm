@@ -1,4 +1,4 @@
-from poketerm.utils.api import GetIDFromURL
+from poketerm.utils.api import get_ID_from_URL
 
 from poketerm.resources.data import Resource
 
@@ -10,10 +10,10 @@ class Version(Resource):
     def __init__(self, data):
         super().__init__(data)
 
-        self.versionGroupID = GetIDFromURL(data["version_group"]["url"])
+        self.versionGroupID = get_ID_from_URL(data["version_group"]["url"])
 
     def print_data(self):
-        print(self.PrintName)
+        print(self.print_name)
         print(f"Version Group ID: {self.versionGroupID}")
         pass
 

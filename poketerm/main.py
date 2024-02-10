@@ -10,7 +10,7 @@ from poketerm.console import console
 from poketerm.resources import move, ability, type, pokemon, species
 from poketerm.resources import version, generation
 from poketerm.resources import version_group, nature, egg_group
-from poketerm.utils.visual import print_resource_data, ClearScreen, print_welcome
+from poketerm.utils.visual import print_resource_data, clear_screen, print_welcome
 
 from poketerm.utils.searching import SearchManager
 from poketerm.utils.caching import CacheManager
@@ -35,9 +35,8 @@ def shutdown():
 
 def handle_cache_test():
     CacheManager.clear_mappings()
-    testing.HandleCacheTest()
-    CacheManager.save_mappings()
-    exit(0)
+    testing.handle_cache_test()
+    shutdown()
 
 
 # endregion
@@ -103,9 +102,9 @@ def main():
 
     while True:
         try:
-            ClearScreen(True)
+            clear_screen(True)
             print_welcome()
-            PrintChoices()
+            print_choices()
             key = readkey()
             if key == keys.ENTER:
                 shutdown()
@@ -139,7 +138,7 @@ def handle_dispatch(key):
     return
 
 
-def PrintChoices():
+def print_choices():
     print()
     console.rule(
         "[bold white]Press a bracketed letter to search on that topic.", characters=" "

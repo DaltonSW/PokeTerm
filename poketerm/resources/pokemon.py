@@ -161,12 +161,12 @@ class Pokemon(Resource):
         for possibleAbility in self.possibleAbilities:
             abilityTable.add_row(
                 f"[bold]{possibleAbility.name.title()}[/]",
-                possibleAbility.PrintDescription,
+                possibleAbility.print_description,
             )
         if self.hiddenAbility is not None:
             abilityTable.add_row(
                 f"[bold]{self.hiddenAbility.name.title()} (H)[/]",
-                self.hiddenAbility.PrintDescription,
+                self.hiddenAbility.print_description,
             )
         console.print(abilityTable)
 
@@ -328,7 +328,7 @@ class Pokemon(Resource):
     def FormattedTypeOne(self) -> str:
         typeOneObj = SearchManager.handle_search_and_cast(type.Type, self.typeArray[0])
         if typeOneObj is not None:
-            return typeOneObj.PrintName
+            return typeOneObj.print_name
 
     @property
     def FormattedTypeTwo(self) -> str:
@@ -336,10 +336,10 @@ class Pokemon(Resource):
             return ""
         typeTwoObj = SearchManager.handle_search_and_cast(type.Type, self.typeArray[1])
         if typeTwoObj is not None:
-            return " [white]/[/] " + typeTwoObj.PrintName
+            return " [white]/[/] " + typeTwoObj.print_name
 
     @classmethod
-    def ToggleFlag(cls, flag: str):
+    def toggle_flag(cls, flag: str):
         match flag:
             case "p":
                 Config.POKEMON_FLAGS["abilities"] = not Config.POKEMON_FLAGS[

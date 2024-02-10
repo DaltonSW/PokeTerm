@@ -20,10 +20,10 @@ class Resource(ABC):
         pass
 
     @classmethod
-    def ToggleFlag(cls, flag: str):
+    def toggle_flag(cls, flag: str):
         pass
 
     @property
-    def PrintName(self) -> str:
+    def print_name(self) -> str:
         self.name = re.sub("-", " ", self.name)
         return self.name.title()

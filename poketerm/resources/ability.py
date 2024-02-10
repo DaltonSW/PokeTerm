@@ -28,7 +28,7 @@ class Ability(Resource):
             break
 
     @property
-    def PrintDescription(self):
+    def print_description(self):
         if self.shortEffect is not None:
             return self.shortEffect
         if self.flavorText is not None:

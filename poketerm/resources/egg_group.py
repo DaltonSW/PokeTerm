@@ -1,6 +1,6 @@
 from poketerm.resources.data import Resource
 from poketerm.console import console
-from poketerm.utils.visual import ClearScreen
+from poketerm.utils.visual import clear_screen
 
 
 class EggGroup(Resource):
@@ -12,9 +12,9 @@ class EggGroup(Resource):
         self.pokemon = data["pokemon_species"]
 
     def print_data(self):
-        ClearScreen()
+        clear_screen()
 
-        console.rule(f"Egg Group: {self.PrintName}", style="")
+        console.rule(f"Egg Group: {self.print_name}", style="")
         print()
         console.print(f"Pokemon in this egg group:")
 

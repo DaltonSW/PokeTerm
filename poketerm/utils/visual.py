@@ -1,27 +1,27 @@
 import os
 from poketerm.console import console
 from readchar import readkey, key as keys
-from poketerm.utils.general import IsWindowsOS
+from poketerm.utils.general import is_windows
 
 
 def print_resource_data(resource) -> None:
     while True:
-        ClearScreen()
+        clear_screen()
         resource.print_data()
         print()
         console.rule("Press [Enter] to return to the menu.", characters=" ")
         key = readkey()
         if key == keys.ENTER:
             return
-        resource.ToggleFlag(key)
+        resource.toggle_flag(key)
 
 
-def ClearScreen(keepHistory=False) -> None:
+def clear_screen(keepHistory=False) -> None:
     if keepHistory:
         console.clear()
         return
 
-    os.system("cls" if IsWindowsOS() else "clear")
+    os.system("cls" if is_windows() else "clear")
 
 
 def print_welcome():

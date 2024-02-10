@@ -131,11 +131,11 @@ class Type(Resource):
             return 1
 
     @property
-    def PrintName(self) -> str:
+    def print_name(self) -> str:
         return f"[{self.name}]{self.name.title()}[/]"
 
     def print_data(self):
-        console.print(f"[bold]Type: {self.PrintName}[/]")
+        console.print(f"[bold]Type: {self.print_name}[/]")
         print()
 
         self.PrintTypeEfficacyTable()
@@ -268,7 +268,7 @@ class Type(Resource):
                 moveObj = SearchManager.handle_search_and_cast(move.Move, moveName)
                 if moveObj:
                     newTable.add_row(
-                        moveObj.PrintName,
+                        moveObj.print_name,
                         str(moveObj.power),
                         str(moveObj.accuracy),
                         str(moveObj.PP),
@@ -278,7 +278,7 @@ class Type(Resource):
         return newTable
 
     @classmethod
-    def ToggleFlag(cls, flag: str):
+    def toggle_flag(cls, flag: str):
         match flag:
             case "e":
                 Config.TYPE_FLAGS["efficacy"] = not Config.TYPE_FLAGS["efficacy"]
