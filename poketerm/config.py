@@ -1,6 +1,6 @@
 from poketerm.utils.caching import CacheManager
 
-APP_VERSION = "0.3.0"
+APP_VERSION = "0.4.0"
 
 
 class Config:
