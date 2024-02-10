@@ -3,7 +3,7 @@ import os
 
 from poketerm.utils.general import is_windows
 from poketerm.utils.visual import clear_screen
-from poketerm.config import APP_VERSION
+import poketerm.config
 import requests
 
 from readchar import readkey, key as keys
@@ -31,7 +31,7 @@ progress = Progress(
 )
 
 
-def DeleteExistingUpdaters() -> None:
+def delete_existing_updaters() -> None:
     if os.path.exists("update_poketerm.bat"):
         os.remove("update_poketerm.bat")
 
@@ -39,7 +39,7 @@ def DeleteExistingUpdaters() -> None:
         os.remove("update_poketerm.sh")
 
 
-def GetLatestVersionFromGithub():
+def get_latest_version_from_github():
     req = requests.get("https://github.com/DaltonSW/PokeTerm/releases/latest")
     if req.status_code != 200:
         console.print("Couldn't connect to repository. Returning.")
@@ -52,43 +52,44 @@ def GetLatestVersionFromGithub():
         return None
 
 
-def IsNewerVersion(version: str) -> bool:
-    appMajor, appMinor, appPatch = APP_VERSION.split(".")
+def is_newer_version(version: str) -> bool:
+    appMajor, appMinor, appPatch = poketerm.config.APP_VERSION.split(".")
     latestMajor, latestMinor, latestPatch = version.split(".")
 
-    return (
-        int(appMajor) < int(latestMajor)
-        or (int(appMajor) == int(latestMajor) and int(appMinor) < int(latestMinor))
-        or (
-            int(appMajor) == int(latestMajor)
-            and int(appMinor) == int(latestMinor)
-            and int(appPatch) < int(latestPatch)
-        )
-    )
+    if latestMajor > appMajor:
+        return True
 
+    if latestMajor == appMajor and latestMinor > appMinor:
+        return True
 
-def CheckForUpdate() -> bool:
-    DeleteExistingUpdaters()
+    if latestMajor == appMajor and latestMinor == appMinor and latestPatch > appPatch:
+        return True
 
-    clear_screen()
-
-    latestVersion = GetLatestVersionFromGithub()
-
-    if latestVersion is None or not IsNewerVersion(latestVersion):
-        return False
-
-    return PromptForUpdate(latestVersion)
-
-
-def PromptForUpdate(newVersion) -> bool:
-    console.print("New version found! Press \[Enter] to download.")
-    key = readkey()
-    if key == keys.ENTER:
-        return DownloadUpdate(newVersion)
     return False
 
 
-def GetUpdateURL(version: str) -> (str, str):
+def check_for_update() -> bool:
+    delete_existing_updaters()
+
+    clear_screen()
+
+    latestVersion = get_latest_version_from_github()
+
+    if latestVersion is None or not is_newer_version(latestVersion):
+        return False
+
+    return prompt_for_update(latestVersion)
+
+
+def prompt_for_update(newVersion) -> bool:
+    console.print("New version found! Press \[Enter] to download.")
+    key = readkey()
+    if key == keys.ENTER:
+        return download_update(newVersion)
+    return False
+
+
+def get_update_URL(version: str) -> (str, str):
     fileName = "PokeTerm_" + "Windows.exe" if is_windows() else "PokeTerm_" + "Linux"
     return (
         f"https://github.com/DaltonSW/PokeTerm/releases/download/{version}/{fileName}",
@@ -98,8 +99,8 @@ def GetUpdateURL(version: str) -> (str, str):
 
 # Rich Progress bar implementation derived from Will McGugan's example
 # https://github.com/Textualize/rich/blob/master/examples/downloader.py#L47
-def DownloadUpdate(version: str) -> bool:
-    downloadURL, fileName = GetUpdateURL(version)
+def download_update(version: str) -> bool:
+    downloadURL, fileName = get_update_URL(version)
     chunkSize = 32768
 
     try:
@@ -122,7 +123,7 @@ def DownloadUpdate(version: str) -> bool:
         console.print("New version downloaded! Press \[Enter] to restart the program.")
         key = readkey()
         if key == keys.ENTER:
-            return CreateUpdateScriptAndUpdate()
+            return create_update_script_and_update()
         return False
 
     except PermissionError:
@@ -133,7 +134,7 @@ def DownloadUpdate(version: str) -> bool:
         _ = readkey()
 
 
-def CreateUpdateScriptAndUpdate():
+def create_update_script_and_update():
     if is_windows():
         with open(".\\update_poketerm.bat", "w") as file:
             file.write(WINDOWS_SCRIPT)
