@@ -4,6 +4,7 @@ from poketerm.utils.visual import clear_screen
 
 
 class EggGroup(Resource):
+    MAX_COUNT = 15
     ENDPOINT = "egg-group"
 
     def __init__(self, data):
