@@ -1,13 +1,22 @@
 import re
+import asyncio
+import aiohttp
 from typing import Optional
 
-from poketerm.utils.api import get_from_API
+from poketerm.utils.api import get_from_API, get_from_API_async
 from poketerm.utils.caching import CacheManager
 from poketerm.resources.data import Resource
 
 
 class SearchManager:
-    VALID_NAMES: dict[str, list[str]] = []
+    VALID_NAMES: dict[str, list[str]] = {}
+
+    @classmethod
+    def update_valid_names(cls, resource):
+        if resource.ENDPOINT not in cls.VALID_NAMES:
+            cls.VALID_NAMES[resource.ENDPOINT] = []
+        if resource.name not in cls.VALID_NAMES[resource.ENDPOINT]:
+            cls.VALID_NAMES[resource.ENDPOINT].append(resource.name)
 
     @classmethod
     def load_valid_names(cls, searchable_resources: list[Resource]) -> None:
@@ -23,8 +32,12 @@ class SearchManager:
 
             cls.VALID_NAMES[resource.ENDPOINT] = names
 
-        CacheManager.save_cache_of_type("valid-names", cls.VALID_NAMES)
+        cls.save_valid_names()
         return
+
+    @classmethod
+    def save_valid_names(cls):
+        CacheManager.save_cache_of_type("valid-names", cls.VALID_NAMES)
 
     @classmethod
     def handle_search_and_cast(cls, resource, query: Optional[str | int] = None):
@@ -68,6 +81,18 @@ def obtain_data(endpoint: str, query: str):
         return data
 
     return get_from_API(endpoint, query)
+
+
+async def obtain_data_async(endpoint: str, query: str, session):
+    if query.isdigit():
+        data = CacheManager.get_data_from_ID(endpoint, query)
+    else:
+        data = CacheManager.get_data_from_name(endpoint, query)
+
+    if data:
+        return data
+
+    data = await get_from_API_async(endpoint, query, session)
 
 
 def prompt_for_query(endpoint: str):
