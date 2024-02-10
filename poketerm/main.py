@@ -97,7 +97,7 @@ ADMIN_DISPATCH = {
 def main():
     startup()
 
-    if updater.CheckForUpdate():
+    if updater.check_for_update():
         shutdown()
 
     while True:
