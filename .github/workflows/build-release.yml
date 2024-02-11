@@ -9,7 +9,7 @@ jobs:
   release:
     name: Create Release
     runs-on: [ubuntu-latest]
-    permissions: write
+    permissions: write-all
     steps:
       - name: Create Release
         id: create_release
