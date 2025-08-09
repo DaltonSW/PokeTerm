@@ -1,15 +1,47 @@
 package resources
 
+import (
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+)
+
 // Characteristic, ContestEffect, EvolutionChain, Machine, and SuperContestEffect are the only unnamed resources
 type Resource interface {
 	GetURL() string
-	QueryURL() []byte
+	GetEndpoint() string
 }
 
 // Every resource not mentioned above has a name
 type NamedResource interface {
 	Resource
 	GetName() string
+}
+
+func QueryAndUnmarshal(url string, destination any) error {
+	resp, err := http.Get(url)
+
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return errors.New("Request to url " + url + " resulted in a non-200 response")
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(body, destination); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Berries
