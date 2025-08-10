@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 
-	"go.dalton.dog/poketerm/internal/models"
+	"go.dalton.dog/poketerm/internal"
 )
 
 const Version = "2.0.0-b1"
@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Long:  "",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		model := models.NewModel()
+		model := internal.NewModel()
 		program := tea.NewProgram(model)
 
 		if _, err := program.Run(); err != nil {
