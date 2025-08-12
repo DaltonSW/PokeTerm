@@ -52,6 +52,7 @@ func (m MainModel) Init() tea.Cmd {
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
+	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 
@@ -60,7 +61,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		delete(m.loadingTypes, msg.Type.Name)
 		m.typeCache[msg.Type.Name] = msg.Type
 		m.completed++
-		m.progress.SetPercent(float64(m.completed) / float64(m.total))
+		cmd = m.progress.SetPercent(float64(m.completed) / float64(m.total))
+		cmds = append(cmds, cmd)
 
 		// Queue Pokémon in this type
 		for _, p := range msg.Type.Pokemon {
@@ -71,7 +73,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		delete(m.loadingPokemon, msg.Pokemon.Name)
 		m.pokemonCache[msg.Pokemon.Name] = msg.Pokemon
 		m.completed++
-		m.progress.SetPercent(float64(m.completed) / float64(m.total))
+		cmd = m.progress.SetPercent(float64(m.completed) / float64(m.total))
+		cmds = append(cmds, cmd)
 
 		// Queue abilities
 		for _, a := range msg.Pokemon.Abilities {
@@ -87,7 +90,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		delete(m.loadingAbilities, msg.Ability.Name)
 		m.abilityCache[msg.Ability.Name] = msg.Ability
 		m.completed++
-		m.progress.SetPercent(float64(m.completed) / float64(m.total))
+		cmd = m.progress.SetPercent(float64(m.completed) / float64(m.total))
+		cmds = append(cmds, cmd)
 
 		// Queue Pokémon with this ability
 		for _, p := range msg.Ability.Pokemon {
@@ -103,6 +107,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
+
+	m.progress, cmd = m.progress.Update(msg)
+	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
