@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 
-	"go.dalton.dog/poketerm/internal/api"
+	"go.dalton.dog/poketerm/internal/resources"
 )
 
 var TitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#BADA55")).AlignHorizontal(lipgloss.Center)
@@ -17,37 +17,27 @@ const EndpointURL = BaseURL + "/%s"
 const IdentifierURL = EndpointURL + "/%s"
 
 type MainModel struct {
-	progress         progress.Model
-	total            int
-	completed        int
-	err              error
-	typeCache        map[string]*Type
-	pokemonCache     map[string]*Pokemon
-	abilityCache     map[string]*Ability
-	loadingTypes     map[string]struct{}
-	loadingPokemon   map[string]struct{}
-	loadingAbilities map[string]struct{}
+	progress  progress.Model
+	total     int
+	completed int
+	err       error
+	cache     *Cache
 }
 
 func NewModel() (m MainModel) {
 	m = MainModel{
-		progress:         progress.New(progress.WithDefaultGradient()),
-		typeCache:        make(map[string]*Type),
-		pokemonCache:     make(map[string]*Pokemon),
-		abilityCache:     make(map[string]*Ability),
-		loadingTypes:     make(map[string]struct{}),
-		loadingPokemon:   make(map[string]struct{}),
-		loadingAbilities: make(map[string]struct{}),
+		progress: progress.New(progress.WithDefaultGradient()),
+		cache:    NewCache(),
 	}
 
 	m.total = 1
-	m.loadingTypes["fire"] = struct{}{}
+	m.cache.MarkLoading("type", "fire")
 
 	return m
 }
 
 func (m MainModel) Init() tea.Cmd {
-	return LoadType("https://pokeapi.co/api/v2/type/fire")
+	return resources.LoadCmd("type", "https://pokeapi.co/api/v2/type/fire")
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -56,49 +46,17 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 
-	case typeLoadedMsg:
-		// Move from loading → loaded
-		delete(m.loadingTypes, msg.Type.Name)
-		m.typeCache[msg.Type.Name] = msg.Type
+	case resources.ResourceLoadedMsg:
+		m.cache.Store(msg.Kind, msg.Resource)
 		m.completed++
 		cmd = m.progress.SetPercent(float64(m.completed) / float64(m.total))
 		cmds = append(cmds, cmd)
 
-		// Queue Pokémon in this type
-		for _, p := range msg.Type.Pokemon {
-			m.queuePokemon(p.Name, p.URL, &cmds)
+		for _, ref := range msg.Resource.GetRelated() {
+			m.queueResource(ref.Kind, ref.Name, ref.URL, &cmds)
 		}
 
-	case pokemonLoadedMsg:
-		delete(m.loadingPokemon, msg.Pokemon.Name)
-		m.pokemonCache[msg.Pokemon.Name] = msg.Pokemon
-		m.completed++
-		cmd = m.progress.SetPercent(float64(m.completed) / float64(m.total))
-		cmds = append(cmds, cmd)
-
-		// Queue abilities
-		for _, a := range msg.Pokemon.Abilities {
-			m.queueAbility(a.Name, a.URL, &cmds)
-		}
-
-		// Queue types
-		for _, t := range msg.Pokemon.Types {
-			m.queueType(t.Name, t.URL, &cmds)
-		}
-
-	case abilityLoadedMsg:
-		delete(m.loadingAbilities, msg.Ability.Name)
-		m.abilityCache[msg.Ability.Name] = msg.Ability
-		m.completed++
-		cmd = m.progress.SetPercent(float64(m.completed) / float64(m.total))
-		cmds = append(cmds, cmd)
-
-		// Queue Pokémon with this ability
-		for _, p := range msg.Ability.Pokemon {
-			m.queuePokemon(p.Name, p.URL, &cmds)
-		}
-
-	case errMsg:
+	case resources.ErrMsg:
 		m.err = msg
 		return m, nil
 
@@ -123,198 +81,23 @@ func (m MainModel) View() string {
 	s += m.progress.View() + "\n"
 
 	if m.completed == m.total && m.total > 0 {
-		s += "\nAll Pokémon loaded for Fire type!\n"
-		s += fmt.Sprintf("Abilities loaded: %d\n", len(m.abilityCache))
-		s += fmt.Sprintf("Pokemon loaded: %d\n", len(m.pokemonCache))
-		s += fmt.Sprintf("Types loaded: %d\n", len(m.typeCache))
+		s += "\nAll resources loaded!\n"
+		for kind, cache := range m.cache.loaded {
+			s += fmt.Sprintf("%s loaded: %d\n", kind, len(cache))
+		}
 		s += "Press q to quit.\n"
 	}
 
 	return s
 }
 
-//
-// ---------- Domain Types ----------
-//
-
-type Pokemon struct {
-	ID        int
-	Name      string
-	URL       string
-	Types     []*Type
-	Abilities []*Ability
-}
-
-type Ability struct {
-	ID      int
-	Name    string
-	URL     string
-	Pokemon []*Pokemon
-}
-
-type Type struct {
-	ID      int
-	Name    string
-	URL     string
-	Pokemon []*Pokemon
-}
-
-//
-// ---------- API Response Structs ----------
-//
-
-type typeAPIResponse struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Pokemon []struct {
-		Pokemon struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"pokemon"`
-	} `json:"pokemon"`
-}
-
-type pokemonAPIResponse struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Abilities []struct {
-		Ability struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"ability"`
-	} `json:"abilities"`
-	Types []struct {
-		Type struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		}
+func (m *MainModel) queueResource(kind, name, url string, cmds *[]tea.Cmd) {
+	if m.cache.IsLoaded(kind, name) || m.cache.IsLoading(kind, name) {
+		return
 	}
-}
-
-type abilityAPIResponse struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Pokemon []struct {
-		Pokemon struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"pokemon"`
-	} `json:"pokemon"`
-}
-
-//
-// ---------- Messages ----------
-//
-
-type typeLoadedMsg struct {
-	Type *Type
-}
-
-type pokemonLoadedMsg struct {
-	Pokemon *Pokemon
-}
-
-type abilityLoadedMsg struct {
-	Ability *Ability
-}
-
-type errMsg error
-
-//
-// ---------- Load Functions ----------
-//
-
-func LoadType(url string) tea.Cmd {
-	return func() tea.Msg {
-		data, err := api.QueryAndUnmarshal[typeAPIResponse](url)
-		if err != nil {
-			return errMsg(err)
-		}
-
-		t := &Type{Name: data.Name, URL: url, ID: data.ID}
-		for _, p := range data.Pokemon {
-			t.Pokemon = append(t.Pokemon, &Pokemon{
-				Name: p.Pokemon.Name,
-				URL:  p.Pokemon.URL,
-			})
-		}
-
-		return typeLoadedMsg{Type: t}
+	m.cache.MarkLoading(kind, name)
+	if cmds != nil {
+		*cmds = append(*cmds, resources.LoadCmd(kind, url))
 	}
-}
-
-func LoadPokemon(url string) tea.Cmd {
-	return func() tea.Msg {
-		data, err := api.QueryAndUnmarshal[pokemonAPIResponse](url)
-		if err != nil {
-			return errMsg(err)
-		}
-
-		p := &Pokemon{Name: data.Name, URL: url, ID: data.ID}
-		for _, a := range data.Abilities {
-			p.Abilities = append(p.Abilities, &Ability{
-				Name: a.Ability.Name,
-				URL:  a.Ability.URL,
-			})
-		}
-
-		for _, t := range data.Types {
-			p.Types = append(p.Types, &Type{
-				Name: t.Type.Name,
-				URL:  t.Type.URL,
-			})
-		}
-
-		return pokemonLoadedMsg{Pokemon: p}
-	}
-}
-
-func LoadAbility(url string) tea.Cmd {
-	return func() tea.Msg {
-		data, err := api.QueryAndUnmarshal[abilityAPIResponse](url)
-		if err != nil {
-			return errMsg(err)
-		}
-
-		a := &Ability{Name: data.Name, URL: url, ID: data.ID}
-
-		for _, p := range data.Pokemon {
-			a.Pokemon = append(a.Pokemon, &Pokemon{
-				Name: p.Pokemon.Name,
-				URL:  p.Pokemon.URL,
-			})
-		}
-
-		return abilityLoadedMsg{Ability: a}
-	}
-}
-
-func (m *MainModel) queueType(name, url string, cmds *[]tea.Cmd) {
-	if _, loaded := m.typeCache[name]; !loaded {
-		if _, loading := m.loadingTypes[name]; !loading {
-			m.loadingTypes[name] = struct{}{}
-			*cmds = append(*cmds, LoadType(url))
-			m.total++
-		}
-	}
-}
-
-func (m *MainModel) queuePokemon(name, url string, cmds *[]tea.Cmd) {
-	if _, loaded := m.pokemonCache[name]; !loaded {
-		if _, loading := m.loadingPokemon[name]; !loading {
-			m.loadingPokemon[name] = struct{}{}
-			*cmds = append(*cmds, LoadPokemon(url))
-			m.total++
-		}
-	}
-}
-
-func (m *MainModel) queueAbility(name, url string, cmds *[]tea.Cmd) {
-	if _, loaded := m.abilityCache[name]; !loaded {
-		if _, loading := m.loadingAbilities[name]; !loading {
-			m.loadingAbilities[name] = struct{}{}
-			*cmds = append(*cmds, LoadAbility(url))
-			m.total++
-		}
-	}
+	m.total++
 }
