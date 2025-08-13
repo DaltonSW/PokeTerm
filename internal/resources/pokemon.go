@@ -46,7 +46,7 @@ type pokemonAPIResponse struct {
 }
 
 func init() {
-	internal.RegisterLoader("pokemon", func(url string) (internal.Resource, error) {
+	internal.RegisterLoader(internal.Pokemon, func(url string) (internal.Resource, error) {
 		data, err := api.QueryAndUnmarshal[pokemonAPIResponse](url)
 		if err != nil {
 			return nil, err

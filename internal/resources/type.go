@@ -36,7 +36,7 @@ type typeAPIResponse struct {
 }
 
 func init() {
-	internal.RegisterLoader("type", func(url string) (internal.Resource, error) {
+	internal.RegisterLoader(internal.Type, func(url string) (internal.Resource, error) {
 		data, err := api.QueryAndUnmarshal[typeAPIResponse](url)
 		if err != nil {
 			return nil, err

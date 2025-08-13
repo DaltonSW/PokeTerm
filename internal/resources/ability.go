@@ -36,7 +36,7 @@ type abilityAPIResponse struct {
 }
 
 func init() {
-	internal.RegisterLoader("ability", func(url string) (internal.Resource, error) {
+	internal.RegisterLoader(internal.Ability, func(url string) (internal.Resource, error) {
 		data, err := api.QueryAndUnmarshal[abilityAPIResponse](url)
 		if err != nil {
 			return nil, err

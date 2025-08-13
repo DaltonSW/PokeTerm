@@ -32,9 +32,9 @@ type ResourceRef struct {
 
 type LoaderFunc func(url string) (Resource, error)
 
-var loaders = map[string]LoaderFunc{}
+var loaders = map[ResKind]LoaderFunc{}
 
-func RegisterLoader(kind string, loader LoaderFunc) {
+func RegisterLoader(kind ResKind, loader LoaderFunc) {
 	loaders[kind] = loader
 }
 
@@ -49,7 +49,7 @@ type ErrMsg error
 
 func LoadCmd(kind ResKind, url string) tea.Cmd {
 	return func() tea.Msg {
-		loader, ok := loaders[string(kind)]
+		loader, ok := loaders[kind]
 		if !ok {
 			return ErrMsg(fmt.Errorf("no loader for kind %q", kind))
 		}
