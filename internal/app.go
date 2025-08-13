@@ -6,8 +6,6 @@ import (
 	"github.com/charmbracelet/bubbles/v2/progress"
 	"github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
-
-	"go.dalton.dog/poketerm/internal/resources"
 )
 
 var TitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#BADA55")).AlignHorizontal(lipgloss.Center)
@@ -37,7 +35,7 @@ func NewModel() (m MainModel) {
 }
 
 func (m MainModel) Init() tea.Cmd {
-	return resources.LoadCmd("type", "https://pokeapi.co/api/v2/type/fire")
+	return LoadCmd("type", "https://pokeapi.co/api/v2/type/fire")
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -46,7 +44,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 
-	case resources.ResourceLoadedMsg:
+	case ResourceLoadedMsg:
 		m.cache.Store(msg.Kind, msg.Resource)
 		m.completed++
 		cmd = m.progress.SetPercent(float64(m.completed) / float64(m.total))
@@ -56,7 +54,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.queueResource(ref.Kind, ref.Name, ref.URL, &cmds)
 		}
 
-	case resources.ErrMsg:
+	case ErrMsg:
 		m.err = msg
 		return m, nil
 
@@ -81,7 +79,7 @@ func (m MainModel) View() string {
 	s += m.progress.View() + "\n"
 
 	if m.completed == m.total && m.total > 0 {
-		s += "\nAll resources loaded!\n"
+		s += "\nAll loaded!\n"
 		for kind, cache := range m.cache.loaded {
 			s += fmt.Sprintf("%s loaded: %d\n", kind, len(cache))
 		}
@@ -97,7 +95,7 @@ func (m *MainModel) queueResource(kind, name, url string, cmds *[]tea.Cmd) {
 	}
 	m.cache.MarkLoading(kind, name)
 	if cmds != nil {
-		*cmds = append(*cmds, resources.LoadCmd(kind, url))
+		*cmds = append(*cmds, LoadCmd(kind, url))
 	}
 	m.total++
 }

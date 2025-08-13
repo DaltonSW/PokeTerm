@@ -1,6 +1,9 @@
 package resources
 
-import "go.dalton.dog/poketerm/internal/api"
+import (
+	"go.dalton.dog/poketerm/internal"
+	"go.dalton.dog/poketerm/internal/api"
+)
 
 type Ability struct {
 	ID      int
@@ -11,10 +14,10 @@ type Ability struct {
 
 func (a *Ability) GetName() string { return a.Name }
 func (a *Ability) GetURL() string  { return a.URL }
-func (a *Ability) GetRelated() []ResourceRef {
-	var refs []ResourceRef
+func (a *Ability) GetRelated() []internal.ResourceRef {
+	var refs []internal.ResourceRef
 	for _, p := range a.Pokemon {
-		refs = append(refs, ResourceRef{
+		refs = append(refs, internal.ResourceRef{
 			Name: p.Name, URL: p.URL, Kind: "pokemon",
 		})
 	}
@@ -33,7 +36,7 @@ type abilityAPIResponse struct {
 }
 
 func init() {
-	RegisterLoader("ability", func(url string) (Resource, error) {
+	internal.RegisterLoader("ability", func(url string) (internal.Resource, error) {
 		data, err := api.QueryAndUnmarshal[abilityAPIResponse](url)
 		if err != nil {
 			return nil, err

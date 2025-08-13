@@ -6,19 +6,17 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-
-	"go.dalton.dog/poketerm/internal/resources"
 )
 
 type Cache struct {
 	mu      sync.RWMutex
-	loaded  map[string]map[string]resources.Resource
+	loaded  map[string]map[string]Resource
 	loading map[string]map[string]struct{}
 }
 
 func NewCache() *Cache {
 	return &Cache{
-		loaded:  make(map[string]map[string]resources.Resource),
+		loaded:  make(map[string]map[string]Resource),
 		loading: make(map[string]map[string]struct{}),
 	}
 }
@@ -46,27 +44,27 @@ func (c *Cache) MarkLoading(kind, name string) {
 	c.loading[kind][name] = struct{}{}
 }
 
-func (c *Cache) Store(kind string, res resources.Resource) {
+func (c *Cache) Store(kind string, res Resource) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.loaded[kind] == nil {
-		c.loaded[kind] = make(map[string]resources.Resource)
+		c.loaded[kind] = make(map[string]Resource)
 	}
 	c.loaded[kind][res.GetName()] = res
 	delete(c.loading[kind], res.GetName())
 }
 
-func (c *Cache) Get(kind, name string) (resources.Resource, bool) {
+func (c *Cache) Get(kind, name string) (Resource, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	res, ok := c.loaded[kind][name]
 	return res, ok
 }
 
-func (c *Cache) All(kind string) []resources.Resource {
+func (c *Cache) All(kind string) []Resource {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	var out []resources.Resource
+	var out []Resource
 	for _, r := range c.loaded[kind] {
 		out = append(out, r)
 	}
@@ -101,7 +99,7 @@ func (c *Cache) SaveToDisk(path string) error {
 	return os.WriteFile(path, b, 0644)
 }
 
-func (c *Cache) LoadFromDisk(path string, factories map[string]func() resources.Resource) error {
+func (c *Cache) LoadFromDisk(path string, factories map[string]func() Resource) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -124,7 +122,7 @@ func (c *Cache) LoadFromDisk(path string, factories map[string]func() resources.
 			continue
 		}
 		if c.loaded[kind] == nil {
-			c.loaded[kind] = make(map[string]resources.Resource)
+			c.loaded[kind] = make(map[string]Resource)
 		}
 		for name, blob := range items {
 			res := factory()
