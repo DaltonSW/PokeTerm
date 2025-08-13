@@ -6,16 +6,28 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
+type ResKind string
+
+const (
+	Pokemon ResKind = "pokemon"
+	Type    ResKind = "type"
+	Ability ResKind = "ability"
+	Move    ResKind = "move"
+	Berry   ResKind = "berry"
+)
+
 type Resource interface {
 	GetName() string
 	GetURL() string
 	GetRelated() []ResourceRef
+
+	// TODO: GetModel() tea.Model
 }
 
 type ResourceRef struct {
 	Name string
 	URL  string
-	Kind string
+	Kind ResKind
 }
 
 type LoaderFunc func(url string) (Resource, error)
@@ -29,15 +41,15 @@ func RegisterLoader(kind string, loader LoaderFunc) {
 // BubbleTea Messages
 
 type ResourceLoadedMsg struct {
-	Kind     string
+	Kind     ResKind
 	Resource Resource
 }
 
 type ErrMsg error
 
-func LoadCmd(kind, url string) tea.Cmd {
+func LoadCmd(kind ResKind, url string) tea.Cmd {
 	return func() tea.Msg {
-		loader, ok := loaders[kind]
+		loader, ok := loaders[string(kind)]
 		if !ok {
 			return ErrMsg(fmt.Errorf("no loader for kind %q", kind))
 		}

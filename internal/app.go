@@ -34,6 +34,13 @@ func NewModel() (m MainModel) {
 	return m
 }
 
+// TODO: We want to kick off loading ResourceRef's for the following things so they're immediately searchable
+//	pokemon
+//	ability
+//	berry
+//	move
+//	type
+
 func (m MainModel) Init() tea.Cmd {
 	return LoadCmd("type", "https://pokeapi.co/api/v2/type/fire")
 }
@@ -89,7 +96,7 @@ func (m MainModel) View() string {
 	return s
 }
 
-func (m *MainModel) queueResource(kind, name, url string, cmds *[]tea.Cmd) {
+func (m *MainModel) queueResource(kind ResKind, name, url string, cmds *[]tea.Cmd) {
 	if m.cache.IsLoaded(kind, name) || m.cache.IsLoading(kind, name) {
 		return
 	}

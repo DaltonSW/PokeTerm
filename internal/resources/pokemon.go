@@ -17,12 +17,12 @@ func (p *Pokemon) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
 	for _, t := range p.Types {
 		refs = append(refs, internal.ResourceRef{
-			Name: t.Name, URL: t.URL, Kind: "type",
+			Name: t.Name, URL: t.URL, Kind: internal.Type,
 		})
 	}
 	for _, a := range p.Abilities {
 		refs = append(refs, internal.ResourceRef{
-			Name: a.Name, URL: a.URL, Kind: "ability",
+			Name: a.Name, URL: a.URL, Kind: internal.Ability,
 		})
 	}
 	return refs

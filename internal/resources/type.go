@@ -18,7 +18,7 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
 	for _, p := range t.Pokemon {
 		refs = append(refs, internal.ResourceRef{
-			Name: p.Name, URL: p.URL, Kind: "pokemon",
+			Name: p.Name, URL: p.URL, Kind: internal.Pokemon,
 		})
 	}
 	return refs
