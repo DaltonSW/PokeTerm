@@ -19,8 +19,8 @@ var rootCmd = &cobra.Command{
 	Long:  "",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		model := internal.NewModel()
-		program := tea.NewProgram(model)
+		model := internal.NewMainModel()
+		program := tea.NewProgram(model, tea.WithAltScreen())
 
 		if _, err := program.Run(); err != nil {
 			log.Fatal(err)

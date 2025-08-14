@@ -1,9 +1,7 @@
 package internal
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/bubbles/v2/progress"
+	"github.com/charmbracelet/bubbles/v2/list"
 	"github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 )
@@ -15,21 +13,37 @@ const EndpointURL = BaseURL + "/%s"
 const IdentifierURL = EndpointURL + "/%s"
 
 type MainModel struct {
-	progress  progress.Model
-	total     int
-	completed int
-	err       error
-	cache     *Cache
+	cache *Cache
+	list  list.Model
+
+	ready         bool
+	refGroupsLeft int
+	initRefGroups []tea.Cmd
 }
 
-func NewModel() (m MainModel) {
+func NewMainModel() (m MainModel) {
 	m = MainModel{
-		progress: progress.New(progress.WithDefaultGradient()),
-		cache:    NewCache(),
+		cache: NewCache(),
 	}
 
-	m.total = 1
-	m.cache.MarkLoading("type", "fire")
+	refCmds := []tea.Cmd{
+		// LoadRefsCmd(Pokemon),
+		LoadRefsCmd(Type),
+		// LoadRefsCmd(Ability),
+		// LoadRefsCmd(Move),
+	}
+
+	m.refGroupsLeft = len(refCmds)
+	m.initRefGroups = refCmds
+
+	delegate := list.NewDefaultDelegate()
+	l := list.New(nil, delegate, 0, 0)
+	l.Title = "PokeTerm -- Resource Search"
+	l.SetShowHelp(true)
+	l.SetShowFilter(true)
+	l.SetFilteringEnabled(true)
+
+	m.list = l
 
 	return m
 }
@@ -42,7 +56,7 @@ func NewModel() (m MainModel) {
 //	type
 
 func (m MainModel) Init() tea.Cmd {
-	return LoadCmd("type", "https://pokeapi.co/api/v2/type/fire")
+	return tea.Batch(m.initRefGroups...)
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -50,59 +64,42 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-
-	case ResourceLoadedMsg:
-		m.cache.Store(msg.Kind, msg.Resource)
-		m.completed++
-		cmd = m.progress.SetPercent(float64(m.completed) / float64(m.total))
-		cmds = append(cmds, cmd)
-
-		for _, ref := range msg.Resource.GetRelated() {
-			m.queueResource(ref.Kind, ref.Name, ref.URL, &cmds)
-		}
-
-	case ErrMsg:
-		m.err = msg
-		return m, nil
-
-	case tea.KeyMsg:
-		if msg.String() == "q" {
+	case tea.KeyPressMsg:
+		if msg.String() == "ctrl+c" || msg.String() == "q" {
 			return m, tea.Quit
 		}
+	case tea.WindowSizeMsg:
+		m.list.SetWidth(msg.Width - 2)
+		m.list.SetHeight(msg.Height - 2)
+	case RefsLoadedMsg:
+		// refs := make([]ResourceRef, len(msg.Refs))
+		refs := m.list.Items()
+
+		for _, r := range msg.Refs {
+			m.cache.RegisterRef(r)
+			refs = append(refs, r)
+		}
+
+		cmd = m.list.SetItems(refs)
+		cmds = append(cmds, cmd)
+
+		m.refGroupsLeft--
+		if m.refGroupsLeft <= 0 {
+			m.ready = true
+		}
+
 	}
 
-	m.progress, cmd = m.progress.Update(msg)
+	m.list, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m MainModel) View() string {
-	if m.err != nil {
-		return fmt.Sprintf("Error: %v\n", m.err)
+	if !m.ready {
+		return "Loading references..."
 	}
 
-	s := fmt.Sprintf("Progress: %d/%d\n", m.completed, m.total)
-	s += m.progress.View() + "\n"
-
-	if m.completed == m.total && m.total > 0 {
-		s += "\nAll loaded!\n"
-		for kind, cache := range m.cache.loaded {
-			s += fmt.Sprintf("%s loaded: %d\n", kind, len(cache))
-		}
-		s += "Press q to quit.\n"
-	}
-
-	return s
-}
-
-func (m *MainModel) queueResource(kind ResKind, name, url string, cmds *[]tea.Cmd) {
-	if m.cache.IsLoaded(kind, name) || m.cache.IsLoading(kind, name) {
-		return
-	}
-	m.cache.MarkLoading(kind, name)
-	if cmds != nil {
-		*cmds = append(*cmds, LoadCmd(kind, url))
-	}
-	m.total++
+	return m.list.View()
 }
