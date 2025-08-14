@@ -15,6 +15,8 @@ type Cache struct {
 
 	loaded  map[ResKind]map[string]Resource
 	loading map[ResKind]map[string]struct{}
+
+	refs map[ResKind]map[string]ResourceRef
 }
 
 // Creates a new cache
@@ -22,7 +24,29 @@ func NewCache() *Cache {
 	return &Cache{
 		loaded:  make(map[ResKind]map[string]Resource),
 		loading: make(map[ResKind]map[string]struct{}),
+		refs:    make(map[ResKind]map[string]ResourceRef),
 	}
+}
+
+func (c *Cache) RegisterRef(ref ResourceRef) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.refs[ref.Kind] == nil {
+		c.refs[ref.Kind] = make(map[string]ResourceRef)
+	}
+	c.refs[ref.Kind][ref.Name] = ref
+}
+
+func (c *Cache) AllRefs() []ResourceRef {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	var out []ResourceRef
+	for _, kindRefs := range c.refs {
+		for _, r := range kindRefs {
+			out = append(out, r)
+		}
+	}
+	return out
 }
 
 // Checks if a resource is already loaded
