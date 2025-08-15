@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"sort"
+
 	"github.com/charmbracelet/bubbles/v2/list"
 	"github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
@@ -27,18 +29,19 @@ func NewMainModel() (m MainModel) {
 	}
 
 	refCmds := []tea.Cmd{
-		// LoadRefsCmd(Pokemon),
+		LoadRefsCmd(Pokemon),
 		LoadRefsCmd(Type),
-		// LoadRefsCmd(Ability),
-		// LoadRefsCmd(Move),
+		LoadRefsCmd(Ability),
+		LoadRefsCmd(Move),
 	}
 
 	m.refGroupsLeft = len(refCmds)
 	m.initRefGroups = refCmds
 
-	delegate := list.NewDefaultDelegate()
-	l := list.New(nil, delegate, 0, 0)
+	del := NewDelegate()
+	l := list.New(nil, del, 0, 0)
 	l.Title = "PokeTerm -- Resource Search"
+	l.Styles.Title = del.styles.Title
 	l.SetShowHelp(true)
 	l.SetShowFilter(true)
 	l.SetFilteringEnabled(true)
@@ -47,13 +50,6 @@ func NewMainModel() (m MainModel) {
 
 	return m
 }
-
-// TODO: We want to kick off loading ResourceRef's for the following things so they're immediately searchable
-//	pokemon
-//	ability
-//	berry
-//	move
-//	type
 
 func (m MainModel) Init() tea.Cmd {
 	return tea.Batch(m.initRefGroups...)
@@ -72,7 +68,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetWidth(msg.Width - 2)
 		m.list.SetHeight(msg.Height - 2)
 	case RefsLoadedMsg:
-		// refs := make([]ResourceRef, len(msg.Refs))
 		refs := m.list.Items()
 
 		for _, r := range msg.Refs {
@@ -80,12 +75,19 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			refs = append(refs, r)
 		}
 
+		sort.Slice(refs, func(i, j int) bool {
+			refI := refs[i].(ResourceRef)
+			refJ := refs[j].(ResourceRef)
+			return refI.Name < refJ.Name
+		})
+
 		cmd = m.list.SetItems(refs)
 		cmds = append(cmds, cmd)
 
 		m.refGroupsLeft--
 		if m.refGroupsLeft <= 0 {
 			m.ready = true
+
 		}
 
 	}

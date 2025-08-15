@@ -1,10 +1,7 @@
 package internal
 
 import (
-	// "encoding/json"
-	// "errors"
-	// "os"
-	// "path/filepath"
+	"sort"
 	"sync"
 )
 
@@ -46,6 +43,9 @@ func (c *Cache) AllRefs() []ResourceRef {
 			out = append(out, r)
 		}
 	}
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].Name < out[j].Name
+	})
 	return out
 }
 

@@ -2,9 +2,12 @@ package internal
 
 import (
 	"fmt"
+	"image/color"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"go.dalton.dog/poketerm/internal/api"
+	"go.dalton.dog/poketerm/internal/styles"
 )
 
 type ResKind string
@@ -17,24 +20,66 @@ const (
 	Berry   ResKind = "berry"
 )
 
+func (k ResKind) Color() color.Color {
+	switch k {
+	case Pokemon:
+		return styles.PokemonResColor
+	case Type:
+		return styles.TypeResColor
+	case Ability:
+		return styles.AbilityResColor
+	case Move:
+		return styles.MoveResColor
+	default:
+		return styles.ForeColor
+	}
+
+}
+
+func (k ResKind) Icon() string {
+	switch k {
+	case Pokemon:
+		return "󰐝"
+	case Type:
+		return ""
+	case Ability:
+		return ""
+	case Move:
+		return "󰓥"
+	default:
+		return " "
+	}
+}
+
+// Resource is an interface representing a given 'thing' that can be
+// loaded, viewed, and potentially link out to other Resources
 type Resource interface {
 	GetName() string
 	GetURL() string
 	GetRelated() []ResourceRef
 
-	// TODO: GetModel() tea.Model
+	// TODO: GetPreviewModel() string
+	//	Populate the right half of the screen
+
+	// TODO: GetFullModel() tea.Model
+	//	If the list can be made thin enough, maybe this can be the same as above, just different size?
 }
 
+// ResourceRef is just a reference to a given resource on PokeAPI.
+// Much smaller than actual resources, these enable providing inital info without
+// needing to pre-load a ton of data.
 type ResourceRef struct {
 	Name string
 	URL  string
 	Kind ResKind
 }
 
-func (ref ResourceRef) Title() string       { return ref.Name }
-func (ref ResourceRef) Description() string { return string(ref.Kind) }
+func (ref ResourceRef) Title() string       { return strings.ReplaceAll(ref.Name, "-", " ") }
+func (ref ResourceRef) Description() string { return strings.ReplaceAll(string(ref.Kind), "-", " ") }
 func (ref ResourceRef) FilterValue() string { return ref.Name }
 
+// LoaderFunc is a type of function that will, for a given ResKind, turn a URL into a Resource.
+// The expectation is that each Resource will call RegisterLoader() in their init() function.
 type LoaderFunc func(url string) (Resource, error)
 
 var loaders = map[ResKind]LoaderFunc{}
@@ -45,6 +90,7 @@ func RegisterLoader(kind ResKind, loader LoaderFunc) {
 
 // BubbleTea Messages
 
+// Response to query for references
 type getRefsResponse struct {
 	Count   int `json:"count"`
 	Results []struct {
@@ -53,11 +99,13 @@ type getRefsResponse struct {
 	} `json:"results"`
 }
 
+// BubbleTea message indicating references have been loaded for a given ResKind
 type RefsLoadedMsg struct {
 	Kind ResKind
 	Refs []ResourceRef
 }
 
+// Command to load all references for a given ResKind/endpoint
 func LoadRefsCmd(kind ResKind) tea.Cmd {
 	return func() tea.Msg {
 		url := fmt.Sprintf("%s/%s?limit=2000", BaseURL, string(kind))
@@ -80,6 +128,7 @@ type ResourceLoadedMsg struct {
 
 type ErrMsg error
 
+// Command to load a single resource via the loader registered to the given ResKind
 func LoadCmd(kind ResKind, url string) tea.Cmd {
 	return func() tea.Msg {
 		loader, ok := loaders[kind]
