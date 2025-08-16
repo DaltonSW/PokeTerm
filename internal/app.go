@@ -1,11 +1,9 @@
 package internal
 
 import (
-	"sort"
-
-	"github.com/charmbracelet/bubbles/v2/list"
 	"github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
+	"go.dalton.dog/poketerm/internal/styles"
 )
 
 var TitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#BADA55")).AlignHorizontal(lipgloss.Center)
@@ -16,17 +14,22 @@ const IdentifierURL = EndpointURL + "/%s"
 
 type MainModel struct {
 	cache *Cache
-	list  list.Model
+	list  ListModel
 
 	ready         bool
 	refGroupsLeft int
 	initRefGroups []tea.Cmd
+
+	viewportWrapper lipgloss.Style
 }
 
 func NewMainModel() (m MainModel) {
 	m = MainModel{
 		cache: NewCache(),
+		list:  NewListModel(),
 	}
+
+	m.list.cache = m.cache
 
 	refCmds := []tea.Cmd{
 		LoadRefsCmd(Pokemon),
@@ -38,15 +41,7 @@ func NewMainModel() (m MainModel) {
 	m.refGroupsLeft = len(refCmds)
 	m.initRefGroups = refCmds
 
-	del := NewDelegate()
-	l := list.New(nil, del, 0, 0)
-	l.Title = "PokeTerm -- Resource Search"
-	l.Styles.Title = del.styles.Title
-	l.SetShowHelp(true)
-	l.SetShowFilter(true)
-	l.SetFilteringEnabled(true)
-
-	m.list = l
+	m.viewportWrapper = lipgloss.NewStyle().BorderForeground(styles.BorderColor).Border(lipgloss.RoundedBorder()).Align(lipgloss.Center, lipgloss.Center)
 
 	return m
 }
@@ -65,29 +60,17 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	case tea.WindowSizeMsg:
-		m.list.SetWidth(msg.Width - 2)
-		m.list.SetHeight(msg.Height - 2)
+		leftWidth := min(60, msg.Width/2)
+		m.list = m.list.UpdateSize(leftWidth, msg.Height)
+
+		m.viewportWrapper = m.viewportWrapper.Width(msg.Width - leftWidth).Height(msg.Height)
+
 	case RefsLoadedMsg:
-		refs := m.list.Items()
-
-		for _, r := range msg.Refs {
-			m.cache.RegisterRef(r)
-			refs = append(refs, r)
-		}
-
-		sort.Slice(refs, func(i, j int) bool {
-			refI := refs[i].(ResourceRef)
-			refJ := refs[j].(ResourceRef)
-			return refI.Name < refJ.Name
-		})
-
-		cmd = m.list.SetItems(refs)
-		cmds = append(cmds, cmd)
-
 		m.refGroupsLeft--
 		if m.refGroupsLeft <= 0 {
 			m.ready = true
 
+			cmds = append(cmds, m.list.Init())
 		}
 
 	}
@@ -103,5 +86,8 @@ func (m MainModel) View() string {
 		return "Loading references..."
 	}
 
-	return m.list.View()
+	leftContent := m.list.View()
+	rightContent := m.viewportWrapper.Render("Coming soon!")
+
+	return lipgloss.JoinHorizontal(lipgloss.Center, leftContent, rightContent)
 }

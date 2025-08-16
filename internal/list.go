@@ -3,15 +3,102 @@ package internal
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/v2/list"
+	"github.com/charmbracelet/bubbles/v2/textinput"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"go.dalton.dog/poketerm/internal/styles"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+type ListModel struct {
+	cache *Cache
+	list  list.Model
+
+	input  textinput.Model
+	active bool
+
+	style lipgloss.Style
+}
+
+func NewListModel() ListModel {
+	m := ListModel{}
+
+	del := NewDelegate()
+	l := list.New(nil, del, 0, 0)
+	l.Styles.Title = del.styles.Title
+	l.SetShowHelp(true)
+	l.SetShowFilter(false)
+	l.SetShowStatusBar(false)
+	l.SetShowTitle(false)
+	l.SetFilteringEnabled(true)
+	m.list = l
+
+	m.input = textinput.New()
+	m.input.Prompt = "> "
+	m.input.Placeholder = "filter"
+
+	m.style = lipgloss.NewStyle().BorderForeground(styles.BorderColor).Border(lipgloss.RoundedBorder())
+
+	return m
+}
+
+func (m ListModel) UpdateSize(w, h int) ListModel {
+	m.style = m.style.Width(w)
+
+	w = w - m.style.GetHorizontalBorderSize()
+	m.input.SetWidth(w - len(m.input.Prompt) - 2)
+	m.list.SetWidth(w)
+	m.list.SetHeight(h - m.style.GetVerticalBorderSize() - lipgloss.Height(m.style.Render(m.input.View())))
+
+	return m
+}
+
+func (m ListModel) Init() tea.Cmd {
+	return m.input.Focus()
+}
+
+func (m ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
+	var cmds []tea.Cmd
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case RefsLoadedMsg:
+		refs := m.list.Items()
+
+		for _, r := range msg.Refs {
+			m.cache.RegisterRef(r)
+			refs = append(refs, r)
+		}
+
+		sort.Slice(refs, func(i, j int) bool {
+			refI := refs[i].(ResourceRef)
+			refJ := refs[j].(ResourceRef)
+			return refI.Name < refJ.Name
+		})
+
+		cmd = m.list.SetItems(refs)
+		cmds = append(cmds, cmd)
+	}
+
+	m.list, cmd = m.list.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.input, cmd = m.input.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.input.SetValue(m.list.FilterValue())
+
+	return m, tea.Batch(cmds...)
+}
+
+func (m ListModel) View() string {
+	return m.style.Render(m.input.View()) + "\n" + m.style.Render(m.list.View())
+}
 
 type ItemDelegate struct {
 	styles styles.ListStyles
@@ -36,15 +123,46 @@ func (d ItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		return
 	}
 
-	color := resource.Kind.Color()
-	resName := lipgloss.NewStyle().Foreground(color).Render(fmt.Sprintf("[%s] %s", resource.Kind.Icon(), d.caser.String(resource.Name)))
+	// TODO: Make matching/highlighting less... bad. This is Frankenstein'd from list.DefaultDelegate
 
-	str := fmt.Sprintf("%s %s", resName, d.styles.Desc.Render(resource.URL))
+	var matchedRunes []int
+	title := d.caser.String(resource.Name)
+
+	isSelected := index == m.Index()
+	emptyFilter := m.SettingFilter() && m.FilterValue() == ""
+	isFiltered := m.SettingFilter() || m.IsFiltered()
+
+	if isFiltered && index < len(m.VisibleItems()) {
+		// Get indices of matched characters
+		matchedRunes = m.MatchesForItem(index)
+	}
+
+	if emptyFilter {
+		title = d.styles.Desc.Render(title)
+	} else if isSelected && !m.SettingFilter() {
+		if isFiltered {
+			// Highlight matches
+			unmatched := d.styles.Desc.Inline(true).Italic(false)
+			matched := unmatched.Foreground(styles.ForeColor).Underline(true)
+			title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
+		}
+		title = d.styles.Title.Foreground(resource.Kind.Color()).Render(title)
+	} else {
+		if isFiltered {
+			// Highlight matches
+			unmatched := d.styles.Desc.Inline(true).Italic(false)
+			matched := unmatched.Foreground(styles.ForeColor).Underline(true)
+			title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
+		}
+		title = d.styles.Title.Foreground(resource.Kind.Color()).Render(title)
+	}
+
+	str := fmt.Sprintf("%s", title)
 
 	fn := lipgloss.NewStyle().Render
 	if index == m.Index() {
 		fn = func(s ...string) string {
-			return d.styles.Curr.Render("> " + strings.Join(s, " "))
+			return lipgloss.NewStyle().Italic(true).Render("> " + strings.Join(s, " "))
 		}
 	} else {
 		str = "  " + str

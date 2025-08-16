@@ -86,6 +86,7 @@ type ListStyles struct {
 	Title lipgloss.Style
 	Desc  lipgloss.Style
 	Curr  lipgloss.Style
+	Match lipgloss.Style
 }
 
 func GetListStyles() ListStyles {
@@ -93,5 +94,6 @@ func GetListStyles() ListStyles {
 		Title: lipgloss.NewStyle().Foreground(AttackColor),
 		Desc:  lipgloss.NewStyle().Foreground(DescColor).Italic(true),
 		Curr:  lipgloss.NewStyle().Foreground(DefenseColor),
+		Match: lipgloss.NewStyle().Underline(true).Bold(true),
 	}
 }
