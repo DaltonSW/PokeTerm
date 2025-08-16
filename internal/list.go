@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"sort"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/v2/list"
 	"github.com/charmbracelet/bubbles/v2/textinput"
@@ -39,8 +38,7 @@ func NewListModel() ListModel {
 	m.list = l
 
 	m.input = textinput.New()
-	m.input.Prompt = "> "
-	m.input.Placeholder = "filter"
+	m.input.Placeholder = "/ to focus"
 
 	m.style = lipgloss.NewStyle().BorderForeground(styles.BorderColor).Border(lipgloss.RoundedBorder())
 
@@ -65,7 +63,7 @@ func (m ListModel) CurrentResource() (ResourceRef, bool) {
 }
 
 func (m ListModel) Init() tea.Cmd {
-	return m.input.Focus()
+	return tea.Batch(m.input.Focus(), textinput.Blink)
 }
 
 func (m ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
@@ -121,7 +119,7 @@ func NewDelegate() ItemDelegate {
 }
 
 func (d ItemDelegate) Height() int                             { return 1 }
-func (d ItemDelegate) Spacing() int                            { return 0 }
+func (d ItemDelegate) Spacing() int                            { return 1 }
 func (d ItemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 func (d ItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	resource, ok := listItem.(ResourceRef)
@@ -131,48 +129,45 @@ func (d ItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 
 	// TODO: Make matching/highlighting less... bad. This is Frankenstein'd from list.DefaultDelegate
 
-	var matchedRunes []int
-	title := d.caser.String(resource.Name)
+	// var matchedRunes []int
+	// title := d.caser.String(resource.Title())
+	//
+	// isSelected := index == m.Index()
+	// emptyFilter := m.SettingFilter() && m.FilterValue() == ""
+	// isFiltered := m.SettingFilter() || m.IsFiltered()
+	//
+	// if isFiltered && index < len(m.VisibleItems()) {
+	// 	// Get indices of matched characters
+	// 	matchedRunes = m.MatchesForItem(index)
+	// }
+	//
+	// if emptyFilter {
+	// 	title = d.styles.Desc.Render(title)
+	// } else if isSelected && !m.SettingFilter() {
+	// 	if isFiltered {
+	// 		// Highlight matches
+	// 		unmatched := d.styles.Desc.Inline(true).Italic(false)
+	// 		matched := unmatched.Foreground(styles.ForeColor).Underline(true)
+	// 		title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
+	// 	}
+	// 	title = d.styles.Title.Foreground(resource.Kind.Color()).Render(title)
+	// } else {
+	// 	if isFiltered {
+	// 		// Highlight matches
+	// 		unmatched := d.styles.Desc.Inline(true).Italic(false)
+	// 		matched := unmatched.Foreground(styles.ForeColor).Underline(true)
+	// 		title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
+	// 	}
+	// 	title = d.styles.Title.Foreground(resource.Kind.Color()).Render(title)
+	// }
 
-	isSelected := index == m.Index()
-	emptyFilter := m.SettingFilter() && m.FilterValue() == ""
-	isFiltered := m.SettingFilter() || m.IsFiltered()
+	var str string
 
-	if isFiltered && index < len(m.VisibleItems()) {
-		// Get indices of matched characters
-		matchedRunes = m.MatchesForItem(index)
-	}
-
-	if emptyFilter {
-		title = d.styles.Desc.Render(title)
-	} else if isSelected && !m.SettingFilter() {
-		if isFiltered {
-			// Highlight matches
-			unmatched := d.styles.Desc.Inline(true).Italic(false)
-			matched := unmatched.Foreground(styles.ForeColor).Underline(true)
-			title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
-		}
-		title = d.styles.Title.Foreground(resource.Kind.Color()).Render(title)
-	} else {
-		if isFiltered {
-			// Highlight matches
-			unmatched := d.styles.Desc.Inline(true).Italic(false)
-			matched := unmatched.Foreground(styles.ForeColor).Underline(true)
-			title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
-		}
-		title = d.styles.Title.Foreground(resource.Kind.Color()).Render(title)
-	}
-
-	str := fmt.Sprintf("%s", title)
-
-	fn := lipgloss.NewStyle().Render
 	if index == m.Index() {
-		fn = func(s ...string) string {
-			return lipgloss.NewStyle().Italic(true).Render("> " + strings.Join(s, " "))
-		}
+		str = d.styles.Curr.Render(fmt.Sprintf("%s | %s", lipgloss.NewStyle().Width(8).Align(lipgloss.Right).Render(string(resource.Kind)), resource.Title()))
 	} else {
-		str = "  " + str
+		str = fmt.Sprintf("%s | %s", d.styles.Desc.Render(string(resource.Kind)), d.styles.Title.Render(resource.Title()))
 	}
 
-	fmt.Fprint(w, fn(str))
+	fmt.Fprint(w, str)
 }

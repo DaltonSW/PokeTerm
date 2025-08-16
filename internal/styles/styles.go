@@ -1,29 +1,42 @@
 package styles
 
 import (
+	cat "github.com/catppuccin/go"
+
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/lipgloss/v2/compat"
+)
+
+// Catppuccin Theme References
+var (
+	CatDark  = cat.Mocha
+	CatLight = cat.Latte
 )
 
 // Colors
 var (
 	BorderColor = compat.AdaptiveColor{
-		Dark:  lipgloss.Color("#A8A8A8"), // light gray for dark mode
-		Light: lipgloss.Color("#505050"), // dark gray for light mode
+		Dark:  CatDark.Rosewater(),
+		Light: CatLight.Rosewater(),
 	}
 
 	DescColor = compat.AdaptiveColor{
-		Dark:  lipgloss.Color("#505050"),
-		Light: lipgloss.Color("#A8A8A8"),
+		Dark:  CatDark.Overlay1(),
+		Light: CatLight.Overlay1(),
 	}
 
 	ForeColor = compat.AdaptiveColor{
-		Dark:  lipgloss.Color("#FFFFFF"),
-		Light: lipgloss.Color("#000000"),
+		Dark:  CatDark.Text(),  // #CDD6F4
+		Light: CatLight.Text(), // #4C4F69
+	}
+
+	CurrColor = compat.AdaptiveColor{
+		Dark:  CatDark.Blue(),
+		Light: CatLight.Blue(),
 	}
 )
 
-// Type Colors (based on official Pokémon palette)
+// Type Colors
 var (
 	NormalColor   = compat.AdaptiveColor{Dark: lipgloss.Color("#A8A77A"), Light: lipgloss.Color("#6D6D4E")}
 	FireColor     = compat.AdaptiveColor{Dark: lipgloss.Color("#EE8130"), Light: lipgloss.Color("#B22222")}
@@ -74,13 +87,13 @@ var (
 )
 
 // Resource Type Colors
-var (
-	PokemonResColor = compat.AdaptiveColor{Dark: lipgloss.Color("#EE8130"), Light: lipgloss.Color("#B22222")}
-	AbilityResColor = compat.AdaptiveColor{Dark: lipgloss.Color("#6390F0"), Light: lipgloss.Color("#1E3A8A")}
-	TypeResColor    = compat.AdaptiveColor{Dark: lipgloss.Color("#F7D02C"), Light: lipgloss.Color("#B8860B")}
-	MoveResColor    = compat.AdaptiveColor{Dark: lipgloss.Color("#7AC74C"), Light: lipgloss.Color("#2E8B57")}
-	// PokemonResourceColor = compat.AdaptiveColor{Dark: lipgloss.Color(""), Light: lipgloss.Color("")}
-)
+// var (
+// PokemonResColor = compat.AdaptiveColor{Dark: lipgloss.Color("#EE8130"), Light: lipgloss.Color("#B22222")}
+// AbilityResColor = compat.AdaptiveColor{Dark: lipgloss.Color("#6390F0"), Light: lipgloss.Color("#1E3A8A")}
+// TypeResColor    = compat.AdaptiveColor{Dark: lipgloss.Color("#F7D02C"), Light: lipgloss.Color("#B8860B")}
+// MoveResColor    = compat.AdaptiveColor{Dark: lipgloss.Color("#7AC74C"), Light: lipgloss.Color("#2E8B57")}
+// PokemonResourceColor = compat.AdaptiveColor{Dark: lipgloss.Color(""), Light: lipgloss.Color("")}
+// )
 
 type ListStyles struct {
 	Title lipgloss.Style
@@ -91,9 +104,9 @@ type ListStyles struct {
 
 func GetListStyles() ListStyles {
 	return ListStyles{
-		Title: lipgloss.NewStyle().Foreground(AttackColor),
-		Desc:  lipgloss.NewStyle().Foreground(DescColor).Italic(true),
-		Curr:  lipgloss.NewStyle().Foreground(DefenseColor),
+		Title: lipgloss.NewStyle().Foreground(ForeColor),
+		Desc:  lipgloss.NewStyle().Foreground(DescColor).Italic(true).Width(8).Align(lipgloss.Right),
+		Curr:  lipgloss.NewStyle().Foreground(CurrColor),
 		Match: lipgloss.NewStyle().Underline(true).Bold(true),
 	}
 }
