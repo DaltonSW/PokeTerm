@@ -2,39 +2,44 @@ package internal
 
 import (
 	"fmt"
-	"image/color"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"go.dalton.dog/poketerm/internal/api"
-	"go.dalton.dog/poketerm/internal/styles"
 )
 
 type ResKind string
+
+// TODO:
+//	Move
+//	Berry
+//	Game / Generation
+//	Location
+//	Item
 
 const (
 	Pokemon ResKind = "pokemon"
 	Type    ResKind = "type"
 	Ability ResKind = "ability"
-	Move    ResKind = "move"
-	Berry   ResKind = "berry"
+	// Move    ResKind = "move"
+	// Berry   ResKind = "berry"
 )
 
-func (k ResKind) Color() color.Color {
-	switch k {
-	case Pokemon:
-		return styles.PokemonResColor
-	case Type:
-		return styles.TypeResColor
-	case Ability:
-		return styles.AbilityResColor
-	case Move:
-		return styles.MoveResColor
-	default:
-		return styles.ForeColor
-	}
-
-}
+// func (k ResKind) Color() color.Color {
+// 	switch k {
+// 	case Pokemon:
+// 		return styles.PokemonResColor
+// 	case Type:
+// 		return styles.TypeResColor
+// 	case Ability:
+// 		return styles.AbilityResColor
+// 	case Move:
+// 		return styles.MoveResColor
+// 	default:
+// 		return styles.ForeColor
+// 	}
+//
+// }
 
 func (k ResKind) Icon() string {
 	switch k {
@@ -44,8 +49,8 @@ func (k ResKind) Icon() string {
 		return ""
 	case Ability:
 		return ""
-	case Move:
-		return "󰓥"
+	// case Move:
+	// 	return "󰓥"
 	default:
 		return " "
 	}

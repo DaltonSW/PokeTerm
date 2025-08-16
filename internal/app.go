@@ -38,7 +38,7 @@ func NewMainModel() (m MainModel) {
 		LoadRefsCmd(Pokemon),
 		LoadRefsCmd(Type),
 		LoadRefsCmd(Ability),
-		LoadRefsCmd(Move),
+		// LoadRefsCmd(Move),
 	}
 
 	m.refGroupsLeft = len(refCmds)
@@ -62,15 +62,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
-		case "enter":
-			ref, ok := m.list.CurrentResource()
-			if ok {
-				if !m.cache.IsLoaded(ref) && !m.cache.IsLoading(ref) {
-					m.cache.MarkLoading(ref)
-					cmds = append(cmds, LoadCmd(ref))
-				}
-
-			}
 		default:
 			m.list, cmd = m.list.Update(msg)
 			cmds = append(cmds, cmd)
@@ -99,6 +90,15 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	default:
 		m.list, cmd = m.list.Update(msg)
 		cmds = append(cmds, cmd)
+	}
+
+	ref, ok := m.list.CurrentResource()
+	if ok {
+		if !m.cache.IsLoaded(ref) && !m.cache.IsLoading(ref) {
+			m.cache.MarkLoading(ref)
+			cmds = append(cmds, LoadCmd(ref))
+		}
+
 	}
 
 	return m, tea.Batch(cmds...)
