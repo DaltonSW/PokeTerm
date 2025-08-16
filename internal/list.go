@@ -58,6 +58,12 @@ func (m ListModel) UpdateSize(w, h int) ListModel {
 	return m
 }
 
+func (m ListModel) CurrentResource() (ResourceRef, bool) {
+	item := m.list.SelectedItem()
+	res, ok := item.(ResourceRef)
+	return res, ok
+}
+
 func (m ListModel) Init() tea.Cmd {
 	return m.input.Focus()
 }

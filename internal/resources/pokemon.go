@@ -28,6 +28,8 @@ func (p *Pokemon) GetRelated() []internal.ResourceRef {
 	return refs
 }
 
+func (p *Pokemon) GetPreview() string { return "Pokemon Preview" }
+
 type pokemonAPIResponse struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`

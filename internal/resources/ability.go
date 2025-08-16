@@ -24,6 +24,8 @@ func (a *Ability) GetRelated() []internal.ResourceRef {
 	return refs
 }
 
+func (a *Ability) GetPreview() string { return "Ability Preview" }
+
 type abilityAPIResponse struct {
 	ID      int    `json:"id"`
 	Name    string `json:"name"`

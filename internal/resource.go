@@ -58,8 +58,8 @@ type Resource interface {
 	GetURL() string
 	GetRelated() []ResourceRef
 
-	// TODO: GetPreviewModel() string
-	//	Populate the right half of the screen
+	// Populate the right half of the screen
+	GetPreview() string
 
 	// TODO: GetFullModel() tea.Model
 	//	If the list can be made thin enough, maybe this can be the same as above, just different size?
@@ -129,16 +129,16 @@ type ResourceLoadedMsg struct {
 type ErrMsg error
 
 // Command to load a single resource via the loader registered to the given ResKind
-func LoadCmd(kind ResKind, url string) tea.Cmd {
+func LoadCmd(ref ResourceRef) tea.Cmd {
 	return func() tea.Msg {
-		loader, ok := loaders[kind]
+		loader, ok := loaders[ref.Kind]
 		if !ok {
-			return ErrMsg(fmt.Errorf("no loader for kind %q", kind))
+			return ErrMsg(fmt.Errorf("no loader for kind %q", ref.Kind))
 		}
-		res, err := loader(url)
+		res, err := loader(ref.URL)
 		if err != nil {
 			return ErrMsg(err)
 		}
-		return ResourceLoadedMsg{Kind: kind, Resource: res}
+		return ResourceLoadedMsg{Kind: ref.Kind, Resource: res}
 	}
 }

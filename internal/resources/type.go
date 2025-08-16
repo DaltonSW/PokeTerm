@@ -24,6 +24,8 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 	return refs
 }
 
+func (t *Type) GetPreview() string { return "Type Preview" }
+
 type typeAPIResponse struct {
 	ID      int    `json:"id"`
 	Name    string `json:"name"`

@@ -50,29 +50,29 @@ func (c *Cache) AllRefs() []ResourceRef {
 }
 
 // Checks if a resource is already loaded
-func (c *Cache) IsLoaded(kind ResKind, name string) bool {
+func (c *Cache) IsLoaded(ref ResourceRef) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	_, ok := c.loaded[kind][name]
+	_, ok := c.loaded[ref.Kind][ref.Name]
 	return ok
 }
 
 // Checks if a resouce is currently being loaded in another thread
-func (c *Cache) IsLoading(kind ResKind, name string) bool {
+func (c *Cache) IsLoading(ref ResourceRef) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	_, ok := c.loading[kind][name]
+	_, ok := c.loading[ref.Kind][ref.Name]
 	return ok
 }
 
 // Marks a resource as currently being loaded
-func (c *Cache) MarkLoading(kind ResKind, name string) {
+func (c *Cache) MarkLoading(ref ResourceRef) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if c.loading[kind] == nil {
-		c.loading[kind] = make(map[string]struct{})
+	if c.loading[ref.Kind] == nil {
+		c.loading[ref.Kind] = make(map[string]struct{})
 	}
-	c.loading[kind][name] = struct{}{}
+	c.loading[ref.Kind][ref.Name] = struct{}{}
 }
 
 // Store a resource in the cache map
@@ -87,10 +87,10 @@ func (c *Cache) Store(kind ResKind, res Resource) {
 }
 
 // Get a resource from the cache map
-func (c *Cache) Get(kind ResKind, name string) (Resource, bool) {
+func (c *Cache) Get(ref ResourceRef) (Resource, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	res, ok := c.loaded[kind][name]
+	res, ok := c.loaded[ref.Kind][ref.Name]
 	return res, ok
 }
 
