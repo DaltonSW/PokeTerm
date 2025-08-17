@@ -1,10 +1,15 @@
 package resources
 
 import (
-	"fmt"
+	"image/color"
+	"strings"
 
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
+	"github.com/charmbracelet/lipgloss/v2/table"
 	"go.dalton.dog/poketerm/internal"
 	"go.dalton.dog/poketerm/internal/api"
+	"go.dalton.dog/poketerm/internal/styles"
 )
 
 type Type struct {
@@ -34,17 +39,13 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 
 	// Add Pokemon refs
 	for _, p := range t.Pokemon {
-		refs = append(refs, internal.ResourceRef{
-			Name: p.GetName(), URL: p.URL, Kind: internal.Pokemon, // Use constant
-		})
+		refs = append(refs, p.GetRef())
 	}
 
 	// Helper function to add damage relation type refs
 	addDamageTypeRefs := func(types []*Type) {
 		for _, relatedType := range types {
-			refs = append(refs, internal.ResourceRef{
-				Name: relatedType.Name, URL: relatedType.URL, Kind: internal.Type, // Use constant
-			})
+			refs = append(refs, relatedType.GetRef())
 		}
 	}
 
@@ -60,118 +61,98 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 }
 
 // GetPreview is updated to accept the cache to pull full details if needed
-func (t *Type) GetPreview(cache *internal.Cache) string {
-	s := fmt.Sprintf("Type: %s (ID: %d)\n\n", t.Name, t.ID)
+func (t *Type) GetPreview(cache *internal.Cache, width, height int) string {
+	title := lipgloss.NewStyle().Width(width).
+		Foreground(t.GetColor()).
+		Bold(true).Italic(true).
+		AlignHorizontal(lipgloss.Center).
+		Render(t.Name)
 
-	s += "Damage Relations:\n"
-	if len(t.DoubleDamageFrom) > 0 {
-		s += "  Double Damage From: "
-		for i, typ := range t.DoubleDamageFrom {
-			if i > 0 {
-				s += ", "
-			}
-			if fullType, loaded := cache.Get(internal.Type, typ.GetName()); loaded {
-				s += fullType.GetName()
-			} else {
-				s += fmt.Sprintf("%s (Loading...)", typ.GetName())
-			}
-		}
-		s += "\n"
-	}
-	if len(t.HalfDamageFrom) > 0 {
-		s += "  Half Damage From:   "
-		for i, typ := range t.HalfDamageFrom {
-			if i > 0 {
-				s += ", "
-			}
-			if fullType, loaded := cache.Get(internal.Type, typ.GetName()); loaded {
-				s += fullType.GetName()
-			} else {
-				s += fmt.Sprintf("%s (Loading...)", typ.GetName())
-			}
-		}
-		s += "\n"
-	}
-	if len(t.DoubleDamageTo) > 0 {
-		s += "  Double Damage To:   "
-		for i, typ := range t.DoubleDamageTo {
-			if i > 0 {
-				s += ", "
-			}
-			if fullType, loaded := cache.Get(internal.Type, typ.GetName()); loaded {
-				s += fullType.GetName()
-			} else {
-				s += fmt.Sprintf("%s (Loading...)", typ.GetName())
-			}
-		}
-		s += "\n"
-	}
-	if len(t.HalfDamageTo) > 0 {
-		s += "  Half Damage To:     "
-		for i, typ := range t.HalfDamageTo {
-			if i > 0 {
-				s += ", "
-			}
-			if fullType, loaded := cache.Get(internal.Type, typ.GetName()); loaded {
-				s += fullType.GetName()
-			} else {
-				s += fmt.Sprintf("%s (Loading...)", typ.GetName())
-			}
-		}
-		s += "\n"
-	}
-	if len(t.NoDamageFrom) > 0 {
-		s += "  No Damage From:     "
-		for i, typ := range t.NoDamageFrom {
-			if i > 0 {
-				s += ", "
-			}
-			if fullType, loaded := cache.Get(internal.Type, typ.GetName()); loaded {
-				s += fullType.GetName()
-			} else {
-				s += fmt.Sprintf("%s (Loading...)", typ.GetName())
-			}
-		}
-		s += "\n"
-	}
-	if len(t.NoDamageTo) > 0 {
-		s += "  No Damage To:       "
-		for i, typ := range t.NoDamageTo {
-			if i > 0 {
-				s += ", "
-			}
-			if fullType, loaded := cache.Get(internal.Type, typ.GetName()); loaded {
-				s += fullType.GetName()
-			} else {
-				s += fmt.Sprintf("%s (Loading...)", typ.GetName())
-			}
-		}
-		s += "\n"
-	}
+	viewport := lipgloss.NewStyle().Width(width / 3).Height(height - lipgloss.Height(title)).Border(lipgloss.RoundedBorder()).Align(lipgloss.Center)
 
-	s += fmt.Sprintf("\nPokémon Count: %d\n", len(t.Pokemon))
-	// Add some Pokémon names for preview if desired, with loading states
+	sLeft := viewport.Render(t.typeInfo())
+
+	var pokeList []string
 	for i, p := range t.Pokemon {
-		if i >= 3 { // Limit to 3 for brevity in preview
-			s += "  ...\n"
+		pokeList = append(pokeList, p.GetName())
+		if i >= height-viewport.GetVerticalBorderSize()-lipgloss.Height(title)-1 {
 			break
 		}
-		if fullPokemon, loaded := cache.Get(internal.Pokemon, p.GetName()); loaded {
-			s += fmt.Sprintf("  - %s (Loaded)\n", fullPokemon.GetName())
-		} else {
-			s += fmt.Sprintf("  - %s (Loading...)\n", p.GetName())
-		}
 	}
 
-	return s
+	sMid := viewport.Render(list.New(pokeList).String())
+
+	// moveList := make([]string, len(t.Moves))
+	// for i, m := range t.Moves {
+	// 	moveList[i] = m.GetName()
+	// 	if i > height-viewport.GetVerticalBorderSize() {
+	// 		break
+	// 	}
+	// }
+	// sRight := viewport.Render(list.New(moveList).String())
+	sRight := viewport.Render("Coming soon :)")
+
+	sView := lipgloss.JoinHorizontal(lipgloss.Center, sLeft, sMid, sRight)
+
+	return lipgloss.JoinVertical(lipgloss.Top, title, sView)
 }
 
-// TODO:
-//	Type Name
-//	Effectiveness charts
-//	Moves
-//	Pokemon (Primary)
-//	Pokemon (Secondary)
+// GetColor returns a lipgloss.Color based on the type's name.
+func (t *Type) GetColor() color.Color {
+	// Convert name to lowercase to ensure consistent matching
+	typeName := strings.ToLower(t.Name)
+
+	switch typeName {
+	case "normal":
+		return styles.NormalTypeColor
+	case "fire":
+		return styles.FireTypeColor
+	case "water":
+		return styles.WaterTypeColor
+	case "grass":
+		return styles.GrassTypeColor
+	case "electric":
+		return styles.ElectricTypeColor
+	case "ice":
+		return styles.IceTypeColor
+	case "fighting":
+		return styles.FightingTypeColor
+	case "poison":
+		return styles.PoisonTypeColor
+	case "ground":
+		return styles.GroundTypeColor
+	case "flying":
+		return styles.FlyingTypeColor
+	case "psychic":
+		return styles.PsychicTypeColor
+	case "bug":
+		return styles.BugTypeColor
+	case "rock":
+		return styles.RockTypeColor
+	case "ghost":
+		return styles.GhostTypeColor
+	case "dragon":
+		return styles.DragonTypeColor
+	case "steel":
+		return styles.SteelTypeColor
+	case "dark":
+		return styles.DarkTypeColor
+	case "fairy":
+		return styles.FairyTypeColor
+	default:
+		// Fallback for unknown or unmapped types
+		return styles.UnknownTypeColor
+	}
+}
+
+func (t Type) typeInfo() string {
+
+	table := table.New().
+		Headers("TYPE", "DAMAGE")
+
+	return table.Render()
+
+}
 
 type typeAPIResponse struct {
 	ID   int    `json:"id"`

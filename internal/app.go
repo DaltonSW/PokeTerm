@@ -6,7 +6,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/log"
-	"go.dalton.dog/poketerm/internal/styles"
 )
 
 var TitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#BADA55")).AlignHorizontal(lipgloss.Center)
@@ -24,7 +23,8 @@ type MainModel struct {
 	initRefGroups []tea.Cmd
 	refGroupsLeft int
 
-	viewportWrapper lipgloss.Style
+	leftWidth     int
+	width, height int
 }
 
 func NewMainModel() (m MainModel) {
@@ -45,8 +45,6 @@ func NewMainModel() (m MainModel) {
 
 	m.refGroupsLeft = len(refCmds)
 	m.initRefGroups = refCmds
-
-	m.viewportWrapper = lipgloss.NewStyle().BorderForeground(styles.BorderColor).Border(lipgloss.RoundedBorder()).Align(lipgloss.Center, lipgloss.Center)
 
 	return m
 }
@@ -71,10 +69,11 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		leftWidth := min(60, msg.Width/2)
-		m.list = m.list.UpdateSize(leftWidth, msg.Height)
+		m.leftWidth = min(50, msg.Width/2)
+		m.list = m.list.UpdateSize(m.leftWidth, msg.Height)
 
-		m.viewportWrapper = m.viewportWrapper.Width(msg.Width - leftWidth).Height(msg.Height)
+		m.width = msg.Width
+		m.height = msg.Height
 
 	case RefsLoadedMsg:
 		m.list, cmd = m.list.Update(msg)
@@ -126,7 +125,7 @@ func (m MainModel) View() string {
 	if ok {
 		res, loaded := m.cache.GetFromRef(item)
 		if loaded && res != nil {
-			right = res.GetPreview(m.cache)
+			right = res.GetPreview(m.cache, m.width-m.leftWidth, m.height)
 		} else {
 			right = fmt.Sprintf("Loading resource: %v from %v", item.Name, item.URL)
 		}
@@ -134,7 +133,5 @@ func (m MainModel) View() string {
 	} else {
 		right = "Currently selected thing didn't return a proper ResourceRef"
 	}
-	right = m.viewportWrapper.Render(right)
-
 	return lipgloss.JoinHorizontal(lipgloss.Center, left, right)
 }

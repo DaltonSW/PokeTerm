@@ -19,14 +19,14 @@ func (a *Ability) GetRef() internal.ResourceRef { return a.Ref }
 func (a *Ability) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
 	for _, p := range a.Pokemon {
-		refs = append(refs, internal.ResourceRef{
-			Name: p.Name, URL: p.URL, Kind: internal.Pokemon,
-		})
+		refs = append(refs, p.GetRef())
 	}
 	return refs
 }
 
-func (a *Ability) GetPreview(cache *internal.Cache) string { return "Ability Preview" }
+func (a *Ability) GetPreview(cache *internal.Cache, width, height int) string {
+	return "Ability Preview"
+}
 
 type abilityAPIResponse struct {
 	ID      int    `json:"id"`

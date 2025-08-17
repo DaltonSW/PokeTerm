@@ -488,6 +488,91 @@ var (
 	}
 )
 
+// Video game types
+var (
+	BugTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#B8C26A"),
+		Light: lipgloss.Color("#5E6910"),
+	}
+	DarkTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#998B8C"),
+		Light: lipgloss.Color("#403233"),
+	}
+	DragonTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#8D98EC"),
+		Light: lipgloss.Color("#343E92"),
+	}
+	ElectricTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#FCD659"),
+		Light: lipgloss.Color("#A37D00"),
+	}
+	FairyTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#F5A2F5"),
+		Light: lipgloss.Color("#9B499B"),
+	}
+	FightingTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#FFAC59"),
+		Light: lipgloss.Color("#A65300"),
+	}
+	FireTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#EF7374"),
+		Light: lipgloss.Color("#961A1B"),
+	}
+	FlyingTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#ADD2F5"),
+		Light: lipgloss.Color("#54789B"),
+	}
+	GhostTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#A284A2"),
+		Light: lipgloss.Color("#492A49"),
+	}
+	GrassTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#82C274"),
+		Light: lipgloss.Color("#29691B"),
+	}
+	GroundTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#B88E6F"),
+		Light: lipgloss.Color("#5E3515"),
+	}
+	IceTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#81DFF7"),
+		Light: lipgloss.Color("#28869E"),
+	}
+	NormalTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#C1C2C1"),
+		Light: lipgloss.Color("#676967"),
+	}
+	PoisonTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#B884DD"),
+		Light: lipgloss.Color("#5E2A84"),
+	}
+	PsychicTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#F584A8"),
+		Light: lipgloss.Color("#9B2A4F"),
+	}
+	RockTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#CBC7AD"),
+		Light: lipgloss.Color("#726E54"),
+	}
+	SteelTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#98C2D1"),
+		Light: lipgloss.Color("#3E6978"),
+	}
+	StellarTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#83CFC5"),
+		Light: lipgloss.Color("#2A766B"),
+	}
+	WaterTypeColor = compat.AdaptiveColor{
+		Dark:  lipgloss.Color("#74ACF5"),
+		Light: lipgloss.Color("#1B539B"),
+	}
+	UnknownTypeColor = compat.AdaptiveColor{ // Changed ??? to Unknown
+		Dark:  lipgloss.Color("#9DC1B7"),
+		Light: lipgloss.Color("#44685E"),
+	}
+	UnknownTypeTextColor = lipgloss.Color("#FFFFFF") // Changed ??? to Unknown
+)
+
 // Seasons
 var (
 	SpringColor = compat.AdaptiveColor{
@@ -507,12 +592,3 @@ var (
 		Light: lipgloss.Color("#A897AE"),
 	}
 )
-
-// Resource Type Colors
-// var (
-// PokemonResColor = compat.AdaptiveColor{Dark: lipgloss.Color("#EE8130"), Light: lipgloss.Color("#B22222")}
-// AbilityResColor = compat.AdaptiveColor{Dark: lipgloss.Color("#6390F0"), Light: lipgloss.Color("#1E3A8A")}
-// TypeResColor    = compat.AdaptiveColor{Dark: lipgloss.Color("#F7D02C"), Light: lipgloss.Color("#B8860B")}
-// MoveResColor    = compat.AdaptiveColor{Dark: lipgloss.Color("#7AC74C"), Light: lipgloss.Color("#2E8B57")}
-// PokemonResourceColor = compat.AdaptiveColor{Dark: lipgloss.Color(""), Light: lipgloss.Color("")}
-// )

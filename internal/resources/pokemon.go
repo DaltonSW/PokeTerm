@@ -20,19 +20,17 @@ func (p *Pokemon) GetRef() internal.ResourceRef { return p.Ref }
 func (p *Pokemon) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
 	for _, t := range p.Types {
-		refs = append(refs, internal.ResourceRef{
-			Name: t.Name, URL: t.URL, Kind: internal.Type,
-		})
+		refs = append(refs, t.GetRef())
 	}
 	for _, a := range p.Abilities {
-		refs = append(refs, internal.ResourceRef{
-			Name: a.Name, URL: a.URL, Kind: internal.Ability,
-		})
+		refs = append(refs, a.GetRef())
 	}
 	return refs
 }
 
-func (p *Pokemon) GetPreview(cache *internal.Cache) string { return "Pokemon Preview" }
+func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
+	return "Pokemon Preview"
+}
 
 type pokemonAPIResponse struct {
 	ID        int    `json:"id"`

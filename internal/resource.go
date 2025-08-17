@@ -66,7 +66,7 @@ type Resource interface {
 	GetRelated() []ResourceRef
 
 	// Populate the right half of the screen
-	GetPreview(*Cache) string
+	GetPreview(*Cache, int, int) string
 
 	// TODO: GetFullModel() tea.Model
 	//	If the list can be made thin enough, maybe this can be the same as above, just different size?
