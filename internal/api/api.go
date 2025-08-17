@@ -7,6 +7,11 @@ import (
 	"net/http"
 )
 
+type RespPointer struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
 func QueryAndUnmarshal[T any](url string) (T, error) {
 	var dest T
 

@@ -12,6 +12,15 @@ import (
 	"go.dalton.dog/poketerm/internal/styles"
 )
 
+type TypeEffectiveness int
+
+const (
+	Ineffective TypeEffectiveness = iota
+	HalfEffective
+	NormalEffective
+	DoubleEffective
+)
+
 type Type struct {
 	ID   int
 	Name string
@@ -159,38 +168,21 @@ type typeAPIResponse struct {
 	Name string `json:"name"`
 
 	DamageRelations struct {
-		DoubleDamageFrom []struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"double_damage_from,omitempty"`
-		DoubleDamageTo []struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"double_damage_to,omitempty"`
-		HalfDamageFrom []struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"half_damage_from,omitempty"`
-		HalfDamageTo []struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"half_damage_to,omitempty"`
-		NoDamageFrom []struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"no_damage_from,omitempty"`
-		NoDamageTo []struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"no_damage_to,omitempty"`
+		DoubleDamageFrom []api.RespPointer `json:"double_damage_from,omitempty"`
+		DoubleDamageTo   []api.RespPointer `json:"double_damage_to,omitempty"`
+		HalfDamageFrom   []api.RespPointer `json:"half_damage_from,omitempty"`
+		HalfDamageTo     []api.RespPointer `json:"half_damage_to,omitempty"`
+		NoDamageFrom     []api.RespPointer `json:"no_damage_from,omitempty"`
+		NoDamageTo       []api.RespPointer `json:"no_damage_to,omitempty"`
 	} `json:"damage_relations"`
 
 	Pokemon []struct {
-		Pokemon struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"pokemon"`
+		Pokemon api.RespPointer `json:"pokemon"`
 	} `json:"pokemon"`
+
+	Moves []struct {
+		Move api.RespPointer `json:"move"`
+	} `json:"moves"`
 }
 
 func init() {

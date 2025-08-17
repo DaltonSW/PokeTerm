@@ -32,10 +32,7 @@ type abilityAPIResponse struct {
 	ID      int    `json:"id"`
 	Name    string `json:"name"`
 	Pokemon []struct {
-		Pokemon struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"pokemon"`
+		Pokemon api.RespPointer `json:"pokemon"`
 	} `json:"pokemon"`
 }
 
