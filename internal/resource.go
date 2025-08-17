@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"github.com/charmbracelet/log"
 	"go.dalton.dog/poketerm/internal/api"
 )
 
@@ -135,6 +136,7 @@ type ErrMsg error
 
 // Command to load a single resource via the loader registered to the given ResKind
 func LoadCmd(ref ResourceRef) tea.Cmd {
+	log.Debugf("[CMD] Starting Load for %s", ref)
 	return func() tea.Msg {
 		loader, ok := loaders[ref.Kind]
 		if !ok {

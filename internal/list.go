@@ -29,7 +29,7 @@ func NewListModel() ListModel {
 
 	del := NewDelegate()
 	l := list.New(nil, del, 0, 0)
-	l.Styles.Title = del.styles.Title
+	l.Styles.Title = del.styles.Item
 	l.SetShowHelp(true)
 	l.SetShowFilter(false)
 	l.SetShowStatusBar(false)
@@ -63,7 +63,7 @@ func (m ListModel) CurrentResource() (ResourceRef, bool) {
 }
 
 func (m ListModel) Init() tea.Cmd {
-	return tea.Batch(m.input.Focus(), textinput.Blink)
+	return m.input.Focus()
 }
 
 func (m ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
@@ -166,7 +166,7 @@ func (d ItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	if index == m.Index() {
 		str = d.styles.Curr.Render(fmt.Sprintf("%s | %s", lipgloss.NewStyle().Width(8).Align(lipgloss.Right).Render(string(resource.Kind)), resource.Title()))
 	} else {
-		str = fmt.Sprintf("%s | %s", d.styles.Desc.Render(string(resource.Kind)), d.styles.Title.Render(resource.Title()))
+		str = fmt.Sprintf("%s | %s", d.styles.Desc.Render(string(resource.Kind)), d.styles.Item.Render(resource.Title()))
 	}
 
 	fmt.Fprint(w, str)

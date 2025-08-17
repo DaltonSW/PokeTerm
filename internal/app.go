@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/log"
 	"go.dalton.dog/poketerm/internal/styles"
 )
 
@@ -27,6 +28,7 @@ type MainModel struct {
 }
 
 func NewMainModel() (m MainModel) {
+	log.Debug("Creating MainModel")
 	m = MainModel{
 		cache: NewCache(),
 		list:  NewListModel(),
@@ -35,9 +37,9 @@ func NewMainModel() (m MainModel) {
 	m.list.cache = m.cache
 
 	refCmds := []tea.Cmd{
-		LoadRefsCmd(Pokemon),
+		// LoadRefsCmd(Pokemon),
 		LoadRefsCmd(Type),
-		LoadRefsCmd(Ability),
+		// LoadRefsCmd(Ability),
 		// LoadRefsCmd(Move),
 	}
 
@@ -80,11 +82,12 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.refGroupsLeft--
 		if m.refGroupsLeft <= 0 {
 			m.ready = true
-
 			cmds = append(cmds, m.list.Init())
 		}
+		log.Debug("Refs loaded", "kind", msg.Kind)
 
 	case ResourceLoadedMsg:
+		log.Debug("Resource loaded", "kind", msg.Kind, "name", msg.Resource.GetName())
 		m.cache.Store(msg.Kind, msg.Resource)
 
 	default:

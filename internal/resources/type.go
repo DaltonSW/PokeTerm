@@ -24,6 +24,13 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 	return refs
 }
 
+// TODO:
+//	Type Name
+//	Effectiveness charts
+//	Moves
+//	Pokemon (Primary)
+//	Pokemon (Secondary)
+
 func (t *Type) GetPreview() string { return "Type Preview" }
 
 type typeAPIResponse struct {

@@ -3,6 +3,8 @@ package internal
 import (
 	"sort"
 	"sync"
+
+	"github.com/charmbracelet/log"
 )
 
 // Cache stores maps of currently loaded Resources, Resources
@@ -18,6 +20,7 @@ type Cache struct {
 
 // Creates a new cache
 func NewCache() *Cache {
+	log.Debug("[Cache] Creating new cache")
 	return &Cache{
 		loaded:  make(map[ResKind]map[string]Resource),
 		loading: make(map[ResKind]map[string]struct{}),
@@ -72,6 +75,7 @@ func (c *Cache) MarkLoading(ref ResourceRef) {
 	if c.loading[ref.Kind] == nil {
 		c.loading[ref.Kind] = make(map[string]struct{})
 	}
+	log.Debugf("[Cache] Marking loading for ref %s", ref)
 	c.loading[ref.Kind][ref.Name] = struct{}{}
 }
 
@@ -82,6 +86,7 @@ func (c *Cache) Store(kind ResKind, res Resource) {
 	if c.loaded[kind] == nil {
 		c.loaded[kind] = make(map[string]Resource)
 	}
+	log.Debugf("[Cache] Storing resource %s", res)
 	c.loaded[kind][res.GetName()] = res
 	delete(c.loading[kind], res.GetName())
 }
