@@ -1,18 +1,22 @@
 package resources
 
-import "go.dalton.dog/poketerm/internal/api"
-import "go.dalton.dog/poketerm/internal"
+import (
+	"go.dalton.dog/poketerm/internal"
+	"go.dalton.dog/poketerm/internal/api"
+)
 
 type Pokemon struct {
 	ID        int
 	Name      string
 	URL       string
+	Ref       internal.ResourceRef
 	Types     []*Type
 	Abilities []*Ability
 }
 
-func (p *Pokemon) GetName() string { return p.Name }
-func (p *Pokemon) GetURL() string  { return p.URL }
+func (p *Pokemon) GetName() string              { return p.Name }
+func (p *Pokemon) GetURL() string               { return p.URL }
+func (p *Pokemon) GetRef() internal.ResourceRef { return p.Ref }
 func (p *Pokemon) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
 	for _, t := range p.Types {
@@ -28,7 +32,7 @@ func (p *Pokemon) GetRelated() []internal.ResourceRef {
 	return refs
 }
 
-func (p *Pokemon) GetPreview() string { return "Pokemon Preview" }
+func (p *Pokemon) GetPreview(cache *internal.Cache) string { return "Pokemon Preview" }
 
 type pokemonAPIResponse struct {
 	ID        int    `json:"id"`

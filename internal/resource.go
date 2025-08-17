@@ -62,10 +62,11 @@ func (k ResKind) Icon() string {
 type Resource interface {
 	GetName() string
 	GetURL() string
+	GetRef() ResourceRef
 	GetRelated() []ResourceRef
 
 	// Populate the right half of the screen
-	GetPreview() string
+	GetPreview(*Cache) string
 
 	// TODO: GetFullModel() tea.Model
 	//	If the list can be made thin enough, maybe this can be the same as above, just different size?
@@ -136,7 +137,7 @@ type ErrMsg error
 
 // Command to load a single resource via the loader registered to the given ResKind
 func LoadCmd(ref ResourceRef) tea.Cmd {
-	log.Debugf("[CMD] Starting Load for %s", ref)
+	log.Debugf("[CMD] Starting Load for %s", ref.Name)
 	return func() tea.Msg {
 		loader, ok := loaders[ref.Kind]
 		if !ok {

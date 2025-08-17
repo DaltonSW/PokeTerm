@@ -9,11 +9,13 @@ type Ability struct {
 	ID      int
 	Name    string
 	URL     string
+	Ref     internal.ResourceRef
 	Pokemon []*Pokemon
 }
 
-func (a *Ability) GetName() string { return a.Name }
-func (a *Ability) GetURL() string  { return a.URL }
+func (a *Ability) GetName() string              { return a.Name }
+func (a *Ability) GetURL() string               { return a.URL }
+func (a *Ability) GetRef() internal.ResourceRef { return a.Ref }
 func (a *Ability) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
 	for _, p := range a.Pokemon {
@@ -24,7 +26,7 @@ func (a *Ability) GetRelated() []internal.ResourceRef {
 	return refs
 }
 
-func (a *Ability) GetPreview() string { return "Ability Preview" }
+func (a *Ability) GetPreview(cache *internal.Cache) string { return "Ability Preview" }
 
 type abilityAPIResponse struct {
 	ID      int    `json:"id"`

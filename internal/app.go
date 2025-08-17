@@ -3,7 +3,7 @@ package internal
 import (
 	"fmt"
 
-	"github.com/charmbracelet/bubbletea/v2"
+	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/log"
 	"go.dalton.dog/poketerm/internal/styles"
@@ -89,6 +89,12 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ResourceLoadedMsg:
 		log.Debug("Resource loaded", "kind", msg.Kind, "name", msg.Resource.GetName())
 		m.cache.Store(msg.Kind, msg.Resource)
+		for _, ref := range msg.Resource.GetRelated() {
+			if !m.cache.IsLoaded(ref) && !m.cache.IsLoading(ref) {
+				m.cache.MarkLoading(ref)
+				cmds = append(cmds, LoadCmd(ref))
+			}
+		}
 
 	default:
 		m.list, cmd = m.list.Update(msg)
@@ -118,9 +124,9 @@ func (m MainModel) View() string {
 
 	item, ok := m.list.CurrentResource()
 	if ok {
-		res, loaded := m.cache.Get(item)
+		res, loaded := m.cache.GetFromRef(item)
 		if loaded && res != nil {
-			right = res.GetPreview()
+			right = res.GetPreview(m.cache)
 		} else {
 			right = fmt.Sprintf("Loading resource: %v from %v", item.Name, item.URL)
 		}

@@ -75,7 +75,7 @@ func (c *Cache) MarkLoading(ref ResourceRef) {
 	if c.loading[ref.Kind] == nil {
 		c.loading[ref.Kind] = make(map[string]struct{})
 	}
-	log.Debugf("[Cache] Marking loading for ref %s", ref)
+	log.Debugf("[Cache] Marking loading for ref %s", ref.Name)
 	c.loading[ref.Kind][ref.Name] = struct{}{}
 }
 
@@ -86,13 +86,21 @@ func (c *Cache) Store(kind ResKind, res Resource) {
 	if c.loaded[kind] == nil {
 		c.loaded[kind] = make(map[string]Resource)
 	}
-	log.Debugf("[Cache] Storing resource %s", res)
+	log.Debugf("[Cache] Storing resource %s", res.GetName())
 	c.loaded[kind][res.GetName()] = res
 	delete(c.loading[kind], res.GetName())
 }
 
 // Get a resource from the cache map
-func (c *Cache) Get(ref ResourceRef) (Resource, bool) {
+func (c *Cache) Get(kind ResKind, name string) (Resource, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	res, ok := c.loaded[kind][name]
+	return res, ok
+}
+
+// Get a resource from the cache map
+func (c *Cache) GetFromRef(ref ResourceRef) (Resource, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	res, ok := c.loaded[ref.Kind][ref.Name]
@@ -110,7 +118,7 @@ func (c *Cache) All(kind ResKind) []Resource {
 	return out
 }
 
-// TODO: Implement disk caching
+// TODO: Implement disk caching (with bbolt probably)
 
 // func (c *Cache) SaveToDisk(path string) error {
 // 	c.mu.RLock()
