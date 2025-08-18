@@ -34,6 +34,7 @@ func (c *Cache) RegisterRef(ref ResourceRef) {
 	if c.refs[ref.Kind] == nil {
 		c.refs[ref.Kind] = make(map[string]ResourceRef)
 	}
+	log.Debugf("[Cache] Registering reference %s", ref.Name)
 	c.refs[ref.Kind][ref.Name] = ref
 }
 
@@ -57,6 +58,7 @@ func (c *Cache) IsLoaded(ref ResourceRef) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	_, ok := c.loaded[ref.Kind][ref.Name]
+	log.Debugf("[Cache] Checking IsLoaded for ref %s (%v)", ref.Name, ok)
 	return ok
 }
 
@@ -65,6 +67,7 @@ func (c *Cache) IsLoading(ref ResourceRef) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	_, ok := c.loading[ref.Kind][ref.Name]
+	log.Debugf("[Cache] Checking IsLoading for ref %s (%v)", ref.Name, ok)
 	return ok
 }
 
@@ -96,14 +99,7 @@ func (c *Cache) Get(kind ResKind, name string) (Resource, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	res, ok := c.loaded[kind][name]
-	return res, ok
-}
-
-// Get a resource from the cache map
-func (c *Cache) GetFromRef(ref ResourceRef) (Resource, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	res, ok := c.loaded[ref.Kind][ref.Name]
+	log.Debugf("[Cache] Trying to get ref %s (%v)", name, ok)
 	return res, ok
 }
 

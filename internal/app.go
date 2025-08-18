@@ -123,7 +123,7 @@ func (m MainModel) View() string {
 
 	item, ok := m.list.CurrentResource()
 	if ok {
-		res, loaded := m.cache.GetFromRef(item)
+		res, loaded := m.cache.Get(item.Kind, item.Name)
 		if loaded && res != nil {
 			right = res.GetPreview(m.cache, m.width-m.leftWidth, m.height)
 		} else {

@@ -25,8 +25,7 @@ type Type struct {
 	ID   int
 	Name string
 	URL  string
-
-	Ref internal.ResourceRef
+	Kind internal.ResKind
 
 	// Effectivenesses
 	DoubleDamageFrom []*Type
@@ -40,31 +39,32 @@ type Type struct {
 	Pokemon []*Pokemon
 }
 
-func (t *Type) GetName() string              { return t.Name }
-func (t *Type) GetURL() string               { return t.URL }
-func (t *Type) GetRef() internal.ResourceRef { return t.Ref }
+func (t *Type) GetName() string               { return t.Name }
+func (t *Type) GetURL() string                { return t.URL }
+func (t *Type) GetKind() internal.ResKind     { return t.Kind }
+func (t *Type) SetKind(kind internal.ResKind) { t.Kind = kind }
 func (t *Type) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
 
 	// Add Pokemon refs
 	for _, p := range t.Pokemon {
-		refs = append(refs, p.GetRef())
+		refs = append(refs, internal.ResourceRef{Kind: p.Kind, Name: p.Name, URL: p.URL})
 	}
 
-	// Helper function to add damage relation type refs
-	addDamageTypeRefs := func(types []*Type) {
-		for _, relatedType := range types {
-			refs = append(refs, relatedType.GetRef())
-		}
-	}
-
-	// Add Damage Relation Type refs
-	addDamageTypeRefs(t.DoubleDamageFrom)
-	addDamageTypeRefs(t.HalfDamageFrom)
-	addDamageTypeRefs(t.DoubleDamageTo)
-	addDamageTypeRefs(t.HalfDamageTo)
-	addDamageTypeRefs(t.NoDamageFrom)
-	addDamageTypeRefs(t.NoDamageTo)
+	// // Helper function to add damage relation type refs
+	// addDamageTypeRefs := func(types []*Type) {
+	// 	for _, relatedType := range types {
+	// 		refs = append(refs, relatedType.GetRef())
+	// 	}
+	// }
+	//
+	// // Add Damage Relation Type refs
+	// addDamageTypeRefs(t.DoubleDamageFrom)
+	// addDamageTypeRefs(t.HalfDamageFrom)
+	// addDamageTypeRefs(t.DoubleDamageTo)
+	// addDamageTypeRefs(t.HalfDamageTo)
+	// addDamageTypeRefs(t.NoDamageFrom)
+	// addDamageTypeRefs(t.NoDamageTo)
 
 	return refs
 }
@@ -83,7 +83,12 @@ func (t *Type) GetPreview(cache *internal.Cache, width, height int) string {
 
 	var pokeList []string
 	for i, p := range t.Pokemon {
-		pokeList = append(pokeList, p.GetName())
+		if poke, loaded := cache.Get(p.Kind, p.GetName()); loaded {
+			pokeList = append(pokeList, poke.GetName()+" (loaded)")
+		} else {
+			pokeList = append(pokeList, p.GetName()+" (loading...)")
+		}
+
 		if i >= height-viewport.GetVerticalBorderSize()-lipgloss.Height(title)-1 {
 			break
 		}
@@ -198,27 +203,28 @@ func init() {
 			t.Pokemon = append(t.Pokemon, &Pokemon{
 				Name: p.Pokemon.Name,
 				URL:  p.Pokemon.URL,
+				Kind: internal.Pokemon,
 			})
 		}
 
 		// Populate Damage Relations
 		for _, rel := range data.DamageRelations.DoubleDamageFrom {
-			t.DoubleDamageFrom = append(t.DoubleDamageFrom, &Type{Name: rel.Name, URL: rel.URL})
+			t.DoubleDamageFrom = append(t.DoubleDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
 		}
 		for _, rel := range data.DamageRelations.HalfDamageFrom {
-			t.HalfDamageFrom = append(t.HalfDamageFrom, &Type{Name: rel.Name, URL: rel.URL})
+			t.HalfDamageFrom = append(t.HalfDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
 		}
 		for _, rel := range data.DamageRelations.DoubleDamageTo {
-			t.DoubleDamageTo = append(t.DoubleDamageTo, &Type{Name: rel.Name, URL: rel.URL})
+			t.DoubleDamageTo = append(t.DoubleDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
 		}
 		for _, rel := range data.DamageRelations.HalfDamageTo {
-			t.HalfDamageTo = append(t.HalfDamageTo, &Type{Name: rel.Name, URL: rel.URL})
+			t.HalfDamageTo = append(t.HalfDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
 		}
 		for _, rel := range data.DamageRelations.NoDamageFrom {
-			t.NoDamageFrom = append(t.NoDamageFrom, &Type{Name: rel.Name, URL: rel.URL})
+			t.NoDamageFrom = append(t.NoDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
 		}
 		for _, rel := range data.DamageRelations.NoDamageTo {
-			t.NoDamageTo = append(t.NoDamageTo, &Type{Name: rel.Name, URL: rel.URL})
+			t.NoDamageTo = append(t.NoDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
 		}
 
 		return t, nil

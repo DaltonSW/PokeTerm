@@ -13,8 +13,8 @@ const LogFile = "poketerm.log"
 
 // Entry point of the program, starts up the BubbleTea program
 func main() {
-	// Setup debug logging
-	file, err := os.OpenFile(LogFile, os.O_CREATE|os.O_WRONLY, 0644)
+	// Set up debug logging
+	file, err := os.Create(LogFile)
 	if err != nil {
 		log.Fatal(err)
 	}

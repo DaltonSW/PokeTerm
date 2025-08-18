@@ -62,7 +62,9 @@ func (k ResKind) Icon() string {
 type Resource interface {
 	GetName() string
 	GetURL() string
-	GetRef() ResourceRef
+	GetKind() ResKind
+	SetKind(ResKind)
+
 	GetRelated() []ResourceRef
 
 	// Populate the right half of the screen

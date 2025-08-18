@@ -9,17 +9,18 @@ type Ability struct {
 	ID      int
 	Name    string
 	URL     string
-	Ref     internal.ResourceRef
+	Kind    internal.ResKind
 	Pokemon []*Pokemon
 }
 
-func (a *Ability) GetName() string              { return a.Name }
-func (a *Ability) GetURL() string               { return a.URL }
-func (a *Ability) GetRef() internal.ResourceRef { return a.Ref }
+func (a *Ability) GetName() string               { return a.Name }
+func (a *Ability) GetURL() string                { return a.URL }
+func (a *Ability) GetKind() internal.ResKind     { return a.Kind }
+func (a *Ability) SetKind(kind internal.ResKind) { a.Kind = kind }
 func (a *Ability) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
 	for _, p := range a.Pokemon {
-		refs = append(refs, p.GetRef())
+		refs = append(refs, internal.ResourceRef{Name: p.Name, Kind: p.Kind, URL: p.URL})
 	}
 	return refs
 }
@@ -47,6 +48,7 @@ func init() {
 			a.Pokemon = append(a.Pokemon, &Pokemon{
 				Name: p.Pokemon.Name,
 				URL:  p.Pokemon.URL,
+				Kind: internal.Pokemon,
 			})
 		}
 		return a, nil
