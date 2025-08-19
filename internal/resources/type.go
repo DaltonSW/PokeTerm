@@ -16,10 +16,34 @@ type TypeEffectiveness int
 
 const (
 	Ineffective TypeEffectiveness = iota
+	QuarterEffective
 	HalfEffective
 	NormalEffective
 	DoubleEffective
+	QuadEffective
 )
+
+func (eff TypeEffectiveness) GetString() string {
+	switch eff {
+	case Ineffective:
+		return "0x"
+	case QuarterEffective:
+		return "1/4x"
+	case HalfEffective:
+		return "1/2x"
+	case NormalEffective:
+		return "1x"
+	case DoubleEffective:
+		return "2x"
+	case QuadEffective:
+		return "4x"
+	default:
+		return "1x"
+	}
+}
+
+var TYPE_LIST = []string{"normal", "fire", "water", "grass", "electric", "ice", "fighting", "poison", "ground", "flying", "psychic",
+	"bug", "rock", "ghost", "dragon", "steel", "dark", "fairy"}
 
 type Type struct {
 	ID   int
@@ -28,6 +52,9 @@ type Type struct {
 	Kind internal.ResKind
 
 	// Effectivenesses
+	AttackingDamageRatios map[string]TypeEffectiveness
+	DefendingDamageRatios map[string]TypeEffectiveness
+
 	DoubleDamageFrom []*Type
 	HalfDamageFrom   []*Type
 	DoubleDamageTo   []*Type
@@ -35,8 +62,8 @@ type Type struct {
 	NoDamageFrom     []*Type
 	NoDamageTo       []*Type
 
-	// Moves   []*Move
 	Pokemon []*Pokemon
+	Moves   []*Move
 }
 
 func (t *Type) GetName() string               { return t.Name }
@@ -49,6 +76,10 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 	// Add Pokemon refs
 	for _, p := range t.Pokemon {
 		refs = append(refs, internal.ResourceRef{Kind: p.Kind, Name: p.Name, URL: p.URL})
+	}
+
+	for _, m := range t.Moves {
+		refs = append(refs, internal.ResourceRef{Kind: m.Kind, Name: m.Name, URL: m.URL})
 	}
 
 	// // Helper function to add damage relation type refs
@@ -96,15 +127,19 @@ func (t *Type) GetPreview(cache *internal.Cache, width, height int) string {
 
 	sMid := viewport.Render(list.New(pokeList).String())
 
-	// moveList := make([]string, len(t.Moves))
-	// for i, m := range t.Moves {
-	// 	moveList[i] = m.GetName()
-	// 	if i > height-viewport.GetVerticalBorderSize() {
-	// 		break
-	// 	}
-	// }
-	// sRight := viewport.Render(list.New(moveList).String())
-	sRight := viewport.Render("Coming soon :)")
+	var moveList []string
+	for i, m := range t.Moves {
+		if move, loaded := cache.Get(m.Kind, m.GetName()); loaded {
+			moveList = append(moveList, move.GetName()+" (loaded)")
+		} else {
+			moveList = append(moveList, m.GetName()+" (loading...)")
+		}
+
+		if i >= height-viewport.GetVerticalBorderSize()-lipgloss.Height(title)-1 {
+			break
+		}
+	}
+	sRight := viewport.Render(list.New(moveList).String())
 
 	sView := lipgloss.JoinHorizontal(lipgloss.Center, sLeft, sMid, sRight)
 
@@ -159,12 +194,28 @@ func (t *Type) GetColor() color.Color {
 	}
 }
 
+func getTypeMap() map[string]TypeEffectiveness {
+	out := make(map[string]TypeEffectiveness)
+
+	for _, typeStr := range TYPE_LIST {
+		out[typeStr] = NormalEffective
+	}
+
+	return out
+}
+
 func (t Type) typeInfo() string {
 
-	table := table.New().
-		Headers("TYPE", "DAMAGE")
+	attackTable := table.New().Border(lipgloss.RoundedBorder()).Headers("Type", "Attacking")
+	defTable := table.New().Border(lipgloss.RoundedBorder()).Headers("Type", "Defending")
 
-	return table.Render()
+	for _, typeStr := range TYPE_LIST {
+		attackTable.Row(strings.ToUpper(typeStr), t.AttackingDamageRatios[typeStr].GetString())
+		defTable.Row(strings.ToUpper(typeStr), t.AttackingDamageRatios[typeStr].GetString())
+
+	}
+
+	return defTable.String() + "\n" + attackTable.String()
 
 }
 
@@ -182,12 +233,10 @@ type typeAPIResponse struct {
 	} `json:"damage_relations"`
 
 	Pokemon []struct {
-		Pokemon api.RespPointer `json:"pokemon"`
+		Pokemon api.RespPointer
 	} `json:"pokemon"`
 
-	Moves []struct {
-		Move api.RespPointer `json:"move"`
-	} `json:"moves"`
+	Moves []api.RespPointer `json:"moves"`
 }
 
 func init() {
@@ -196,7 +245,10 @@ func init() {
 		if err != nil {
 			return nil, err
 		}
-		t := &Type{Name: data.Name, URL: url, ID: data.ID}
+		t := &Type{Name: data.Name, URL: url, ID: data.ID, Kind: internal.Type}
+
+		t.AttackingDamageRatios = getTypeMap()
+		t.DefendingDamageRatios = getTypeMap()
 
 		// Populate Pokemon
 		for _, p := range data.Pokemon {
@@ -207,24 +259,41 @@ func init() {
 			})
 		}
 
-		// Populate Damage Relations
+		// Populate Moves
+		for _, m := range data.Moves {
+			t.Moves = append(t.Moves, &Move{
+				Name: m.Name,
+				URL:  m.URL,
+				Kind: internal.Move,
+			})
+		}
+
+		// Defending ratios
 		for _, rel := range data.DamageRelations.DoubleDamageFrom {
-			t.DoubleDamageFrom = append(t.DoubleDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			// t.DoubleDamageFrom = append(t.DoubleDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			t.DefendingDamageRatios[rel.Name] = DoubleEffective
 		}
 		for _, rel := range data.DamageRelations.HalfDamageFrom {
-			t.HalfDamageFrom = append(t.HalfDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
-		}
-		for _, rel := range data.DamageRelations.DoubleDamageTo {
-			t.DoubleDamageTo = append(t.DoubleDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
-		}
-		for _, rel := range data.DamageRelations.HalfDamageTo {
-			t.HalfDamageTo = append(t.HalfDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			// t.HalfDamageFrom = append(t.HalfDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			t.DefendingDamageRatios[rel.Name] = HalfEffective
 		}
 		for _, rel := range data.DamageRelations.NoDamageFrom {
-			t.NoDamageFrom = append(t.NoDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			// t.NoDamageFrom = append(t.NoDamageFrom, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			t.DefendingDamageRatios[rel.Name] = Ineffective
+		}
+
+		// Attacking ratios
+		for _, rel := range data.DamageRelations.DoubleDamageTo {
+			// t.DoubleDamageTo = append(t.DoubleDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			t.AttackingDamageRatios[rel.Name] = DoubleEffective
+		}
+		for _, rel := range data.DamageRelations.HalfDamageTo {
+			// t.HalfDamageTo = append(t.HalfDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			t.AttackingDamageRatios[rel.Name] = HalfEffective
 		}
 		for _, rel := range data.DamageRelations.NoDamageTo {
-			t.NoDamageTo = append(t.NoDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			// t.NoDamageTo = append(t.NoDamageTo, &Type{Name: rel.Name, URL: rel.URL, Kind: internal.Type})
+			t.AttackingDamageRatios[rel.Name] = Ineffective
 		}
 
 		return t, nil

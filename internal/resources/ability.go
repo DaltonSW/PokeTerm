@@ -43,7 +43,7 @@ func init() {
 		if err != nil {
 			return nil, err
 		}
-		a := &Ability{Name: data.Name, URL: url, ID: data.ID}
+		a := &Ability{Name: data.Name, URL: url, ID: data.ID, Kind: internal.Ability}
 		for _, p := range data.Pokemon {
 			a.Pokemon = append(a.Pokemon, &Pokemon{
 				Name: p.Pokemon.Name,
