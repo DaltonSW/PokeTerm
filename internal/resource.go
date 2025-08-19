@@ -22,7 +22,7 @@ const (
 	Pokemon ResKind = "pokemon"
 	Type    ResKind = "type"
 	Ability ResKind = "ability"
-	// Move    ResKind = "move"
+	Move    ResKind = "move"
 	// Berry   ResKind = "berry"
 )
 

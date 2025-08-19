@@ -14,8 +14,6 @@ github.com/charmbracelet/colorprofile v0.3.1 h1:k8dTHMd7fgw4bnFd7jXTLZrSU/CQrKnL
 github.com/charmbracelet/colorprofile v0.3.1/go.mod h1:/GkGusxNs8VB/RSOh3fu0TJmQ4ICMMPApIIVn0KszZ0=
 github.com/charmbracelet/fang v0.3.0 h1:Be6TB+ExS8VWizTQRJgjqbJBudKrmVUet65xmFPGhaA=
 github.com/charmbracelet/fang v0.3.0/go.mod h1:b0ZfEXZeBds0I27/wnTfnv2UVigFDXHhrFNwQztfA0M=
-github.com/charmbracelet/harmonica v0.2.0 h1:8NxJWRWg/bzKqqEaaeFNipOu77YR5t8aSwG4pgaUBiQ=
-github.com/charmbracelet/harmonica v0.2.0/go.mod h1:KSri/1RMQOZLbw7AHqgcBycp8pgJnQMYYT8QZRqZ1Ao=
 github.com/charmbracelet/lipgloss v1.1.0 h1:vYXsiLHVkK7fp74RkV7b2kq9+zDLoEU4MZoFqR/noCY=
 github.com/charmbracelet/lipgloss v1.1.0/go.mod h1:/6Q8FR2o+kj8rz4Dq0zQc3vYf7X+B0binUUBwA0aL30=
 github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.2 h1:vq2enzx1Hr3UenVefpPEf+E2xMmqtZoSHhx8IE+V8ug=

@@ -88,25 +88,32 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ResourceLoadedMsg:
 		log.Debug("Resource loaded", "kind", msg.Kind, "name", msg.Resource.GetName())
 		m.cache.Store(msg.Kind, msg.Resource)
-		for _, ref := range msg.Resource.GetRelated() {
-			if !m.cache.IsLoaded(ref) && !m.cache.IsLoading(ref) {
-				m.cache.MarkLoading(ref)
-				cmds = append(cmds, LoadCmd(ref))
-			}
-		}
 
 	default:
 		m.list, cmd = m.list.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
-	ref, ok := m.list.CurrentResource()
-	if ok {
-		if !m.cache.IsLoaded(ref) && !m.cache.IsLoading(ref) {
-			m.cache.MarkLoading(ref)
-			cmds = append(cmds, LoadCmd(ref))
-		}
+	if m.ready {
+		ref, ok := m.list.CurrentResource()
+		if ok {
+			// If reference exists but isn't loaded, load it in
+			if !m.cache.IsLoaded(ref.Kind, ref.Name) && !m.cache.IsLoading(ref.Kind, ref.Name) {
+				m.cache.MarkLoading(ref.Kind, ref.Name)
+				cmds = append(cmds, LoadCmd(ref))
+			} else { // Else, load related things *only* of currently visible item
+				res, loaded := m.cache.Get(ref.Kind, ref.Name)
+				if loaded && res != nil {
+					for _, rel := range res.GetRelated() {
+						if !m.cache.IsLoaded(rel.Kind, rel.Name) && !m.cache.IsLoading(rel.Kind, rel.Name) {
+							m.cache.MarkLoading(rel.Kind, rel.Name)
+							cmds = append(cmds, LoadCmd(rel))
+						}
+					}
 
+				}
+			}
+		}
 	}
 
 	return m, tea.Batch(cmds...)
@@ -117,21 +124,22 @@ func (m MainModel) View() string {
 
 	if !m.ready {
 		right = "Loading references..."
+	} else {
+		item, ok := m.list.CurrentResource()
+		if ok {
+			res, loaded := m.cache.Get(item.Kind, item.Name)
+			if loaded && res != nil {
+				right = res.GetPreview(m.cache, m.width-m.leftWidth, m.height)
+			} else {
+				right = fmt.Sprintf("Loading resource: %v from %v", item.Name, item.URL)
+			}
+
+		} else {
+			right = "Currently selected thing didn't return a proper ResourceRef"
+		}
 	}
 
 	left = m.list.View()
 
-	item, ok := m.list.CurrentResource()
-	if ok {
-		res, loaded := m.cache.Get(item.Kind, item.Name)
-		if loaded && res != nil {
-			right = res.GetPreview(m.cache, m.width-m.leftWidth, m.height)
-		} else {
-			right = fmt.Sprintf("Loading resource: %v from %v", item.Name, item.URL)
-		}
-
-	} else {
-		right = "Currently selected thing didn't return a proper ResourceRef"
-	}
 	return lipgloss.JoinHorizontal(lipgloss.Center, left, right)
 }

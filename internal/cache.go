@@ -54,32 +54,32 @@ func (c *Cache) AllRefs() []ResourceRef {
 }
 
 // Checks if a resource is already loaded
-func (c *Cache) IsLoaded(ref ResourceRef) bool {
+func (c *Cache) IsLoaded(kind ResKind, name string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	_, ok := c.loaded[ref.Kind][ref.Name]
-	log.Debugf("[Cache] Checking IsLoaded for ref %s (%v)", ref.Name, ok)
+	_, ok := c.loaded[kind][name]
+	log.Debugf("[Cache] Checking IsLoaded for ref %s (%v)", name, ok)
 	return ok
 }
 
 // Checks if a resouce is currently being loaded in another thread
-func (c *Cache) IsLoading(ref ResourceRef) bool {
+func (c *Cache) IsLoading(kind ResKind, name string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	_, ok := c.loading[ref.Kind][ref.Name]
-	log.Debugf("[Cache] Checking IsLoading for ref %s (%v)", ref.Name, ok)
+	_, ok := c.loading[kind][name]
+	log.Debugf("[Cache] Checking IsLoading for ref %s (%v)", name, ok)
 	return ok
 }
 
 // Marks a resource as currently being loaded
-func (c *Cache) MarkLoading(ref ResourceRef) {
+func (c *Cache) MarkLoading(kind ResKind, name string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if c.loading[ref.Kind] == nil {
-		c.loading[ref.Kind] = make(map[string]struct{})
+	if c.loading[kind] == nil {
+		c.loading[kind] = make(map[string]struct{})
 	}
-	log.Debugf("[Cache] Marking loading for ref %s", ref.Name)
-	c.loading[ref.Kind][ref.Name] = struct{}{}
+	log.Debugf("[Cache] Marking loading for ref %s", name)
+	c.loading[kind][name] = struct{}{}
 }
 
 // Store a resource in the cache map

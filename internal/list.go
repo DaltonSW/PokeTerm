@@ -9,11 +9,13 @@ import (
 	"github.com/charmbracelet/bubbles/v2/textinput"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/log"
 	"go.dalton.dog/poketerm/internal/styles"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
+// ListModel represents a list of resource references that can be loaded/previewed
 type ListModel struct {
 	cache *Cache
 	list  list.Model
@@ -24,6 +26,7 @@ type ListModel struct {
 	style lipgloss.Style
 }
 
+// NewListModel creates the list model
 func NewListModel() ListModel {
 	m := ListModel{}
 
@@ -59,6 +62,7 @@ func (m ListModel) UpdateSize(w, h int) ListModel {
 func (m ListModel) CurrentResource() (ResourceRef, bool) {
 	item := m.list.SelectedItem()
 	res, ok := item.(ResourceRef)
+	log.Debugf("Getting current resource from list: %s (%v)", res.Name, ok)
 	return res, ok
 }
 
@@ -119,7 +123,7 @@ func NewDelegate() ItemDelegate {
 }
 
 func (d ItemDelegate) Height() int                             { return 1 }
-func (d ItemDelegate) Spacing() int                            { return 1 }
+func (d ItemDelegate) Spacing() int                            { return 0 }
 func (d ItemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 func (d ItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	resource, ok := listItem.(ResourceRef)
