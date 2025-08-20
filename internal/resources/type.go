@@ -26,17 +26,15 @@ const (
 func (eff TypeEffectiveness) GetString() string {
 	switch eff {
 	case Ineffective:
-		return "0x"
+		return lipgloss.NewStyle().Foreground(styles.Ineffective).Render("0x")
 	case QuarterEffective:
-		return "1/4x"
+		return lipgloss.NewStyle().Foreground(styles.QuadEffective).Render("1/4x")
 	case HalfEffective:
-		return "1/2x"
-	case NormalEffective:
-		return "1x"
+		return lipgloss.NewStyle().Foreground(styles.HalfEffective).Render("1/2x")
 	case DoubleEffective:
-		return "2x"
+		return lipgloss.NewStyle().Foreground(styles.DoubleEffective).Render("2x")
 	case QuadEffective:
-		return "4x"
+		return lipgloss.NewStyle().Foreground(styles.QuadEffective).Render("4x")
 	default:
 		return "1x"
 	}
@@ -103,7 +101,7 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 // GetPreview is updated to accept the cache to pull full details if needed
 func (t *Type) GetPreview(cache *internal.Cache, width, height int) string {
 	title := lipgloss.NewStyle().Width(width).
-		Foreground(t.GetColor()).
+		Foreground(GetTypeColor(t.Name)).
 		Bold(true).Italic(true).
 		AlignHorizontal(lipgloss.Center).
 		Render(t.Name)
@@ -147,9 +145,9 @@ func (t *Type) GetPreview(cache *internal.Cache, width, height int) string {
 }
 
 // GetColor returns a lipgloss.Color based on the type's name.
-func (t *Type) GetColor() color.Color {
+func GetTypeColor(typeName string) color.Color {
 	// Convert name to lowercase to ensure consistent matching
-	typeName := strings.ToLower(t.Name)
+	typeName = strings.ToLower(typeName)
 
 	switch typeName {
 	case "normal":
@@ -204,18 +202,27 @@ func getTypeMap() map[string]TypeEffectiveness {
 	return out
 }
 
+// BUG: The colors here are currently backwards for defense
+
 func (t Type) typeInfo() string {
 
-	attackTable := table.New().Border(lipgloss.RoundedBorder()).Headers("Type", "Attacking")
-	defTable := table.New().Border(lipgloss.RoundedBorder()).Headers("Type", "Defending")
+	attackTable := table.New().Border(lipgloss.RoundedBorder()).Headers("Type", "Mult")
+	defTable := table.New().Border(lipgloss.RoundedBorder()).Headers("Type", "Mult")
 
 	for _, typeStr := range TYPE_LIST {
-		attackTable.Row(strings.ToUpper(typeStr), t.AttackingDamageRatios[typeStr].GetString())
-		defTable.Row(strings.ToUpper(typeStr), t.AttackingDamageRatios[typeStr].GetString())
+		typeStyled := lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(strings.ToUpper(typeStr))
+		attackTable.Row(typeStyled, t.AttackingDamageRatios[typeStr].GetString())
+		defTable.Row(typeStyled, t.AttackingDamageRatios[typeStr].GetString())
 
 	}
 
-	return defTable.String() + "\n" + attackTable.String()
+	attackHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(16).Bold(true).Render("~ Attack ~")
+	defenseHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(16).Bold(true).Render("~ Defend ~")
+
+	attackOut := lipgloss.JoinVertical(lipgloss.Center, attackHeader, attackTable.Render())
+	defenseOut := lipgloss.JoinVertical(lipgloss.Center, defenseHeader, defTable.Render())
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, attackOut, defenseOut)
 
 }
 

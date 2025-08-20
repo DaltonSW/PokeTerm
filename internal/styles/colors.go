@@ -7,6 +7,9 @@ import (
 	"github.com/charmbracelet/lipgloss/v2/compat"
 )
 
+// Basically all of these colors are taken from either catppuccin or Bulbapedia's Color Templates page
+//	URL: https://bulbapedia.bulbagarden.net/wiki/Help:Color_templates
+
 // Catppuccin Theme References
 var (
 	CatDark  = cat.Mocha
@@ -590,5 +593,29 @@ var (
 	WinterColor = compat.AdaptiveColor{
 		Dark:  lipgloss.Color("#F4E3FA"),
 		Light: lipgloss.Color("#A897AE"),
+	}
+)
+
+// Effectiveness
+var (
+	Ineffective = compat.AdaptiveColor{
+		Dark:  CatDark.Lavender(),
+		Light: CatLight.Lavender(),
+	}
+	QuarterEffective = compat.AdaptiveColor{
+		Dark:  CatDark.Red(),
+		Light: CatLight.Red(),
+	}
+	HalfEffective = compat.AdaptiveColor{
+		Dark:  CatDark.Maroon(),
+		Light: CatLight.Maroon(),
+	}
+	DoubleEffective = compat.AdaptiveColor{
+		Dark:  CatDark.Green(),
+		Light: CatLight.Green(),
+	}
+	QuadEffective = compat.AdaptiveColor{
+		Dark:  CatDark.Green(),
+		Light: CatLight.Green(),
 	}
 )
