@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/fang"
@@ -17,9 +18,10 @@ var rootCmd = &cobra.Command{
 	Use:   "poketerm",
 	Short: "Terminal-based PokeDex",
 	Long:  "",
-	Args:  cobra.ExactArgs(0),
+	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		model := internal.NewMainModel()
+		model := internal.NewMainModel(strings.Join(args, " "))
+
 		program := tea.NewProgram(model, tea.WithAltScreen())
 
 		if _, err := program.Run(); err != nil {

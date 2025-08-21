@@ -27,7 +27,7 @@ type MainModel struct {
 	width, height int
 }
 
-func NewMainModel() (m MainModel) {
+func NewMainModel(startingFilter string) (m MainModel) {
 	log.Debug("Creating MainModel")
 	m = MainModel{
 		cache: NewCache(),
@@ -35,6 +35,7 @@ func NewMainModel() (m MainModel) {
 	}
 
 	m.list.cache = m.cache
+	m.list.list.SetFilterText(startingFilter)
 
 	refCmds := []tea.Cmd{
 		// LoadRefsCmd(Pokemon),
@@ -93,6 +94,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list, cmd = m.list.Update(msg)
 		cmds = append(cmds, cmd)
 	}
+
+	// TODO: Make this not... horribly written
 
 	if m.ready {
 		ref, ok := m.list.CurrentResource()
