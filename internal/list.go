@@ -37,6 +37,7 @@ func NewListModel() ListModel {
 	l.SetShowFilter(false)
 	l.SetShowStatusBar(false)
 	l.SetShowTitle(false)
+	l.SetShowHelp(false)
 	l.SetFilteringEnabled(true)
 	m.list = l
 

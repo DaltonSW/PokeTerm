@@ -5,8 +5,12 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/list"
 	"github.com/charmbracelet/log"
+
 	"go.dalton.dog/poketerm/internal/api"
+	"go.dalton.dog/poketerm/internal/utils"
 )
 
 type ResKind string
@@ -26,21 +30,22 @@ const (
 	// Berry   ResKind = "berry"
 )
 
-// func (k ResKind) Color() color.Color {
-// 	switch k {
-// 	case Pokemon:
-// 		return styles.PokemonResColor
-// 	case Type:
-// 		return styles.TypeResColor
-// 	case Ability:
-// 		return styles.AbilityResColor
-// 	case Move:
-// 		return styles.MoveResColor
-// 	default:
-// 		return styles.ForeColor
-// 	}
-//
-// }
+func ResourceToList[T Resource](title string, resources []T, maxCount int, cache *Cache) *list.List {
+	var resList []string
+	for i, r := range resources {
+		if poke, loaded := cache.Get(r.GetKind(), r.GetName()); loaded {
+			resList = append(resList, utils.StripAndTitle(poke.GetName()))
+		} else {
+			resList = append(resList, lipgloss.NewStyle().Italic(true).Render(utils.StripAndTitle(r.GetName())))
+		}
+
+		if i > maxCount-3 {
+			resList = append(resList, "...")
+			break
+		}
+	}
+	return list.New(resList)
+}
 
 func (k ResKind) Icon() string {
 	switch k {

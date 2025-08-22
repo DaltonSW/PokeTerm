@@ -5,11 +5,12 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/list"
+	"github.com/charmbracelet/lipgloss/v2/compat"
 	"github.com/charmbracelet/lipgloss/v2/table"
 	"go.dalton.dog/poketerm/internal"
 	"go.dalton.dog/poketerm/internal/api"
 	"go.dalton.dog/poketerm/internal/styles"
+	"go.dalton.dog/poketerm/internal/utils"
 )
 
 type TypeEffectiveness int
@@ -23,21 +24,32 @@ const (
 	QuadEffective
 )
 
-func (eff TypeEffectiveness) GetString() string {
+func (eff TypeEffectiveness) GetString(defending bool) string {
+	var str string
+	var color compat.AdaptiveColor
 	switch eff {
 	case Ineffective:
-		return lipgloss.NewStyle().Foreground(styles.Ineffective).Render("0x")
+		str = "0x"
+		color = utils.Ternary(defending, styles.DoubleEffective, styles.Ineffective)
 	case QuarterEffective:
-		return lipgloss.NewStyle().Foreground(styles.QuadEffective).Render("1/4x")
+		str = "¼x"
+		color = utils.Ternary(defending, styles.DoubleEffective, styles.QuarterEffective)
 	case HalfEffective:
-		return lipgloss.NewStyle().Foreground(styles.HalfEffective).Render("1/2x")
+		// str = "1/2x"
+		str = "½x"
+		color = utils.Ternary(defending, styles.DoubleEffective, styles.HalfEffective)
 	case DoubleEffective:
-		return lipgloss.NewStyle().Foreground(styles.DoubleEffective).Render("2x")
+		str = "2x"
+		color = utils.Ternary(defending, styles.HalfEffective, styles.DoubleEffective)
 	case QuadEffective:
-		return lipgloss.NewStyle().Foreground(styles.QuadEffective).Render("4x")
+		str = "4x"
+		color = utils.Ternary(defending, styles.QuarterEffective, styles.QuadEffective)
 	default:
-		return "1x"
+		str = "1x"
+		color = styles.ForeColor
 	}
+
+	return lipgloss.NewStyle().Width(3).Foreground(color).Render(str)
 }
 
 var TYPE_LIST = []string{"normal", "fire", "water", "grass", "electric", "ice", "fighting", "poison", "ground", "flying", "psychic",
@@ -62,6 +74,8 @@ type Type struct {
 
 	Pokemon []*Pokemon
 	Moves   []*Move
+
+	mainAreaHeight int
 }
 
 func (t *Type) GetName() string               { return t.Name }
@@ -100,48 +114,54 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 
 // GetPreview is updated to accept the cache to pull full details if needed
 func (t *Type) GetPreview(cache *internal.Cache, width, height int) string {
-	title := lipgloss.NewStyle().Width(width).
+	title := lipgloss.NewStyle().MaxWidth(width).
 		Foreground(GetTypeColor(t.Name)).
 		Bold(true).Italic(true).
 		AlignHorizontal(lipgloss.Center).
-		Render(t.Name)
+		Render(utils.StripAndTitle(t.Name) + "\n")
 
-	viewport := lipgloss.NewStyle().Width(width / 3).Height(height - lipgloss.Height(title)).Border(lipgloss.RoundedBorder()).Align(lipgloss.Center)
+	sTypes := lipgloss.NewStyle().MaxWidth(width).Render(t.typeInfo())
 
-	sLeft := viewport.Render(t.typeInfo())
+	mainAreaHeight := height - lipgloss.Height(title) - lipgloss.Height(sTypes)
 
-	var pokeList []string
-	for i, p := range t.Pokemon {
-		if poke, loaded := cache.Get(p.Kind, p.GetName()); loaded {
-			pokeList = append(pokeList, poke.GetName()+" (loaded)")
-		} else {
-			pokeList = append(pokeList, p.GetName()+" (loading...)")
-		}
+	mainView := lipgloss.NewStyle().
+		Width(lipgloss.Width(sTypes) / 2).MaxHeight(mainAreaHeight).Height(mainAreaHeight).
+		Border(lipgloss.RoundedBorder()).BorderForeground(GetTypeColor(t.Name)).
+		Align(lipgloss.Left)
 
-		if i >= height-viewport.GetVerticalBorderSize()-lipgloss.Height(title)-1 {
-			break
-		}
+	sPokes := internal.ResourceToList("Pokemon", t.Pokemon, mainAreaHeight-mainView.GetVerticalBorderSize(), cache)
+	sMoves := internal.ResourceToList("Moves", t.Moves, mainAreaHeight-mainView.GetVerticalBorderSize(), cache)
+
+	sView := lipgloss.JoinHorizontal(lipgloss.Top, mainView.Render(sMoves.String()), mainView.Render(sPokes.String()))
+
+	return lipgloss.JoinVertical(lipgloss.Center, title, sTypes, sView)
+}
+
+func (t Type) typeInfo() string {
+
+	var attackVals, defendVals, headers []string
+	for _, typeStr := range TYPE_LIST {
+		typeStyled := lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(strings.ToUpper(typeStr[0:3]))
+		headers = append(headers, typeStyled)
 	}
 
-	sMid := viewport.Render(list.New(pokeList).String())
-
-	var moveList []string
-	for i, m := range t.Moves {
-		if move, loaded := cache.Get(m.Kind, m.GetName()); loaded {
-			moveList = append(moveList, move.GetName()+" (loaded)")
-		} else {
-			moveList = append(moveList, m.GetName()+" (loading...)")
-		}
-
-		if i >= height-viewport.GetVerticalBorderSize()-lipgloss.Height(title)-1 {
-			break
-		}
+	for _, typeStr := range TYPE_LIST {
+		attackVals = append(attackVals, t.AttackingDamageRatios[typeStr].GetString(false))
+		defendVals = append(defendVals, t.DefendingDamageRatios[typeStr].GetString(false))
 	}
-	sRight := viewport.Render(list.New(moveList).String())
 
-	sView := lipgloss.JoinHorizontal(lipgloss.Center, sLeft, sMid, sRight)
+	attackTable := table.New().Border(lipgloss.RoundedBorder()).Headers(headers...).Row(attackVals...)
+	defTable := table.New().Border(lipgloss.RoundedBorder()).Headers(headers...).Row(defendVals...)
 
-	return lipgloss.JoinVertical(lipgloss.Top, title, sView)
+	attackHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(16).Bold(true).Render("~ Attack ~")
+	defenseHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(16).Bold(true).Render("~ Defend ~")
+
+	attackOut := lipgloss.JoinVertical(lipgloss.Center, attackHeader, attackTable.Render())
+	defenseOut := lipgloss.JoinVertical(lipgloss.Center, defenseHeader, defTable.Render())
+
+	return lipgloss.JoinVertical(lipgloss.Center, attackOut, defenseOut)
+	// return lipgloss.JoinHorizontal(lipgloss.Top, attackOut, "   ", defenseOut)
+
 }
 
 // GetColor returns a lipgloss.Color based on the type's name.
@@ -200,30 +220,6 @@ func getTypeMap() map[string]TypeEffectiveness {
 	}
 
 	return out
-}
-
-// BUG: The colors here are currently backwards for defense
-
-func (t Type) typeInfo() string {
-
-	attackTable := table.New().Border(lipgloss.RoundedBorder()).Headers("Type", "Mult")
-	defTable := table.New().Border(lipgloss.RoundedBorder()).Headers("Type", "Mult")
-
-	for _, typeStr := range TYPE_LIST {
-		typeStyled := lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(strings.ToUpper(typeStr))
-		attackTable.Row(typeStyled, t.AttackingDamageRatios[typeStr].GetString())
-		defTable.Row(typeStyled, t.AttackingDamageRatios[typeStr].GetString())
-
-	}
-
-	attackHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(16).Bold(true).Render("~ Attack ~")
-	defenseHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(16).Bold(true).Render("~ Defend ~")
-
-	attackOut := lipgloss.JoinVertical(lipgloss.Center, attackHeader, attackTable.Render())
-	defenseOut := lipgloss.JoinVertical(lipgloss.Center, defenseHeader, defTable.Render())
-
-	return lipgloss.JoinHorizontal(lipgloss.Top, attackOut, defenseOut)
-
 }
 
 type typeAPIResponse struct {
