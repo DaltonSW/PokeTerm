@@ -22,7 +22,25 @@
 - Meta.MinTurns
 - Meta.StatChance
 
-## Machines
+## Item
+
+- Name
+- Cost
+- Fling Power
+- Fling Effect
+- Attributes
+- Categories
+- Effect Entries
+- Sprites
+- Held By Pokemon
+
+*I think this should probably sub-differentiate Machines and Berries, since they're items, but have notable additional stuff, but perhaps doesn't warrant their own references/previews?*
+
+### Machine
+
+- Relevant Item
+- Move
+- Version Group
 
 The "Machine" endpoint is unique per version_group. For example, machine/2 is
 - Item: TM01 (item/305)
@@ -34,4 +52,25 @@ and machine/3 is
 - Move: Mega Punch (move/5)
 - VersionGroup: Yellow (version/2)
 
-These are probably good to store as their own Resource, but don't make them queryable. The item representation of it will suffice, but maybe display them differently?
+### Berry
+
+- Growth Time
+- Size (mm)
+- Flavors
+
+- Max Harvest (Gen 4)
+- Soil Dryness (Rate at which this berry dries out the soil it's growing in)
+
+- Firmness (PokeBlocks / Poffins)
+- Smoothness (PokeBlocks / Poffins)
+
+- Natural Gift Power
+- Natural Gift Type
+
+# Next Up! Don't Wanna Overwhelm Myself :)
+
+## Games
+
+## Location(s)
+
+## Pokemon
