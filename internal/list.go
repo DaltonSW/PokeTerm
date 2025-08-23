@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/log"
 	"go.dalton.dog/poketerm/internal/styles"
+	"go.dalton.dog/poketerm/internal/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -168,10 +169,12 @@ func (d ItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 
 	var str string
 
+	title := utils.StripAndTitle(resource.Title())
+
 	if index == m.Index() {
-		str = d.styles.Curr.Render(fmt.Sprintf("%s | %s", lipgloss.NewStyle().Width(8).Align(lipgloss.Right).Render(string(resource.Kind)), resource.Title()))
+		str = d.styles.Curr.Render(fmt.Sprintf("%s | %s", lipgloss.NewStyle().Width(8).Align(lipgloss.Right).Render(string(resource.Kind)), title))
 	} else {
-		str = fmt.Sprintf("%s | %s", d.styles.Desc.Render(string(resource.Kind)), d.styles.Item.Render(resource.Title()))
+		str = fmt.Sprintf("%s | %s", d.styles.Desc.Render(string(resource.Kind)), d.styles.Item.Render(title))
 	}
 
 	fmt.Fprint(w, str)

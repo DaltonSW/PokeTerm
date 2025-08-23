@@ -91,7 +91,7 @@ type ResourceRef struct {
 
 func (ref ResourceRef) Title() string       { return strings.ReplaceAll(ref.Name, "-", " ") }
 func (ref ResourceRef) Description() string { return strings.ReplaceAll(string(ref.Kind), "-", " ") }
-func (ref ResourceRef) FilterValue() string { return ref.Name }
+func (ref ResourceRef) FilterValue() string { return utils.StripAndTitle(ref.Name) + string(ref.Kind) }
 
 // LoaderFunc is a type of function that will, for a given ResKind, turn a URL into a Resource.
 // The expectation is that each Resource will call RegisterLoader() in their init() function.
