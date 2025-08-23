@@ -41,7 +41,7 @@ func NewMainModel(startingFilter string) (m MainModel) {
 		// LoadRefsCmd(Pokemon),
 		LoadRefsCmd(Type),
 		// LoadRefsCmd(Ability),
-		// LoadRefsCmd(Move),
+		LoadRefsCmd(Move),
 	}
 
 	m.refGroupsLeft = len(refCmds)
@@ -95,7 +95,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 
-	// TODO: Make this not... horribly written
+	// TODO: Make this less... horribly written
 
 	if m.ready {
 		ref, ok := m.list.CurrentResource()

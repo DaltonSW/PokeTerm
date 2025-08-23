@@ -1,16 +1,54 @@
 package resources
 
 import (
+	"encoding/json"
+
+	"github.com/charmbracelet/lipgloss/v2"
 	"go.dalton.dog/poketerm/internal"
 	"go.dalton.dog/poketerm/internal/api"
 )
 
+// - Name
+// - Accuracy
+// - Effect Chance
+// - PP
+// - Priority
+// - Power
+// - Learned By Pokemon (list of name/URLs)
+// - Generation.Name (name/URL)
+// - Damage Class (physical, special, status)
+// - Type
+// - Target
+
+// - Meta.Ailment (Name is fine, nothing very relevant stored in move-ailment endpoint)
+// - Meta.Category (Name is fine, nothing very relevant stored in move-category endpoint)
+// - Meta.CritRate
+// - Meta.Drain
+// - Meta.FlinchChance
+// - Meta.Healing
+// - Meta.MaxHits
+// - Meta.MinHits
+// - Meta.MaxTurns
+// - Meta.MinTurns
+// - Meta.StatChance
+
 type Move struct {
-	ID      int
-	Name    string
-	URL     string
-	Kind    internal.ResKind
-	Pokemon []*Pokemon
+	ID   int
+	Name string
+	URL  string
+	Kind internal.ResKind
+
+	LearnedByPokemon []*Pokemon
+
+	PP    int
+	Power int
+	Type  *Type
+
+	Generation string
+	Target     string
+
+	Accuracy int
+	Priority int // -8 to +8
 }
 
 func (m *Move) GetName() string               { return m.Name }
@@ -26,7 +64,21 @@ func (m *Move) GetRelated() []internal.ResourceRef {
 }
 
 func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
-	return "move Preview"
+	mainView := lipgloss.NewStyle().
+		Width(width).MaxHeight(height).Height(height).
+		Border(lipgloss.RoundedBorder()).BorderForeground(GetTypeColor(m.Name)).
+		Align(lipgloss.Left)
+
+	var outStr string
+
+	content, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		outStr = err.Error()
+	} else {
+		outStr = string(content)
+	}
+
+	return mainView.Render(outStr)
 }
 
 type moveAPIResponse struct {
@@ -35,6 +87,31 @@ type moveAPIResponse struct {
 	Pokemon []struct {
 		Pokemon api.RespPointer
 	} `json:"learned_by_pokemon"`
+
+	Accuracy int `json:"accuracy,omitempty"`
+	Priority int `json:"priority,omitempty"`
+	PP       int `json:"pp,omitempty"`
+	Power    int `json:"power,omitempty"`
+
+	Target     api.RespPointer `json:"target"`
+	Type       api.RespPointer `json:"type"`
+	Generation api.RespPointer `json:"generation"`
+
+	DamageClass api.RespPointer `json:"damage_class"`
+	Meta        struct {
+		Ailment       api.RespPointer `json:"ailment"`
+		AilmentChance int             `json:"ailment_chance,omitempty"`
+		Category      api.RespPointer `json:"category"`
+		CritRate      int             `json:"crit_rate,omitempty"`
+		Drain         int             `json:"drain,omitempty"`
+		FlinchChance  int             `json:"flinch_chance,omitempty"`
+		Healing       int             `json:"healing,omitempty"`
+		MaxHits       int             `json:"max_hits,omitempty"`
+		MinHits       int             `json:"min_hits,omitempty"`
+		MaxTurns      int             `json:"max_turns,omitempty"`
+		MinTurns      int             `json:"min_turns,omitempty"`
+		StatChance    int             `json:"stat_chance,omitempty"`
+	} `json:"meta"`
 }
 
 func init() {
@@ -44,13 +121,24 @@ func init() {
 			return nil, err
 		}
 		m := &Move{Name: data.Name, URL: url, ID: data.ID, Kind: internal.Move}
-		// for _, p := range data.Pokemon {
-		// 	m.Pokemon = append(m.Pokemon, &Pokemon{
-		// 		Name: p.Pokemon.Name,
-		// 		URL:  p.Pokemon.URL,
-		// 		Kind: internal.Pokemon,
-		// 	})
-		// }
+		for _, p := range data.Pokemon {
+			m.LearnedByPokemon = append(m.LearnedByPokemon, &Pokemon{
+				Name: p.Pokemon.Name,
+				URL:  p.Pokemon.URL,
+				Kind: internal.Pokemon,
+			})
+		}
+
+		m.Accuracy = data.Accuracy
+		m.Priority = data.Priority
+		m.Power = data.Power
+		m.PP = data.PP
+
+		m.Target = data.Target.Name
+		m.Generation = data.Generation.Name
+
+		m.Type = &Type{Name: data.Type.Name, URL: url, ID: data.ID, Kind: internal.Type}
+
 		return m, nil
 	})
 }
