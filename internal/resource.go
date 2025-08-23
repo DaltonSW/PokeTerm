@@ -30,18 +30,18 @@ const (
 	// Berry   ResKind = "berry"
 )
 
-func ResourceToList[T Resource](resources []T, maxCount int, cache *Cache) *list.List {
+func ResourceToList[T Resource](resources []T, maxCount int, cache *Cache, ignoreUnloaded bool) *list.List {
 	var resList []string
 	for i, r := range resources {
 		if poke, loaded := cache.Get(r.GetKind(), r.GetName()); loaded {
 			resList = append(resList, utils.StripAndTitle(poke.GetName()))
-		} else {
+		} else if !ignoreUnloaded {
 			resList = append(resList, lipgloss.NewStyle().Italic(true).Render(utils.StripAndTitle(r.GetName())))
 		}
 
-		// 3 to account for display frame and the item we're adding now. It's a little fudy
-		if i > maxCount-3 {
-			resList = append(resList, fmt.Sprintf("(%v remaining ...)", len(resources)-i))
+		// 3 to account for display frame and the item we're adding now. It's a little fudgy
+		if len(resList) > maxCount-2 {
+			resList = append(resList, fmt.Sprintf("(%v remaining...)", len(resources)-i))
 			break
 		}
 	}

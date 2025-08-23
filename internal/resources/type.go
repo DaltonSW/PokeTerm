@@ -95,21 +95,6 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 		refs = append(refs, internal.ResourceRef{Kind: m.Kind, Name: m.Name, URL: m.URL})
 	}
 
-	// // Helper function to add damage relation type refs
-	// addDamageTypeRefs := func(types []*Type) {
-	// 	for _, relatedType := range types {
-	// 		refs = append(refs, relatedType.GetRef())
-	// 	}
-	// }
-	//
-	// // Add Damage Relation Type refs
-	// addDamageTypeRefs(t.DoubleDamageFrom)
-	// addDamageTypeRefs(t.HalfDamageFrom)
-	// addDamageTypeRefs(t.DoubleDamageTo)
-	// addDamageTypeRefs(t.HalfDamageTo)
-	// addDamageTypeRefs(t.NoDamageFrom)
-	// addDamageTypeRefs(t.NoDamageTo)
-
 	return refs
 }
 
@@ -117,11 +102,11 @@ func (t *Type) GetRelated() []internal.ResourceRef {
 func (t *Type) GetPreview(cache *internal.Cache, width, height int) string {
 	title := lipgloss.NewStyle().MaxWidth(width).
 		Foreground(GetTypeColor(t.Name)).
-		Bold(true).Italic(true).
+		Bold(true).Italic(true).Underline(true).
 		AlignHorizontal(lipgloss.Center).
 		Render(utils.StripAndTitle(t.Name) + "\n")
 
-	sTypes := lipgloss.NewStyle().MaxWidth(width).Padding(1).Render(t.typeInfo())
+	sTypes := lipgloss.NewStyle().MaxWidth(width).Padding(0, 1, 1).Render(t.typeInfo())
 
 	mainAreaHeight := height - lipgloss.Height(title) - lipgloss.Height(sTypes) - 1
 
@@ -130,11 +115,14 @@ func (t *Type) GetPreview(cache *internal.Cache, width, height int) string {
 		Border(lipgloss.RoundedBorder()).BorderForeground(GetTypeColor(t.Name)).
 		Align(lipgloss.Left)
 
-	sPokes := internal.ResourceToList(t.Pokemon, mainAreaHeight-mainView.GetVerticalFrameSize(), cache)
-	sMoves := internal.ResourceToList(t.Moves, mainAreaHeight-mainView.GetVerticalFrameSize(), cache)
+	sPokes := internal.ResourceToList(t.Pokemon, mainAreaHeight-mainView.GetVerticalFrameSize(), cache, true)
+	sMoves := internal.ResourceToList(t.Moves, mainAreaHeight-mainView.GetVerticalFrameSize(), cache, true)
 
-	pokesHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(mainView.GetWidth()).Bold(true).Render(fmt.Sprintf("~ Pokemon (%v) ~", len(t.Pokemon)))
-	movesHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(mainView.GetWidth()).Bold(true).Render(fmt.Sprintf("~ Moves (%v) ~", len(t.Moves)))
+	headerStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).
+		Width(mainView.GetWidth()).Bold(true)
+
+	pokesHeader := headerStyle.Render(fmt.Sprintf("~ Pokemon (%v) ~", len(t.Pokemon)))
+	movesHeader := headerStyle.Render(fmt.Sprintf("~ Moves (%v) ~", len(t.Moves)))
 
 	pokesHalf := lipgloss.JoinVertical(lipgloss.Center, pokesHeader, mainView.Render(sPokes.String()))
 	movesHalf := lipgloss.JoinVertical(lipgloss.Center, movesHeader, mainView.Render(sMoves.String()))
