@@ -1,5 +1,8 @@
 # Resources
 
+- 2nd level headers will be references that are loaded and initially searchable
+- 3rd level headers are endpoints that contain supplementary information
+
 ## Move
 
 - Name
@@ -67,10 +70,40 @@ and machine/3 is
 - Natural Gift Power
 - Natural Gift Type
 
-# Next Up! Don't Wanna Overwhelm Myself :)
+## Generation
 
-## Games
+*"A grouping of the Pokemon games that separates them based on the Pokemon they include"*
+*"In each generation, a new set of Pokemon, Moves, Abilities, and Types that didn't exist in the previous gen are released"*
+
+- Name
+- Main Region
+
+- []New Abilities
+- []New Moves
+- []New Pokemon Species
+- []New Types
+- []Version Groups
+
+## Version
+
+- ID
+- Name
+- Version Group
+
+### Version Group
+
+- ID
+- Name
+- Generation
+- []Move Learn Methods
+- []Pokedexes
+- []Regions
+- []Versions
+
+## Region
 
 ## Location(s)
 
 ## Pokemon
+
+## Pokedex

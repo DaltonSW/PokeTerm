@@ -9,10 +9,12 @@ import (
 
 func StripAndTitle(input string) string {
 	output := input
-	if strings.Contains(output, "-") {
-		output = strings.ReplaceAll(output, "--", "-")
-		output = strings.ReplaceAll(output, "-", " ")
-	}
+	output = strings.ReplaceAll(output, "-", " ")
+
+	// Specific replacements
+	output = strings.ReplaceAll(output, "  physical", " (physical)")
+	output = strings.ReplaceAll(output, "  special", " (special)")
+	output = strings.ReplaceAll(output, "10 000 000", "10,000,000")
 
 	return cases.Title(language.Und).String(output)
 }
