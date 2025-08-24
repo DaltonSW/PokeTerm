@@ -6,14 +6,43 @@ import (
 )
 
 type Pokemon struct {
-	ID        int
-	Name      string
-	URL       string
-	Kind      internal.ResKind
-	Ref       internal.ResourceRef
+	ID   int
+	Name string
+	URL  string
+	Kind internal.ResKind
+
+	BaseExp int
+	Height  int
+	Weight  int
+
 	Types     []*Type
 	Abilities []*Ability
+
+	HeldItems []*Item
+
+	// Sprites
+	// Cries
+
+	// Stats
+	//	Base
+	//	EVs
+
+	// Past Types
+	// Past Abilities
+
+	// Location Area Encounters (URL: /api/v2/pokemon/#/encounters)
+	//	Returns a list of (Location Area, Version Details) pairs
 }
+
+// Moves []struct {
+//	Move *Move
+//	VersionGroupDetails []struct {
+//		Level Learned At
+//		Version Group
+//		Move Learn Method
+//		Order (sorting?)
+//	}
+// }
 
 func (p *Pokemon) GetName() string               { return p.Name }
 func (p *Pokemon) GetURL() string                { return p.URL }
@@ -36,14 +65,45 @@ func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
 }
 
 type pokemonAPIResponse struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+
 	Abilities []struct {
-		Ability api.RespPointer `json:"ability"`
+		Ability  api.RespPointer `json:"ability"`
+		IsHidden bool
+		Slot     int
 	} `json:"abilities"`
+
+	Order int `json:"order"` // I think this is used for sorting?
+
+	BaseExperience int
+
+	Height int
+	Weight int
+
+	IsDefault bool
+
+	LocationAreaEncounters string // URL pointing to encounters
+
+	Cries []struct {
+		Latest string
+		Legacy string
+	}
+
+	Forms []api.RespPointer
+
+	Stats []struct {
+		BaseStat int
+		Effort   int
+		Stat     api.RespPointer
+	}
+
 	Types []struct {
+		Slot int
 		Type api.RespPointer
 	}
+
+	Species api.RespPointer
 }
 
 func init() {
