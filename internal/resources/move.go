@@ -1,11 +1,12 @@
 package resources
 
 import (
-	"encoding/json"
+	"fmt"
 
 	"github.com/charmbracelet/lipgloss/v2"
 	"go.dalton.dog/poketerm/internal"
 	"go.dalton.dog/poketerm/internal/api"
+	"go.dalton.dog/poketerm/internal/utils"
 )
 
 // - Name
@@ -57,36 +58,43 @@ func (m *Move) GetKind() internal.ResKind     { return m.Kind }
 func (m *Move) SetKind(kind internal.ResKind) { m.Kind = kind }
 func (m *Move) GetRelated() []internal.ResourceRef {
 	var refs []internal.ResourceRef
-	// for _, p := range m.Pokemon {
-	// 	refs = append(refs, internal.ResourceRef{Name: p.Name, Kind: p.Kind, URL: p.URL})
-	// }
+	for _, p := range m.LearnedByPokemon {
+		refs = append(refs, internal.ResourceRef{Name: p.Name, Kind: p.Kind, URL: p.URL})
+	}
 	return refs
 }
 
 func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
+
+	title := lipgloss.NewStyle().MaxWidth(width).
+		Foreground(GetTypeColor(m.Name)).
+		Bold(true).Italic(true).Underline(true).
+		AlignHorizontal(lipgloss.Center).
+		Render(utils.StripAndTitle(m.Name) + "\n")
+
+	mainAreaHeight := height - lipgloss.Height(title) - 1
+
 	mainView := lipgloss.NewStyle().
-		Width(width).MaxHeight(height).Height(height).
-		Border(lipgloss.RoundedBorder()).BorderForeground(GetTypeColor(m.Name)).
-		Align(lipgloss.Left)
+		MaxWidth(width).MaxHeight(mainAreaHeight).Height(mainAreaHeight).
+		Border(lipgloss.RoundedBorder()).Align(lipgloss.Left)
 
-	var outStr string
+	sPokes := internal.ResourceToList(m.LearnedByPokemon, mainAreaHeight-mainView.GetVerticalFrameSize(), cache, true)
 
-	content, err := json.MarshalIndent(m, "", "  ")
-	if err != nil {
-		outStr = err.Error()
-	} else {
-		outStr = string(content)
-	}
+	headerStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).
+		Width(mainView.GetWidth()).Bold(true)
 
-	return mainView.Render(outStr)
+	pokesHeader := headerStyle.Render(fmt.Sprintf("~ Pokemon (%v) ~", len(m.LearnedByPokemon)))
+
+	pokesHalf := lipgloss.JoinVertical(lipgloss.Center, pokesHeader, mainView.Render(sPokes.String()))
+
+	return lipgloss.JoinVertical(lipgloss.Center, title, pokesHalf)
 }
 
 type moveAPIResponse struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Pokemon []struct {
-		Pokemon api.RespPointer
-	} `json:"learned_by_pokemon"`
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+
+	Pokemon []api.RespPointer `json:"learned_by_pokemon"`
 
 	Accuracy int `json:"accuracy,omitempty"`
 	Priority int `json:"priority,omitempty"`
@@ -123,8 +131,8 @@ func init() {
 		m := &Move{Name: data.Name, URL: url, ID: data.ID, Kind: internal.Move}
 		for _, p := range data.Pokemon {
 			m.LearnedByPokemon = append(m.LearnedByPokemon, &Pokemon{
-				Name: p.Pokemon.Name,
-				URL:  p.Pokemon.URL,
+				Name: p.Name,
+				URL:  p.URL,
 				Kind: internal.Pokemon,
 			})
 		}

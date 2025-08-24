@@ -74,36 +74,36 @@ type pokemonAPIResponse struct {
 		Slot     int
 	} `json:"abilities"`
 
-	Order int `json:"order"` // I think this is used for sorting?
-
-	BaseExperience int
-
-	Height int
-	Weight int
-
-	IsDefault bool
-
-	LocationAreaEncounters string // URL pointing to encounters
-
-	Cries []struct {
-		Latest string
-		Legacy string
-	}
-
-	Forms []api.RespPointer
-
-	Stats []struct {
-		BaseStat int
-		Effort   int
-		Stat     api.RespPointer
-	}
-
-	Types []struct {
-		Slot int
-		Type api.RespPointer
-	}
-
-	Species api.RespPointer
+	// Order int `json:"order"` // I think this is used for sorting?
+	//
+	// BaseExperience int
+	//
+	// Height int
+	// Weight int
+	//
+	// IsDefault bool
+	//
+	// LocationAreaEncounters string // URL pointing to encounters
+	//
+	// Cries []struct {
+	// 	Latest string
+	// 	Legacy string
+	// }
+	//
+	// Forms []api.RespPointer
+	//
+	// Stats []struct {
+	// 	BaseStat int
+	// 	Effort   int
+	// 	Stat     api.RespPointer
+	// }
+	//
+	// Types []struct {
+	// 	Slot int
+	// 	Type api.RespPointer
+	// }
+	//
+	// Species api.RespPointer
 }
 
 func init() {
@@ -120,13 +120,13 @@ func init() {
 				Kind: internal.Ability,
 			})
 		}
-		for _, t := range data.Types {
-			p.Types = append(p.Types, &Type{
-				Name: t.Type.Name,
-				URL:  t.Type.URL,
-				Kind: internal.Type,
-			})
-		}
+		// for _, t := range data.Types {
+		// 	p.Types = append(p.Types, &Type{
+		// 		Name: t.Type.Name,
+		// 		URL:  t.Type.URL,
+		// 		Kind: internal.Type,
+		// 	})
+		// }
 		return p, nil
 	})
 }
