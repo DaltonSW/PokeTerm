@@ -100,6 +100,15 @@ and machine/3 is
 - []Regions
 - []Versions
 
+## Stat
+
+- Affecting Moves
+    - Decreasing
+    - Increasing
+- Affecting Natures
+    - Decreasing
+    - Increasing
+
 ## Region
 
 ## Location(s)

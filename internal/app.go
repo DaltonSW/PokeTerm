@@ -38,10 +38,10 @@ func NewMainModel(startingFilter string) (m MainModel) {
 	m.list.list.SetFilterText(startingFilter)
 
 	refCmds := []tea.Cmd{
-		// LoadRefsCmd(Pokemon),
-		LoadRefsCmd(Type),
+		LoadRefsCmd(Pokemon),
+		// LoadRefsCmd(Type),
 		// LoadRefsCmd(Ability),
-		LoadRefsCmd(Move),
+		// LoadRefsCmd(Move),
 	}
 
 	m.refGroupsLeft = len(refCmds)

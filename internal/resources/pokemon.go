@@ -1,27 +1,35 @@
 package resources
 
 import (
+	"encoding/json"
+
+	"github.com/charmbracelet/glamour"
 	"go.dalton.dog/poketerm/internal"
 	"go.dalton.dog/poketerm/internal/api"
 )
 
 type Pokemon struct {
-	ID   int
-	Name string
-	URL  string
-	Kind internal.ResKind
+	ID    int
+	Name  string
+	URL   string
+	Kind  internal.ResKind
+	ready bool
 
 	BaseExp int
 	Height  int
 	Weight  int
 
-	Types     []*Type
-	Abilities []*Ability
+	Types        []*Type
+	Abilities    []*Ability
+	LearnedMoves []*Move
+	HeldItems    []*Item
 
-	HeldItems []*Item
+	CryLatestURL string
+	CryLegacyURL string
 
-	// Sprites
-	// Cries
+	Sprites map[string]string // Mapping the name to the URL
+	// Stats     []*Stat
+	LocEncURL string
 
 	// Stats
 	//	Base
@@ -61,7 +69,17 @@ func (p *Pokemon) GetRelated() []internal.ResourceRef {
 }
 
 func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
-	return "Pokemon Preview"
+	outByte, err := json.MarshalIndent(&p, "", "  ")
+	if err != nil {
+		return err.Error()
+	}
+	outStr, strErr := glamour.Render("```json\n"+string(outByte)+"\n```", "dark")
+
+	if strErr != nil {
+		return strErr.Error()
+	}
+
+	return outStr
 }
 
 type pokemonAPIResponse struct {
@@ -74,36 +92,49 @@ type pokemonAPIResponse struct {
 		Slot     int
 	} `json:"abilities"`
 
-	// Order int `json:"order"` // I think this is used for sorting?
-	//
-	// BaseExperience int
-	//
-	// Height int
-	// Weight int
-	//
-	// IsDefault bool
-	//
-	// LocationAreaEncounters string // URL pointing to encounters
-	//
-	// Cries []struct {
-	// 	Latest string
-	// 	Legacy string
-	// }
-	//
-	// Forms []api.RespPointer
-	//
-	// Stats []struct {
-	// 	BaseStat int
-	// 	Effort   int
-	// 	Stat     api.RespPointer
-	// }
-	//
-	// Types []struct {
-	// 	Slot int
-	// 	Type api.RespPointer
-	// }
-	//
-	// Species api.RespPointer
+	BaseExperience int `json:"base_experience,omitempty"`
+
+	Cries struct {
+		Latest string `json:"latest,omitempty"`
+		Legacy string `json:"legacy,omitempty"`
+	} `json:"cries"`
+
+	Forms []api.RespPointer `json:"forms,omitempty"`
+
+	// GameIndices
+
+	Height int `json:"height,omitempty"`
+
+	// HeldItems
+
+	IsDefault bool `json:"is_default,omitempty"`
+
+	LocationAreaEncounters string `json:"location_area_encounters,omitempty"` // URL pointing to encounters
+
+	// Moves []struct{Move: api.RespPointer, VersionGroupDetails: []struct of more stuff}
+
+	Order int `json:"order"` // I think this is used for sorting?
+
+	// PastAbilities
+
+	// PastTypes
+
+	Species api.RespPointer `json:"species"`
+
+	// Sprites
+
+	Stats []struct {
+		BaseStat int             `json:"base_stat,omitempty"`
+		Effort   int             `json:"effort,omitempty"`
+		Stat     api.RespPointer `json:"stat"`
+	} `json:"stats,omitempty"`
+
+	Types []struct {
+		Slot int             `json:"slot,omitempty"`
+		Type api.RespPointer `json:"type"`
+	} `json:"types,omitempty"`
+
+	Weight int `json:"weight,omitempty"`
 }
 
 func init() {
@@ -112,7 +143,22 @@ func init() {
 		if err != nil {
 			return nil, err
 		}
-		p := &Pokemon{Name: data.Name, URL: url, ID: data.ID, Kind: internal.Pokemon}
+
+		p := &Pokemon{
+			Name:         data.Name,
+			URL:          url,
+			ID:           data.ID,
+			Kind:         internal.Pokemon,
+			BaseExp:      data.BaseExperience,
+			Height:       data.Height,
+			Weight:       data.Weight,
+			CryLatestURL: data.Cries.Latest,
+			CryLegacyURL: data.Cries.Legacy,
+			LocEncURL:    data.LocationAreaEncounters,
+			Sprites:      make(map[string]string),
+			ready:        true,
+		}
+
 		for _, a := range data.Abilities {
 			p.Abilities = append(p.Abilities, &Ability{
 				Name: a.Ability.Name,
@@ -120,13 +166,15 @@ func init() {
 				Kind: internal.Ability,
 			})
 		}
-		// for _, t := range data.Types {
-		// 	p.Types = append(p.Types, &Type{
-		// 		Name: t.Type.Name,
-		// 		URL:  t.Type.URL,
-		// 		Kind: internal.Type,
-		// 	})
-		// }
+
+		for _, t := range data.Types {
+			p.Types = append(p.Types, &Type{
+				Name: t.Type.Name,
+				URL:  t.Type.URL,
+				Kind: internal.Type,
+			})
+		}
+
 		return p, nil
 	})
 }
