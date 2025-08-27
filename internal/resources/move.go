@@ -2,8 +2,10 @@ package resources
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/table"
 	"go.dalton.dog/poketerm/internal"
 	"go.dalton.dog/poketerm/internal/api"
 	"go.dalton.dog/poketerm/internal/utils"
@@ -72,22 +74,54 @@ func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
 		AlignHorizontal(lipgloss.Center).
 		Render(utils.StripAndTitle(m.Name) + "\n")
 
-	mainAreaHeight := height - lipgloss.Height(title) - 1
+	infoTable := m.getInfoTable()
+
+	mainAreaHeight := height - lipgloss.Height(title) - lipgloss.Height(infoTable) - 1
 
 	mainView := lipgloss.NewStyle().
 		MaxWidth(width).MaxHeight(mainAreaHeight).Height(mainAreaHeight).
 		Border(lipgloss.RoundedBorder()).Align(lipgloss.Left)
 
-	sPokes := internal.ResourceToList(m.LearnedByPokemon, mainAreaHeight-mainView.GetVerticalFrameSize(), cache, true)
+	pokeList := internal.ResourceToList(m.LearnedByPokemon, mainAreaHeight-mainView.GetVerticalFrameSize(), cache, true)
 
 	headerStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).
 		Width(mainView.GetWidth()).Bold(true)
 
 	pokesHeader := headerStyle.Render(fmt.Sprintf("~ Pokemon (%v) ~", len(m.LearnedByPokemon)))
 
-	pokesHalf := lipgloss.JoinVertical(lipgloss.Center, pokesHeader, mainView.Render(sPokes.String()))
+	pokesHalf := lipgloss.JoinVertical(lipgloss.Center, pokesHeader, mainView.Render(pokeList.String()))
 
-	return lipgloss.JoinVertical(lipgloss.Center, title, pokesHalf)
+	return lipgloss.JoinVertical(lipgloss.Center, title, infoTable, pokesHalf)
+}
+
+func (m *Move) getInfoTable() string {
+	rows := [][]string{
+		{"Accuracy", strconv.Itoa(m.Accuracy)},
+		{"Ailment", ""},
+		{"Ailment Chance", ""},
+		{"Category", ""},
+		{"Crit Rate", ""},
+		{"Damage Class", ""},
+		{"Drain", ""},
+		{"Effect Chance", ""},
+		{"Flinch Chance", ""},
+		{"Gen. Introduced", m.Generation},
+		{"Healing", ""},
+		{"Min Hits", ""},
+		{"Max Hits", ""},
+		{"Min Turns", ""},
+		{"Max Turns", ""},
+		{"Power", strconv.Itoa(m.Power)},
+		{"PP", strconv.Itoa(m.PP)},
+		{"Priority", strconv.Itoa(m.Priority)},
+		{"Stat Chance", ""},
+		{"Target", m.Target},
+		{"Type", m.Type.Name},
+	}
+
+	table := table.New().Rows(rows...)
+
+	return table.String()
 }
 
 type moveAPIResponse struct {
