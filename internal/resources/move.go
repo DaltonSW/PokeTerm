@@ -43,15 +43,29 @@ type Move struct {
 
 	LearnedByPokemon []*Pokemon
 
-	PP    int
-	Power int
-	Type  *Type
-
-	Generation string
-	Target     string
-
 	Accuracy int
 	Priority int // -8 to +8
+	PP       int
+	Power    int
+
+	Target string
+	Type   *Type
+
+	Generation  string
+	DamageClass string
+
+	Ailment  string
+	Category string
+	CritRate int
+	Drain    int
+	Healing  int
+
+	MinHits, MinTurns int
+	MaxHits, MaxTurns int
+
+	AilmentChance int
+	FlinchChance  int
+	StatChance    int
 }
 
 func (m *Move) GetName() string               { return m.Name }
@@ -63,11 +77,11 @@ func (m *Move) GetRelated() []internal.ResourceRef {
 	for _, p := range m.LearnedByPokemon {
 		refs = append(refs, internal.ResourceRef{Name: p.Name, Kind: p.Kind, URL: p.URL})
 	}
+
 	return refs
 }
 
 func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
-
 	title := lipgloss.NewStyle().MaxWidth(width).
 		Foreground(GetTypeColor(m.Name)).
 		Bold(true).Italic(true).Underline(true).
@@ -79,7 +93,7 @@ func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
 	mainAreaHeight := height - lipgloss.Height(title) - lipgloss.Height(infoTable) - 1
 
 	mainView := lipgloss.NewStyle().
-		MaxWidth(width).MaxHeight(mainAreaHeight).Height(mainAreaHeight).
+		Width(width).Height(mainAreaHeight).
 		Border(lipgloss.RoundedBorder()).Align(lipgloss.Left)
 
 	pokeList := internal.ResourceToList(m.LearnedByPokemon, mainAreaHeight-mainView.GetVerticalFrameSize(), cache, true)
@@ -97,24 +111,24 @@ func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
 func (m *Move) getInfoTable() string {
 	rows := [][]string{
 		{"Accuracy", strconv.Itoa(m.Accuracy)},
-		{"Ailment", ""},
-		{"Ailment Chance", ""},
-		{"Category", ""},
-		{"Crit Rate", ""},
-		{"Damage Class", ""},
-		{"Drain", ""},
-		{"Effect Chance", ""},
-		{"Flinch Chance", ""},
+		{"Ailment", m.Ailment},
+		{"Ailment Chance", strconv.Itoa(m.AilmentChance)},
+		{"Category", m.Category},
+		{"Crit Rate", strconv.Itoa(m.CritRate)},
+		{"Damage Class", m.DamageClass},
+		{"Drain", strconv.Itoa(m.Drain)},
+		// {"Effect Chance", strconv.Itoa(m.)},
+		{"Flinch Chance", strconv.Itoa(m.FlinchChance)},
 		{"Gen. Introduced", m.Generation},
-		{"Healing", ""},
-		{"Min Hits", ""},
-		{"Max Hits", ""},
-		{"Min Turns", ""},
-		{"Max Turns", ""},
+		{"Healing", strconv.Itoa(m.Healing)},
+		{"Min Hits", strconv.Itoa(m.MinHits)},
+		{"Max Hits", strconv.Itoa(m.MaxHits)},
+		{"Min Turns", strconv.Itoa(m.MinTurns)},
+		{"Max Turns", strconv.Itoa(m.MaxTurns)},
 		{"Power", strconv.Itoa(m.Power)},
 		{"PP", strconv.Itoa(m.PP)},
 		{"Priority", strconv.Itoa(m.Priority)},
-		{"Stat Chance", ""},
+		{"Stat Chance", strconv.Itoa(m.StatChance)},
 		{"Target", m.Target},
 		{"Type", m.Type.Name},
 	}
@@ -135,12 +149,13 @@ type moveAPIResponse struct {
 	PP       int `json:"pp,omitempty"`
 	Power    int `json:"power,omitempty"`
 
-	Target     api.RespPointer `json:"target"`
-	Type       api.RespPointer `json:"type"`
-	Generation api.RespPointer `json:"generation"`
+	Target api.RespPointer `json:"target"`
+	Type   api.RespPointer `json:"type"`
 
+	Generation  api.RespPointer `json:"generation"`
 	DamageClass api.RespPointer `json:"damage_class"`
-	Meta        struct {
+
+	Meta struct {
 		Ailment       api.RespPointer `json:"ailment"`
 		AilmentChance int             `json:"ailment_chance,omitempty"`
 		Category      api.RespPointer `json:"category"`
@@ -177,9 +192,9 @@ func init() {
 		m.PP = data.PP
 
 		m.Target = data.Target.Name
-		m.Generation = data.Generation.Name
-
 		m.Type = &Type{Name: data.Type.Name, URL: url, ID: data.ID, Kind: internal.Type}
+
+		m.Generation = data.Generation.Name
 
 		return m, nil
 	})

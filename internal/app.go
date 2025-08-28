@@ -38,10 +38,10 @@ func NewMainModel(startingFilter string) (m MainModel) {
 	m.list.list.SetFilterText(startingFilter)
 
 	refCmds := []tea.Cmd{
-		LoadRefsCmd(Pokemon),
+		// LoadRefsCmd(Pokemon),
 		// LoadRefsCmd(Type),
 		// LoadRefsCmd(Ability),
-		// LoadRefsCmd(Move),
+		LoadRefsCmd(Move),
 	}
 
 	m.refGroupsLeft = len(refCmds)
@@ -132,7 +132,7 @@ func (m MainModel) View() string {
 		if ok {
 			res, loaded := m.cache.Get(item.Kind, item.Name)
 			if loaded && res != nil {
-				right = res.GetPreview(m.cache, m.width-m.leftWidth, m.height)
+				right = res.GetPreview(m.cache, m.leftWidth*2, m.height)
 			} else {
 				right = fmt.Sprintf("Loading resource: %v from %v", item.Name, item.URL)
 			}
