@@ -9,15 +9,16 @@ import (
 )
 
 type Pokemon struct {
-	ID    int
-	Name  string
-	URL   string
-	Kind  internal.ResKind
-	ready bool
+	ID   int
+	Name string
+	URL  string
+	Kind internal.ResKind
+
+	Response pokemonAPIResponse
 
 	BaseExp int
-	Height  int
-	Weight  int
+	Height  int // Units are 0.1m -- Ex: Ditto returns '3' and has a height of 0.3m
+	Weight  int // Units are 0.1kg -- Ex: Ditto returns '40' and has a weight of 4kg
 
 	Types        []*Type
 	Abilities    []*Ability
@@ -69,7 +70,7 @@ func (p *Pokemon) GetRelated() []internal.ResourceRef {
 }
 
 func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
-	outByte, err := json.MarshalIndent(&p, "", "  ")
+	outByte, err := json.MarshalIndent(&p.Response, "", "  ")
 	if err != nil {
 		return err.Error()
 	}
@@ -78,6 +79,21 @@ func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
 	if strErr != nil {
 		return strErr.Error()
 	}
+
+	// Title - Name
+	// Subt. - Description ("The Balloon Pokemon")
+
+	// Types
+	// Type Table
+
+	// Stats / EVs
+	// Abilities
+	// Gender Ratio
+	// Catch Rate
+	// Egg Groups
+	// Hatch Time
+	// Height / Weight
+	// EXP / Leveling Rate
 
 	return outStr
 }
@@ -121,7 +137,49 @@ type pokemonAPIResponse struct {
 
 	Species api.RespPointer `json:"species"`
 
-	// Sprites
+	Sprites struct {
+		BackDefault      string `json:"back_default,omitempty"`
+		BackFemale       string `json:"back_female,omitempty"`
+		BackShiny        string `json:"back_shiny,omitempty"`
+		BackShinyFemale  string `json:"back_shiny_female,omitempty"`
+		FrontDefault     string `json:"front_default,omitempty"`
+		FrontFemale      string `json:"front_female,omitempty"`
+		FrontShiny       string `json:"front_shiny,omitempty"`
+		FrontShinyFemale string `json:"front_shiny_female,omitempty"`
+
+		Other struct {
+			DreamWorld struct {
+				FrontDefault string `json:"front_default,omitempty"`
+				FrontFemale  string `json:"front_female,omitempty"`
+			} `json:"dream_world"`
+
+			Home struct {
+				FrontDefault     string `json:"front_default,omitempty"`
+				FrontFemale      string `json:"front_female,omitempty"`
+				FrontShiny       string `json:"front_shiny,omitempty"`
+				FrontShinyFemale string `json:"front_shiny_female,omitempty"`
+			} `json:"home"`
+
+			OfficialArtwork struct {
+				FrontDefault string `json:"front_default,omitempty"`
+				FrontShiny   string `json:"front_shiny,omitempty"`
+			} `json:"official_artwork"`
+
+			Showdown struct {
+				BackDefault      string `json:"back_default,omitempty"`
+				BackFemale       string `json:"back_female,omitempty"`
+				BackShiny        string `json:"back_shiny,omitempty"`
+				BackShinyFemale  string `json:"back_shiny_female,omitempty"`
+				FrontDefault     string `json:"front_default,omitempty"`
+				FrontFemale      string `json:"front_female,omitempty"`
+				FrontShiny       string `json:"front_shiny,omitempty"`
+				FrontShinyFemale string `json:"front_shiny_female,omitempty"`
+			} `json:"showdown"`
+		} `json:"other"`
+
+		Versions struct {
+		} `json:"versions"`
+	} `json:"sprites"`
 
 	Stats []struct {
 		BaseStat int             `json:"base_stat,omitempty"`
@@ -156,7 +214,7 @@ func init() {
 			CryLegacyURL: data.Cries.Legacy,
 			LocEncURL:    data.LocationAreaEncounters,
 			Sprites:      make(map[string]string),
-			ready:        true,
+			Response:     data,
 		}
 
 		for _, a := range data.Abilities {
