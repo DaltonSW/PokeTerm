@@ -1,11 +1,10 @@
 package resources
 
 import (
-	"encoding/json"
-
-	"github.com/charmbracelet/glamour"
+	"github.com/charmbracelet/lipgloss/v2"
 	"go.dalton.dog/poketerm/internal"
 	"go.dalton.dog/poketerm/internal/api"
+	"go.dalton.dog/poketerm/internal/styles"
 )
 
 type Pokemon struct {
@@ -70,21 +69,27 @@ func (p *Pokemon) GetRelated() []internal.ResourceRef {
 }
 
 func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
-	outByte, err := json.MarshalIndent(&p.Response, "", "  ")
-	if err != nil {
-		return err.Error()
-	}
-	outStr, strErr := glamour.Render("```json\n"+string(outByte)+"\n```", "dark")
+	// outByte, err := json.MarshalIndent(&p.Response, "", "  ")
+	// if err != nil {
+	// 	return err.Error()
+	// }
+	// outStr, strErr := glamour.Render("```json\n"+string(outByte)+"\n```", "dark")
+	//
+	// if strErr != nil {
+	// 	return strErr.Error()
+	// }
 
-	if strErr != nil {
-		return strErr.Error()
-	}
+	style := styles.ViewportStyle.Width(width).MaxWidth(width).Height(height).MaxHeight(height).Align(lipgloss.Center)
 
 	// Title - Name
 	// Subt. - Description ("The Balloon Pokemon")
 
+	headStr := p.Name + "\n" + "The <something> Pokemon\n"
+
 	// Types
 	// Type Table
+
+	typeStr := ""
 
 	// Stats / EVs
 	// Abilities
@@ -95,7 +100,7 @@ func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
 	// Height / Weight
 	// EXP / Leveling Rate
 
-	return outStr
+	return style.Render(lipgloss.JoinVertical(lipgloss.Center, headStr, typeStr))
 }
 
 type pokemonAPIResponse struct {

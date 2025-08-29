@@ -2,6 +2,10 @@ package styles
 
 import "github.com/charmbracelet/lipgloss/v2"
 
+var ViewportStyle = lipgloss.NewStyle().
+	Border(lipgloss.RoundedBorder()).BorderForeground(BorderColor).
+	Padding(1)
+
 type ListStyles struct {
 	Item  lipgloss.Style
 	Desc  lipgloss.Style
