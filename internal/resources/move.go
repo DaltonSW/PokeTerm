@@ -90,22 +90,24 @@ func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
 
 	infoTable := m.getInfoTable()
 
-	mainAreaHeight := height - lipgloss.Height(title) - lipgloss.Height(infoTable) - 1
+	mainAreaHeight := height - lipgloss.Height(title)
 
 	mainView := lipgloss.NewStyle().
-		Width(width).Height(mainAreaHeight).
+		Width(lipgloss.Width(infoTable)).Height(mainAreaHeight).
 		Border(lipgloss.RoundedBorder()).Align(lipgloss.Left)
 
-	pokeList := internal.ResourceToList(m.LearnedByPokemon, mainAreaHeight-mainView.GetVerticalFrameSize(), cache, true)
+	pokeList := internal.ResourceToList(m.LearnedByPokemon, mainAreaHeight-mainView.GetVerticalFrameSize()-1, cache, true)
 
 	headerStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).
-		Width(mainView.GetWidth()).Bold(true)
+		Width(lipgloss.Width(infoTable)).Bold(true)
 
 	pokesHeader := headerStyle.Render(fmt.Sprintf("~ Pokemon (%v) ~", len(m.LearnedByPokemon)))
 
-	pokesHalf := lipgloss.JoinVertical(lipgloss.Center, pokesHeader, mainView.Render(pokeList.String()))
+	pokesHalf := lipgloss.JoinVertical(lipgloss.Center, pokesHeader, pokeList.String())
 
-	return lipgloss.JoinVertical(lipgloss.Center, title, infoTable, pokesHalf)
+	mainSplit := lipgloss.JoinHorizontal(lipgloss.Top, infoTable, mainView.Render(pokesHalf))
+
+	return lipgloss.JoinVertical(lipgloss.Center, title, mainSplit)
 }
 
 func (m *Move) getInfoTable() string {

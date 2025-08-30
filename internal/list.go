@@ -5,13 +5,14 @@ import (
 	"io"
 	"sort"
 
+	"github.com/charmbracelet/bubbles/v2/help"
+	"github.com/charmbracelet/bubbles/v2/key"
 	"github.com/charmbracelet/bubbles/v2/list"
 	"github.com/charmbracelet/bubbles/v2/textinput"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/log"
 	"go.dalton.dog/poketerm/internal/styles"
-	"go.dalton.dog/poketerm/internal/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -21,10 +22,34 @@ type ListModel struct {
 	cache *Cache
 	list  list.Model
 
-	input  textinput.Model
-	active bool
+	input     textinput.Model
+	inputHelp help.Model
+	active    bool
 
 	style lipgloss.Style
+}
+
+var noFilteringKeymap = []key.Binding{
+	key.NewBinding(
+		key.WithKeys("/"),
+		key.WithHelp("/", "filter"),
+	),
+	key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "clear filter"),
+	),
+}
+
+var whileFilteringKeymap = []key.Binding{
+	// Filtering.
+	key.NewBinding(
+		key.WithKeys("enter", "tab", "shift+tab", "ctrl+k", "up", "ctrl+j", "down"),
+		key.WithHelp("enter", "apply filter"),
+	),
+	key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "cancel"),
+	),
 }
 
 // NewListModel creates the list model
@@ -43,7 +68,8 @@ func NewListModel() ListModel {
 	m.list = l
 
 	m.input = textinput.New()
-	m.input.Placeholder = "/ to focus"
+	m.input.Placeholder = "<filter>"
+	m.inputHelp = help.New()
 
 	m.style = lipgloss.NewStyle().BorderForeground(styles.BorderColor).Border(lipgloss.RoundedBorder())
 
@@ -56,7 +82,7 @@ func (m ListModel) UpdateSize(w, h int) ListModel {
 	w = w - m.style.GetHorizontalBorderSize()
 	m.input.SetWidth(w - len(m.input.Prompt) - 2)
 	m.list.SetWidth(w)
-	m.list.SetHeight(h - m.style.GetVerticalBorderSize() - lipgloss.Height(m.style.Render(m.input.View())))
+	m.list.SetHeight(h - m.style.GetVerticalBorderSize() - lipgloss.Height(m.style.Render(m.input.View())) - 1)
 
 	return m
 }
@@ -98,8 +124,8 @@ func (m ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 	m.list, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
 
-	m.input, cmd = m.input.Update(msg)
-	cmds = append(cmds, cmd)
+	// m.input, cmd = m.input.Update(msg)
+	// cmds = append(cmds, cmd)
 
 	m.input.SetValue(m.list.FilterValue())
 
@@ -107,7 +133,13 @@ func (m ListModel) Update(msg tea.Msg) (ListModel, tea.Cmd) {
 }
 
 func (m ListModel) View() string {
-	return m.style.Render(m.input.View()) + "\n" + m.style.Render(m.list.View())
+	var helpStr string
+	if m.list.FilterState() == list.Filtering {
+		helpStr = m.inputHelp.ShortHelpView(whileFilteringKeymap)
+	} else {
+		helpStr = m.inputHelp.ShortHelpView(noFilteringKeymap)
+	}
+	return m.style.AlignHorizontal(lipgloss.Center).Render(m.input.View()+"\n"+helpStr) + "\n" + m.style.Render(m.list.View())
 }
 
 type ItemDelegate struct {
@@ -133,43 +165,32 @@ func (d ItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		return
 	}
 
-	// TODO: Make matching/highlighting less... bad. This is Frankenstein'd from list.DefaultDelegate
+	var matchedRunes []int
+	title := d.caser.String(resource.Title())
 
-	// var matchedRunes []int
-	// title := d.caser.String(resource.Title())
-	//
-	// isSelected := index == m.Index()
-	// emptyFilter := m.SettingFilter() && m.FilterValue() == ""
-	// isFiltered := m.SettingFilter() || m.IsFiltered()
-	//
-	// if isFiltered && index < len(m.VisibleItems()) {
-	// 	// Get indices of matched characters
-	// 	matchedRunes = m.MatchesForItem(index)
-	// }
-	//
-	// if emptyFilter {
-	// 	title = d.styles.Desc.Render(title)
-	// } else if isSelected && !m.SettingFilter() {
-	// 	if isFiltered {
-	// 		// Highlight matches
-	// 		unmatched := d.styles.Desc.Inline(true).Italic(false)
-	// 		matched := unmatched.Foreground(styles.ForeColor).Underline(true)
-	// 		title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
-	// 	}
-	// 	title = d.styles.Title.Foreground(resource.Kind.Color()).Render(title)
-	// } else {
-	// 	if isFiltered {
-	// 		// Highlight matches
-	// 		unmatched := d.styles.Desc.Inline(true).Italic(false)
-	// 		matched := unmatched.Foreground(styles.ForeColor).Underline(true)
-	// 		title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
-	// 	}
-	// 	title = d.styles.Title.Foreground(resource.Kind.Color()).Render(title)
-	// }
+	emptyFilter := m.SettingFilter() && m.FilterValue() == ""
+	isFiltered := m.SettingFilter() || m.IsFiltered()
+
+	if isFiltered && index < len(m.VisibleItems()) {
+		// Get indices of matched characters
+		matchedRunes = m.MatchesForItem(index)
+	}
+
+	if emptyFilter {
+		title = d.styles.Item.Render(title)
+	} else if isFiltered {
+		var unmatched lipgloss.Style
+		if index == m.Index() {
+			unmatched = d.styles.Curr
+		} else {
+			unmatched = d.styles.Item
+		}
+		// Highlight matches
+		matched := unmatched.Underline(true)
+		title = lipgloss.StyleRunes(title, matchedRunes, matched, unmatched)
+	}
 
 	var str string
-
-	title := utils.StripAndTitle(resource.Title())
 
 	if index == m.Index() {
 		str = d.styles.Curr.Render(fmt.Sprintf("%s | %s", lipgloss.NewStyle().Width(8).Align(lipgloss.Right).Render(string(resource.Kind)), title))
