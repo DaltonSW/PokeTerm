@@ -15,9 +15,21 @@ type Pokemon struct {
 
 	Response pokemonAPIResponse
 
-	BaseExp int
-	Height  int // Units are 0.1m -- Ex: Ditto returns '3' and has a height of 0.3m
-	Weight  int // Units are 0.1kg -- Ex: Ditto returns '40' and has a weight of 4kg
+	BaseExp       int
+	BaseHappiness int
+	CaptureRate   int
+	Color         string
+	GenderRatio   int
+	GrowthRate    string
+	Habitat       string
+	HatchCounter  int
+	IsBaby        bool
+	IsLegendary   bool
+	IsMythical    bool
+	Shape         string
+
+	Height int // Units are 0.1m -- Ex: Ditto returns '3' and has a height of 0.3m
+	Weight int // Units are 0.1kg -- Ex: Ditto returns '40' and has a weight of 4kg
 
 	Types        []*Type
 	Abilities    []*Ability
@@ -69,7 +81,7 @@ func (p *Pokemon) GetRelated() []internal.ResourceRef {
 }
 
 func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
-	// outByte, err := json.MarshalIndent(&p.Response, "", "  ")
+	// outByte, err := json.MarshalIndent(&p, "", "  ")
 	// if err != nil {
 	// 	return err.Error()
 	// }
@@ -82,14 +94,14 @@ func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
 	style := styles.ViewportStyle.Width(width).MaxWidth(width).Height(height).MaxHeight(height).Align(lipgloss.Center)
 
 	// Title - Name
-	// Subt. - Description ("The Balloon Pokemon")
+	// Subt. - Description ("The Balloon Pokemon") (This is actually apparently the 'Genera')
 
 	headStr := p.Name + "\n" + "The <something> Pokemon\n"
 
 	// Types
 	// Type Table
 
-	typeStr := ""
+	typeStr := p.getTypeInfo()
 
 	// Stats / EVs
 	// Abilities
@@ -102,6 +114,28 @@ func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
 
 	return style.Render(lipgloss.JoinVertical(lipgloss.Center, headStr, typeStr))
 }
+
+func (p *Pokemon) getTypeInfo() string {
+	if len(p.Types) == 0 {
+		return "Typeless"
+	}
+
+	typeStr := p.Types[0].GetName()
+
+	outStr := lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(typeStr)
+
+	if len(p.Types) == 2 {
+		typeStr := p.Types[1].GetName()
+		outStr += " / " + lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(typeStr)
+	}
+
+	// TODO: Type effectiveness table
+
+	return outStr
+
+}
+
+// Region: API Access Stuff
 
 type pokemonAPIResponse struct {
 	ID   int    `json:"id"`
@@ -200,6 +234,34 @@ type pokemonAPIResponse struct {
 	Weight int `json:"weight,omitempty"`
 }
 
+type pokemonSpeciesAPIResponse struct {
+	BaseHappiness int               `json:"base_happiness,omitempty"`
+	CaptureRate   int               `json:"capture_rate,omitempty"`
+	Color         api.RespPointer   `json:"color"`
+	EggGroups     []api.RespPointer `json:"egg_groups,omitempty"`
+	EvolvesFrom   string            `json:"evolves_from,omitempty"`
+	GenderRatio   int               `json:"gender_ratio,omitempty"`
+
+	Generation api.RespPointer `json:"generation"`
+	GrowthRate api.RespPointer `json:"growth_rate"`
+	Habitat    api.RespPointer `json:"habitat"`
+
+	HasGenderDifferences bool `json:"has_gender_differences,omitempty"`
+
+	HatchCounter int `json:"hatch_counter,omitempty"`
+
+	IsBaby      bool `json:"is_baby,omitempty"`
+	IsLegendary bool `json:"is_legendary,omitempty"`
+	IsMythical  bool `json:"is_mythical,omitempty"`
+
+	PokedexNumbers []struct {
+		EntryNumber int             `json:"entry_number,omitempty"`
+		Pokedex     api.RespPointer `json:"pokedex"`
+	} `json:"pokedex_numbers,omitempty"`
+
+	Shape api.RespPointer `json:"shape"`
+}
+
 func init() {
 	internal.RegisterLoader(internal.Pokemon, func(url string) (internal.Resource, error) {
 		data, err := api.QueryAndUnmarshal[pokemonAPIResponse](url)
@@ -207,19 +269,36 @@ func init() {
 			return nil, err
 		}
 
+		speciesData, err := api.QueryAndUnmarshal[pokemonSpeciesAPIResponse](data.Species.URL)
+		if err != nil {
+			return nil, err
+		}
+
 		p := &Pokemon{
-			Name:         data.Name,
-			URL:          url,
-			ID:           data.ID,
-			Kind:         internal.Pokemon,
-			BaseExp:      data.BaseExperience,
+			Name:    data.Name,
+			URL:     url,
+			ID:      data.ID,
+			Kind:    internal.Pokemon,
+			BaseExp: data.BaseExperience,
+
+			BaseHappiness: speciesData.BaseHappiness,
+			CaptureRate:   speciesData.CaptureRate,
+			Color:         speciesData.Color.Name,
+			GenderRatio:   speciesData.GenderRatio,
+			Habitat:       speciesData.Habitat.Name,
+			HatchCounter:  speciesData.HatchCounter,
+			IsBaby:        speciesData.IsBaby,
+			IsLegendary:   speciesData.IsLegendary,
+			IsMythical:    speciesData.IsMythical,
+			Shape:         speciesData.Shape.Name,
+
 			Height:       data.Height,
 			Weight:       data.Weight,
 			CryLatestURL: data.Cries.Latest,
 			CryLegacyURL: data.Cries.Legacy,
 			LocEncURL:    data.LocationAreaEncounters,
 			Sprites:      make(map[string]string),
-			Response:     data,
+			// Response:     data,
 		}
 
 		for _, a := range data.Abilities {
