@@ -1,10 +1,14 @@
 package resources
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/lipgloss/v2"
+	"github.com/charmbracelet/lipgloss/v2/table"
 	"go.dalton.dog/poketerm/internal"
 	"go.dalton.dog/poketerm/internal/api"
 	"go.dalton.dog/poketerm/internal/styles"
+	"go.dalton.dog/poketerm/internal/utils"
 )
 
 type Pokemon struct {
@@ -91,17 +95,15 @@ func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
 	// 	return strErr.Error()
 	// }
 
-	style := styles.ViewportStyle.Width(width).MaxWidth(width).Height(height).MaxHeight(height).Align(lipgloss.Center)
-
 	// Title - Name
 	// Subt. - Description ("The Balloon Pokemon") (This is actually apparently the 'Genera')
 
-	headStr := p.Name + "\n" + "The <something> Pokemon\n"
+	headStr := utils.StripAndTitle(p.Name) + "\n" + "The <something> Pokemon\n"
 
 	// Types
 	// Type Table
 
-	typeStr := p.getTypeInfo()
+	typeStr := p.getTypeInfo(cache)
 
 	// Stats / EVs
 	// Abilities
@@ -112,24 +114,49 @@ func (p *Pokemon) GetPreview(cache *internal.Cache, width, height int) string {
 	// Height / Weight
 	// EXP / Leveling Rate
 
+	style := styles.ViewportStyle.MaxWidth(width).Height(height).MaxHeight(height).Align(lipgloss.Center)
+
 	return style.Render(lipgloss.JoinVertical(lipgloss.Center, headStr, typeStr))
 }
 
-func (p *Pokemon) getTypeInfo() string {
+func (p *Pokemon) getTypeInfo(cache *internal.Cache) string {
 	if len(p.Types) == 0 {
 		return "Typeless"
 	}
 
 	typeStr := p.Types[0].GetName()
 
-	outStr := lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(typeStr)
+	outStr := lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(utils.StripAndTitle((typeStr)))
 
 	if len(p.Types) == 2 {
 		typeStr := p.Types[1].GetName()
-		outStr += " / " + lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(typeStr)
+		outStr += " / " + lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(utils.StripAndTitle(typeStr)) + "\n"
 	}
 
-	// TODO: Type effectiveness table
+	var defendVals, headers []string
+	for _, typeStr := range TYPE_LIST {
+		typeStyled := lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(strings.ToUpper(typeStr[0:3]))
+		headers = append(headers, typeStyled)
+	}
+
+	for _, typeStr := range TYPE_LIST {
+		attackType, ok := cache.Get(internal.Type, typeStr)
+		if !ok {
+			defendVals = append(defendVals, "??")
+
+		} else {
+			attack, _ := attackType.(*Type)
+			defendVals = append(defendVals, EffectivenessAgainst(attack, p.Types).GetString(true))
+		}
+	}
+
+	defTable := table.New().Border(lipgloss.RoundedBorder()).Headers(headers...).Row(defendVals...)
+
+	defenseHeader := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Width(16).Bold(true).Render("~ Type Defense ~")
+
+	defenseOut := lipgloss.JoinVertical(lipgloss.Center, defenseHeader, defTable.Render())
+
+	outStr = lipgloss.JoinVertical(lipgloss.Center, outStr, defenseOut)
 
 	return outStr
 

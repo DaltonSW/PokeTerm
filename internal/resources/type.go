@@ -14,15 +14,15 @@ import (
 	"go.dalton.dog/poketerm/internal/utils"
 )
 
-type TypeEffectiveness int
+type TypeEffectiveness float64
 
 const (
-	Ineffective TypeEffectiveness = iota
-	QuarterEffective
-	HalfEffective
-	NormalEffective
-	DoubleEffective
-	QuadEffective
+	Ineffective      TypeEffectiveness = 0
+	QuarterEffective TypeEffectiveness = 0.25
+	HalfEffective    TypeEffectiveness = 0.5
+	NormalEffective  TypeEffectiveness = 1.0
+	DoubleEffective  TypeEffectiveness = 2.0
+	QuadEffective    TypeEffectiveness = 4.0
 )
 
 func (eff TypeEffectiveness) GetString(defending bool) string {
@@ -53,6 +53,16 @@ func (eff TypeEffectiveness) GetString(defending bool) string {
 	return lipgloss.NewStyle().Width(3).Foreground(color).Render(str)
 }
 
+func EffectivenessAgainst(attacking *Type, defending []*Type) TypeEffectiveness {
+	effOut := attacking.AttackingDamageRatios[defending[0].Name]
+
+	if len(defending) > 1 {
+		effOut *= attacking.AttackingDamageRatios[defending[1].Name]
+	}
+
+	return effOut
+}
+
 var TYPE_LIST = []string{"normal", "fire", "water", "grass", "electric", "ice", "fighting", "poison", "ground", "flying", "psychic",
 	"bug", "rock", "ghost", "dragon", "steel", "dark", "fairy"}
 
@@ -66,17 +76,15 @@ type Type struct {
 	AttackingDamageRatios map[string]TypeEffectiveness
 	DefendingDamageRatios map[string]TypeEffectiveness
 
-	DoubleDamageFrom []*Type
-	HalfDamageFrom   []*Type
-	DoubleDamageTo   []*Type
-	HalfDamageTo     []*Type
-	NoDamageFrom     []*Type
-	NoDamageTo       []*Type
-
 	Pokemon []*Pokemon
 	Moves   []*Move
 
 	mainAreaHeight int
+}
+
+func (t *Type) GetColor() color.Color { return GetTypeColor(t.Name) }
+func (t *Type) PrettyName() string {
+	return lipgloss.NewStyle().Foreground(GetTypeColor(t.Name)).Render(utils.StripAndTitle(t.Name))
 }
 
 func (t *Type) GetName() string               { return t.Name }
