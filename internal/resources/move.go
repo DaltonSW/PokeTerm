@@ -83,18 +83,23 @@ func (m *Move) GetRelated() []internal.ResourceRef {
 
 func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
 	title := lipgloss.NewStyle().MaxWidth(width).
-		Foreground(GetTypeColor(m.Name)).
+		Foreground(m.Type.GetColor()).
 		Bold(true).Italic(true).Underline(true).
 		AlignHorizontal(lipgloss.Center).
 		Render(utils.StripAndTitle(m.Name) + "\n")
 
 	infoTable := m.getInfoTable()
 
-	mainAreaHeight := height - lipgloss.Height(title)
+	mainAreaHeight := height - lipgloss.Height(title) - lipgloss.Height(infoTable) - 1
+	style := lipgloss.NewStyle().MaxWidth(width).Height(height).Align(lipgloss.Left, lipgloss.Top).Padding(1, 1, 0)
+
+	if len(m.LearnedByPokemon) < 1 {
+		return style.Render(lipgloss.JoinVertical(lipgloss.Center, title, infoTable))
+	}
 
 	mainView := lipgloss.NewStyle().
-		Width(lipgloss.Width(infoTable)).Height(mainAreaHeight).
-		Border(lipgloss.RoundedBorder()).Align(lipgloss.Left)
+		Width(lipgloss.Width(infoTable)).MaxHeight(mainAreaHeight-style.GetVerticalPadding()).
+		Align(lipgloss.Left, lipgloss.Top).Border(lipgloss.RoundedBorder()).BorderForeground(m.Type.GetColor())
 
 	pokeList := internal.ResourceToList(m.LearnedByPokemon, mainAreaHeight-mainView.GetVerticalFrameSize()-1, cache, true)
 
@@ -103,39 +108,102 @@ func (m *Move) GetPreview(cache *internal.Cache, width, height int) string {
 
 	pokesHeader := headerStyle.Render(fmt.Sprintf("~ Pokemon (%v) ~", len(m.LearnedByPokemon)))
 
-	pokesHalf := lipgloss.JoinVertical(lipgloss.Center, pokesHeader, pokeList.String())
+	pokesHalf := lipgloss.JoinVertical(lipgloss.Center, pokesHeader, mainView.Render(pokeList.String()))
 
-	mainSplit := lipgloss.JoinHorizontal(lipgloss.Top, infoTable, mainView.Render(pokesHalf))
+	mainSplit := lipgloss.JoinVertical(lipgloss.Center, infoTable, pokesHalf)
 
-	return lipgloss.JoinVertical(lipgloss.Center, title, mainSplit)
+	return style.Render(lipgloss.JoinVertical(lipgloss.Center, title, mainSplit))
 }
 
 func (m *Move) getInfoTable() string {
 	rows := [][]string{
-		{"Accuracy", strconv.Itoa(m.Accuracy)},
-		{"Ailment", m.Ailment},
-		{"Ailment Chance", strconv.Itoa(m.AilmentChance)},
-		{"Category", m.Category},
-		{"Crit Rate", strconv.Itoa(m.CritRate)},
-		{"Damage Class", m.DamageClass},
-		{"Drain", strconv.Itoa(m.Drain)},
-		// {"Effect Chance", strconv.Itoa(m.)},
-		{"Flinch Chance", strconv.Itoa(m.FlinchChance)},
-		{"Gen. Introduced", m.Generation},
-		{"Healing", strconv.Itoa(m.Healing)},
-		{"Min Hits", strconv.Itoa(m.MinHits)},
-		{"Max Hits", strconv.Itoa(m.MaxHits)},
-		{"Min Turns", strconv.Itoa(m.MinTurns)},
-		{"Max Turns", strconv.Itoa(m.MaxTurns)},
-		{"Power", strconv.Itoa(m.Power)},
-		{"PP", strconv.Itoa(m.PP)},
-		{"Priority", strconv.Itoa(m.Priority)},
-		{"Stat Chance", strconv.Itoa(m.StatChance)},
-		{"Target", m.Target},
-		{"Type", m.Type.Name},
+		// {"Power", strconv.Itoa(m.Power)},
+		// {"PP", strconv.Itoa(m.PP)},
+		// {"Priority", strconv.Itoa(m.Priority)},
+		// {"Stat Chance", strconv.Itoa(m.StatChance)},
+		// {"Target", m.Target},
+		// {"Type", m.Type.Name},
 	}
 
-	table := table.New().Rows(rows...)
+	// Accuracy
+	var acc string
+	if m.Accuracy == 0 {
+		acc = "Always"
+	} else {
+		acc = strconv.Itoa(m.Accuracy)
+	}
+	rows = append(rows, []string{"Accuracy", acc})
+
+	// Ailment
+	if m.Ailment != "" {
+		rows = append(rows, []string{"Ailment", m.Ailment})
+		rows = append(rows, []string{"Ailment Chance", strconv.Itoa(m.AilmentChance)})
+	}
+
+	// Category
+	if m.Category != "" {
+		rows = append(rows, []string{"Category", utils.StripAndTitle(m.Category)})
+	}
+
+	// Crit Rate
+	if m.CritRate != 0 {
+		rows = append(rows, []string{"Crit Rate", strconv.Itoa(m.CritRate)})
+	}
+
+	// Damage Class
+	if m.DamageClass != "" {
+		rows = append(rows, []string{"Damage Class", m.DamageClass})
+	}
+
+	// FlinchChance
+	if m.FlinchChance != 0 {
+		rows = append(rows, []string{"Flinch Chance", strconv.Itoa(m.FlinchChance)})
+	}
+
+	// Generation
+	if m.Generation != "" {
+		rows = append(rows, []string{"Generation", utils.StripAndTitle(m.Generation)})
+	}
+
+	// Healing
+	if m.Healing != 0 {
+		rows = append(rows, []string{"Healing", strconv.Itoa(m.Healing)})
+	}
+
+	// # Hits
+	var numHits string
+	if m.MinHits == 0 {
+		numHits = "1"
+	} else {
+		numHits = fmt.Sprintf("%d - %d", m.MinHits, m.MaxHits)
+	}
+	rows = append(rows, []string{"# Hits", numHits})
+
+	// # Turns
+	if m.MinTurns != 0 {
+		rows = append(rows, []string{"# Turns", fmt.Sprintf("%d - %d", m.MinTurns, m.MaxTurns)})
+	}
+
+	// {"Power", strconv.Itoa(m.Power)},
+	// {"PP", strconv.Itoa(m.PP)},
+	// {"Priority", strconv.Itoa(m.Priority)},
+	// {"Stat Chance", strconv.Itoa(m.StatChance)},
+	// {"Target", m.Target},
+	// {"Type", m.Type.Name},
+
+	rows = append(rows, []string{"Power", strconv.Itoa(m.Power)})
+	rows = append(rows, []string{"PP", strconv.Itoa(m.PP)})
+	rows = append(rows, []string{"Priority", strconv.Itoa(m.Priority) + " (-8 to +8)"})
+
+	// Stat Chance
+	if m.StatChance != 0 {
+		rows = append(rows, []string{"Stat Chance", strconv.Itoa(m.StatChance)})
+	}
+
+	rows = append(rows, []string{"Target", utils.StripAndTitle(m.Target)})
+	rows = append(rows, []string{"Type", lipgloss.NewStyle().Foreground(GetTypeColor(m.Type.Name)).Render(utils.StripAndTitle(m.Type.Name))})
+
+	table := table.New().BorderStyle(lipgloss.NewStyle().Foreground(m.Type.GetColor())).Rows(rows...)
 
 	return table.String()
 }
