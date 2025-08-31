@@ -1,11 +1,19 @@
 package internal
 
 import (
+	"os"
+	"path"
 	"sort"
 	"sync"
 
 	"github.com/charmbracelet/log"
+
+	bolt "go.etcd.io/bbolt"
 )
+
+const DatabaseFile = "poketerm.db"
+
+var DefaultCacheDir, _ = os.UserCacheDir()
 
 // Cache stores maps of currently loaded Resources, Resources
 // currently being loaded, and ResourceRefs for fuzzy searching
@@ -14,17 +22,32 @@ type Cache struct {
 
 	loaded  map[ResKind]map[string]Resource
 	loading map[ResKind]map[string]struct{}
+	refs    map[ResKind]map[string]ResourceRef
 
-	refs map[ResKind]map[string]ResourceRef
+	db *bolt.DB
 }
 
 // Creates a new cache
-func NewCache() *Cache {
-	log.Debug("[Cache] Creating new cache")
+func NewCache(dbPath string) *Cache {
+	if dbPath == "" {
+		dbPath = DefaultCacheDir
+	}
+
+	file := path.Join(dbPath, DatabaseFile)
+
+	db, err := bolt.Open(file, 0600, nil)
+
+	if err != nil {
+		log.Errorf("[Cache] Error opening bbolt database at %v: %v", file, err)
+	}
+
+	log.Debug("[Cache] Creating new cache using database file at %v", file)
 	return &Cache{
 		loaded:  make(map[ResKind]map[string]Resource),
 		loading: make(map[ResKind]map[string]struct{}),
 		refs:    make(map[ResKind]map[string]ResourceRef),
+
+		db: db,
 	}
 }
 

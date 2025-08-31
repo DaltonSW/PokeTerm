@@ -30,7 +30,7 @@ type MainModel struct {
 func NewMainModel(startingFilter string) (m MainModel) {
 	log.Debug("Creating MainModel")
 	m = MainModel{
-		cache: NewCache(),
+		cache: NewCache(""), // Use default cache dir
 		list:  NewListModel(),
 	}
 
