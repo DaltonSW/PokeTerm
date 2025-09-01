@@ -130,8 +130,9 @@ func (p *Pokemon) getTypeInfo(cache *internal.Cache) string {
 
 	if len(p.Types) == 2 {
 		typeStr := p.Types[1].GetName()
-		outStr += " / " + lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(utils.StripAndTitle(typeStr)) + "\n"
+		outStr += " / " + lipgloss.NewStyle().Foreground(GetTypeColor(typeStr)).Render(utils.StripAndTitle(typeStr))
 	}
+	outStr += "\n"
 
 	var defendVals, headers []string
 	for _, typeStr := range TYPE_LIST {
@@ -142,7 +143,7 @@ func (p *Pokemon) getTypeInfo(cache *internal.Cache) string {
 	for _, typeStr := range TYPE_LIST {
 		attackType, ok := cache.Get(internal.Type, typeStr)
 		if !ok {
-			defendVals = append(defendVals, "??")
+			defendVals = append(defendVals, "?")
 
 		} else {
 			attack, _ := attackType.(*Type)
