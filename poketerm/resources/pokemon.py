@@ -318,7 +318,8 @@ class Pokemon(Resource):
                 locations.append(location.text)
 
             for gameName in games:
-                encounters[VERSION_MAPPING_DICT[gameName]] = locations
+                if gameName in VERSION_MAPPING_DICT:
+                    encounters[VERSION_MAPPING_DICT[gameName]] = locations
         # time.sleep(0.1)
         return encounters
 
