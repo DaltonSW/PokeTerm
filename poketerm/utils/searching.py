@@ -3,6 +3,7 @@ import re
 from readchar import readkey
 from thefuzz import process
 from typing import Optional
+from rich.progress import Progress, BarColumn, MofNCompleteColumn, TimeElapsedColumn, SpinnerColumn
 
 from poketerm.utils.api import get_from_API, get_from_API_async
 from poketerm.utils.caching import CacheManager
@@ -26,13 +27,60 @@ class SearchManager:
         if cache:
             cls.VALID_NAMES = cache
             return
-        for resource in searchable_resources:
-            names = []
-            for i in range(1, resource.MAX_COUNT + 1):
-                res = cls.handle_search_and_cast(resource, i)
-                names.append(res.name)
-
-            cls.VALID_NAMES[resource.ENDPOINT] = names
+        
+        # Calculate total items to load for progress tracking
+        total_items = sum(resource.MAX_COUNT for resource in searchable_resources)
+        
+        progress = Progress(
+            SpinnerColumn(),
+            "[progress.description]{task.description}",
+            BarColumn(),
+            MofNCompleteColumn(),
+            TimeElapsedColumn(),
+            console=console
+        )
+        
+        with progress:
+            task_id = progress.add_task(
+                "[cyan]Loading valid names...",
+                total=total_items
+            )
+            
+            consecutive_failures = 0
+            MAX_CONSECUTIVE_FAILURES = 10  # Stop if API appears unreachable
+            
+            for resource in searchable_resources:
+                names = []
+                for i in range(1, resource.MAX_COUNT + 1):
+                    try:
+                        res = cls.handle_search_and_cast(resource, i)
+                        if res is not None:
+                            names.append(res.name)
+                            consecutive_failures = 0  # Reset on success
+                        else:
+                            consecutive_failures += 1
+                    except Exception:
+                        consecutive_failures += 1
+                    finally:
+                        progress.update(task_id, advance=1)
+                    
+                    # If too many consecutive failures, API likely unreachable
+                    if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                        console.print(
+                            f"\n[yellow]Warning: API appears unreachable after {MAX_CONSECUTIVE_FAILURES} consecutive failures.[/yellow]"
+                        )
+                        console.print(
+                            "[yellow]Continuing with partial data. Some features may be limited.[/yellow]\n"
+                        )
+                        # Skip remaining items
+                        remaining = total_items - progress.tasks[task_id].completed
+                        progress.update(task_id, advance=remaining)
+                        break
+                
+                cls.VALID_NAMES[resource.ENDPOINT] = names
+                
+                if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                    break
 
         cls.save_valid_names()
         return
